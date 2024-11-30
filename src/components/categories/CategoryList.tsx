@@ -33,7 +33,7 @@ const LOGISTICS_TYPES = [
 ];
 
 export function CategoryList() {
-  const { categories, createCategory, updateCategory, deleteCategory } =
+  const { categories, addCategory, updateCategory, deleteCategory } =
     useCategories();
   const [showModal, setShowModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -65,7 +65,7 @@ export function CategoryList() {
         await updateCategory(selectedCategory.id, data);
         toast.success("Category updated successfully");
       } else {
-        await createCategory(data);
+        await addCategory(data);
         toast.success("Category created successfully");
       }
       handleCloseModal();
