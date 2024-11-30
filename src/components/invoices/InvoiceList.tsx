@@ -23,6 +23,7 @@ import { FilterDropdown } from "../ui/FilterDropdown";
 import { DataTable } from "../ui/DataTable";
 import { ActionButton } from "../ui/ActionButton";
 import { InvoiceCreate } from "./InvoiceCreate";
+import { InvoicePreview } from "./InvoicePreview";
 
 const STATUS_CONFIG = {
   DRAFT: {
@@ -157,15 +158,24 @@ export function InvoiceList() {
           <button
             onClick={() => {
               setSelectedInvoice(invoice);
+              setIsPreviewModalOpen(true);
+            }}
+            className="p-2 text-gray-400 hover:text-violet-600 transition-colors"
+          >
+            <EyeIcon className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => {
+              setSelectedInvoice(invoice);
               setIsEditModalOpen(true);
             }}
-            className="p-2 text-gray-400 hover:text-indigo-600 transition-colors"
+            className="p-2 text-gray-400 hover:text-violet-600 transition-colors"
           >
             <PencilIcon className="w-5 h-5" />
           </button>
           <button
             onClick={() => generatePDF(invoice.id)}
-            className="p-2 text-gray-400 hover:text-indigo-600 transition-colors"
+            className="p-2 text-gray-400 hover:text-violet-600 transition-colors"
           >
             <ArrowDownTrayIcon className="w-5 h-5" />
           </button>
@@ -175,207 +185,84 @@ export function InvoiceList() {
   ];
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8">
-      <PageHeader title="Invoices" description="Manage your invoices">
-        <div className="flex items-center gap-4">
-          <FilterDropdown
-            value={statusFilter}
-            onChange={setStatusFilter}
-            options={statusOptions}
-          />
-          <ActionButton
-            icon={<PlusIcon className="h-5 w-5" />}
-            onClick={() => setIsCreateModalOpen(true)}
-          >
-            New Invoice
-          </ActionButton>
-        </div>
-      </PageHeader>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white bg-gradient-to-br from-violet-600 to-violet-700 bg-clip-text text-transparent">
+          Invoices
+        </h1>
+        <ActionButton
+          icon={<PlusIcon className="h-5 w-5" />}
+          onClick={() => setIsCreateModalOpen(true)}
+          className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium text-white bg-gradient-to-br from-violet-600 to-violet-700 hover:from-violet-500 hover:to-violet-600 shadow-sm transition-all duration-200 hover:shadow-md"
+        >
+          New Invoice
+        </ActionButton>
+      </div>
 
-      <div className="mb-4">
-        <SearchInput
-          value={searchTerm}
-          onChange={setSearchTerm}
-          placeholder="Search invoices..."
-          className="max-w-lg"
+      <div className="flex items-center gap-4">
+        <div className="flex-1">
+          <SearchInput
+            value={searchTerm}
+            onChange={setSearchTerm}
+            placeholder="Search invoices..."
+            className="w-full"
+          />
+        </div>
+        <FilterDropdown
+          value={statusFilter}
+          onChange={setStatusFilter}
+          options={statusOptions}
         />
       </div>
 
-      <div className="mt-4 flex flex-col">
-        <div className=" ">
-          <div className="inline-block min-w-full py-2 align-middle">
-            <DataTable
-              columns={columns}
-              data={filteredInvoices}
-              keyField="id"
-              isLoading={isLoading}
-            />
-          </div>
+      <div className="bg-white dark:bg-gray-800 shadow-sm rounded-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          <DataTable
+            columns={columns}
+            data={filteredInvoices}
+            keyField="id"
+            isLoading={isLoading}
+            className="min-w-full divide-y divide-gray-200 dark:divide-gray-700"
+          />
         </div>
       </div>
 
       {/* Preview Modal */}
       <Modal
         isOpen={isPreviewModalOpen}
-        onClose={() => {
-          setIsPreviewModalOpen(false);
-          setSelectedInvoice(null);
-        }}
-        title={selectedInvoice ? `Invoice #${selectedInvoice.number}` : ""}
-        maxWidth="2xl"
+        onClose={() => setIsPreviewModalOpen(false)}
+        maxWidth="5xl"
       >
-        {selectedInvoice && (
-          <div className="space-y-4">
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                  Invoice #{selectedInvoice.number}
-                </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {formatDate(selectedInvoice.date)}
-                </p>
-              </div>
-              <div
-                className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  STATUS_CONFIG[selectedInvoice.status].lightBg
-                } ${STATUS_CONFIG[selectedInvoice.status].text}`}
-              >
-                {STATUS_CONFIG[selectedInvoice.status].label}
-              </div>
-            </div>
+        <InvoicePreview
+          invoice={selectedInvoice!}
+          onClose={() => setIsPreviewModalOpen(false)}
+          onDownload={() => {
+            if (selectedInvoice) {
+              generatePDF(selectedInvoice.id);
+            }
+          }}
+        />
+      </Modal>
 
-            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-              <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">
-                Customer Details
-              </h4>
-              <div className="text-sm text-gray-600 dark:text-gray-300">
-                <p>
-                  {customers.find((c) => c.id === selectedInvoice.customerId)
-                    ?.name || "Unknown Customer"}
-                </p>
-                <p>
-                  {
-                    customers.find((c) => c.id === selectedInvoice.customerId)
-                      ?.vatNumber
-                  }
-                </p>
-              </div>
-            </div>
-
-            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-              <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">
-                Invoice Lines
-              </h4>
-              <div className="space-y-2">
-                {selectedInvoice.lines.map((line: any) => (
-                  <div key={line.id} className="flex justify-between text-sm">
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-gray-100">
-                        {line.description}
-                      </p>
-                      <p className="text-gray-500 dark:text-gray-400">
-                        {line.quantity} x{" "}
-                        {formatCurrency(
-                          line.unitPrice,
-                          selectedInvoice.currency
-                        )}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium text-gray-900 dark:text-gray-100">
-                        {formatCurrency(
-                          line.totalIncVat,
-                          selectedInvoice.currency
-                        )}
-                      </p>
-                      <p className="text-gray-500 dark:text-gray-400">
-                        VAT:{" "}
-                        {formatCurrency(
-                          line.vatAmount,
-                          selectedInvoice.currency
-                        )}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-              <div className="flex justify-between items-center text-sm mb-1">
-                <span className="text-gray-600 dark:text-gray-300">
-                  Subtotal
-                </span>
-                <span className="font-medium text-gray-900 dark:text-gray-100">
-                  {formatCurrency(
-                    selectedInvoice.totalExVat,
-                    selectedInvoice.currency
-                  )}
-                </span>
-              </div>
-              <div className="flex justify-between items-center text-sm mb-1">
-                <span className="text-gray-600 dark:text-gray-300">VAT</span>
-                <span className="font-medium text-gray-900 dark:text-gray-100">
-                  {formatCurrency(
-                    selectedInvoice.totalVat,
-                    selectedInvoice.currency
-                  )}
-                </span>
-              </div>
-              <div className="flex justify-between items-center text-lg font-bold mt-2">
-                <span className="text-gray-900 dark:text-gray-100">Total</span>
-                <span className="text-gray-900 dark:text-gray-100">
-                  {formatCurrency(
-                    selectedInvoice.totalIncVat,
-                    selectedInvoice.currency
-                  )}
-                </span>
-              </div>
-            </div>
-
-            {selectedInvoice.notes && (
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-                <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2">
-                  Notes
-                </h4>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
-                  {selectedInvoice.notes}
-                </p>
-              </div>
-            )}
-          </div>
-        )}
+      {/* Edit Modal */}
+      <Modal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        maxWidth="5xl"
+      >
+        <InvoiceCreate
+          invoice={selectedInvoice}
+          onClose={() => setIsEditModalOpen(false)}
+        />
       </Modal>
 
       {/* Create Modal */}
       <Modal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
-        title="Create New Invoice"
         maxWidth="5xl"
-        className="min-h-[80vh]"
       >
         <InvoiceCreate onClose={() => setIsCreateModalOpen(false)} />
-      </Modal>
-
-      {/* Edit Modal */}
-      <Modal
-        isOpen={isEditModalOpen}
-        onClose={() => {
-          setIsEditModalOpen(false);
-          setSelectedInvoice(null);
-        }}
-        title="Edit Invoice"
-        maxWidth="4xl"
-        className="min-h-[80vh]"
-      >
-        <InvoiceCreate
-          invoice={selectedInvoice}
-          onClose={() => {
-            setIsEditModalOpen(false);
-            setSelectedInvoice(null);
-          }}
-        />
       </Modal>
     </div>
   );
