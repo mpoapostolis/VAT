@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDownIcon } from '@heroicons/react/24/outline';
+import React, { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronDownIcon } from "@heroicons/react/24/outline";
 
 interface Option {
   value: string;
@@ -14,30 +14,35 @@ interface DropdownProps {
   placeholder?: string;
   className?: string;
   label?: string;
+  arrow?: boolean;
 }
 
 export function Dropdown({
   options,
   value,
+  arrow = true,
   onChange,
-  placeholder = 'Select...',
-  className = '',
-  label
+  placeholder = "Select...",
+  className = "",
+  label,
 }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const selectedOption = options.find(opt => opt.value === value);
+  const selectedOption = options.find((opt) => opt.value === value);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
@@ -50,21 +55,30 @@ export function Dropdown({
       <div
         onClick={() => setIsOpen(!isOpen)}
         className={`
-          flex items-center justify-between w-full px-4 py-2.5 
+          flex items-center justify-between text-sm w-full px-4 py-2.5 
           bg-white dark:bg-gray-800 
-          border border-gray-300 dark:border-gray-600 
           rounded-lg cursor-pointer
           hover:border-indigo-500 dark:hover:border-indigo-400
           transition-colors
           ${className}
         `}
       >
-        <span className={`${!selectedOption ? 'text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-gray-100'}`}>
+        <span
+          className={`${
+            !selectedOption
+              ? "text-gray-500 dark:text-gray-400"
+              : "text-gray-900 dark:text-gray-100"
+          }`}
+        >
           {selectedOption ? selectedOption.label : placeholder}
         </span>
-        <ChevronDownIcon
-          className={`h-5 w-5 text-gray-400 transition-transform ${isOpen ? 'transform rotate-180' : ''}`}
-        />
+        {arrow && (
+          <ChevronDownIcon
+            className={`h-5 w-5 text-gray-400 transition-transform ${
+              isOpen ? "transform rotate-180" : ""
+            }`}
+          />
+        )}
       </div>
 
       <AnimatePresence>
@@ -85,9 +99,10 @@ export function Dropdown({
                 }}
                 className={`
                   px-4 py-2.5 cursor-pointer
-                  ${option.value === value 
-                    ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400' 
-                    : 'text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                  ${
+                    option.value === value
+                      ? "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400"
+                      : "text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                   }
                 `}
               >

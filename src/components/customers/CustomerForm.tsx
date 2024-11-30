@@ -1,8 +1,9 @@
-import React from 'react';
-import { useAtom } from 'jotai';
-import { motion } from 'framer-motion';
-import { Customer } from '@/types';
-import { customerFormAtom } from '@/lib/state/atoms';
+import React from "react";
+import { useAtom } from "jotai";
+import { motion } from "framer-motion";
+import { Customer } from "@/types";
+import { customerFormAtom } from "@/lib/state/atoms";
+import { Dropdown } from "../ui/Dropdown";
 
 interface CustomerFormProps {
   onSubmit: (data: Partial<Customer>) => void;
@@ -21,7 +22,7 @@ export function CustomerForm({ onSubmit, initialData }: CustomerFormProps) {
   const updateField = (field: keyof Customer, value: any) => {
     setForm({
       ...form,
-      [field]: value
+      [field]: value,
     });
   };
 
@@ -39,8 +40,8 @@ export function CustomerForm({ onSubmit, initialData }: CustomerFormProps) {
           </label>
           <input
             type="text"
-            value={form.name || ''}
-            onChange={(e) => updateField('name', e.target.value)}
+            value={form.name || ""}
+            onChange={(e) => updateField("name", e.target.value)}
             required
             className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm px-4 py-2"
           />
@@ -51,8 +52,8 @@ export function CustomerForm({ onSubmit, initialData }: CustomerFormProps) {
           </label>
           <input
             type="text"
-            value={form.vatNumber || ''}
-            onChange={(e) => updateField('vatNumber', e.target.value)}
+            value={form.vatNumber || ""}
+            onChange={(e) => updateField("vatNumber", e.target.value)}
             required
             className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm px-4 py-2"
           />
@@ -66,8 +67,8 @@ export function CustomerForm({ onSubmit, initialData }: CustomerFormProps) {
           </label>
           <input
             type="email"
-            value={form.email || ''}
-            onChange={(e) => updateField('email', e.target.value)}
+            value={form.email || ""}
+            onChange={(e) => updateField("email", e.target.value)}
             required
             className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm px-4 py-2"
           />
@@ -78,8 +79,8 @@ export function CustomerForm({ onSubmit, initialData }: CustomerFormProps) {
           </label>
           <input
             type="tel"
-            value={form.phone || ''}
-            onChange={(e) => updateField('phone', e.target.value)}
+            value={form.phone || ""}
+            onChange={(e) => updateField("phone", e.target.value)}
             className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm px-4 py-2"
           />
         </div>
@@ -94,11 +95,15 @@ export function CustomerForm({ onSubmit, initialData }: CustomerFormProps) {
             <input
               type="text"
               placeholder="Street"
-              value={typeof form.address === 'object' ? form.address.street : ''}
-              onChange={(e) => updateField('address', {
-                ...(typeof form.address === 'object' ? form.address : {}),
-                street: e.target.value
-              })}
+              value={
+                typeof form.address === "object" ? form.address.street : ""
+              }
+              onChange={(e) =>
+                updateField("address", {
+                  ...(typeof form.address === "object" ? form.address : {}),
+                  street: e.target.value,
+                })
+              }
               className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm px-4 py-2"
             />
           </div>
@@ -106,11 +111,13 @@ export function CustomerForm({ onSubmit, initialData }: CustomerFormProps) {
             <input
               type="text"
               placeholder="City"
-              value={typeof form.address === 'object' ? form.address.city : ''}
-              onChange={(e) => updateField('address', {
-                ...(typeof form.address === 'object' ? form.address : {}),
-                city: e.target.value
-              })}
+              value={typeof form.address === "object" ? form.address.city : ""}
+              onChange={(e) =>
+                updateField("address", {
+                  ...(typeof form.address === "object" ? form.address : {}),
+                  city: e.target.value,
+                })
+              }
               className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm px-4 py-2"
             />
           </div>
@@ -120,24 +127,40 @@ export function CustomerForm({ onSubmit, initialData }: CustomerFormProps) {
             <input
               type="text"
               placeholder="Postal Code"
-              value={typeof form.address === 'object' ? form.address.postalCode : ''}
-              onChange={(e) => updateField('address', {
-                ...(typeof form.address === 'object' ? form.address : {}),
-                postalCode: e.target.value
-              })}
+              value={
+                typeof form.address === "object" ? form.address.postalCode : ""
+              }
+              onChange={(e) =>
+                updateField("address", {
+                  ...(typeof form.address === "object" ? form.address : {}),
+                  postalCode: e.target.value,
+                })
+              }
               className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm px-4 py-2"
             />
           </div>
-          <div>
-            <input
-              type="text"
-              placeholder="Country"
-              value={typeof form.address === 'object' ? form.address.country : ''}
-              onChange={(e) => updateField('address', {
-                ...(typeof form.address === 'object' ? form.address : {}),
-                country: e.target.value
-              })}
-              className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm px-4 py-2"
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Country
+            </label>
+            <Dropdown
+              value={
+                typeof form.address === "object" ? form.address.country : ""
+              }
+              onChange={(value) =>
+                updateField("address", {
+                  ...(typeof form.address === "object" ? form.address : {}),
+                  country: value,
+                })
+              }
+              options={[
+                { value: "GB", label: "United Kingdom" },
+                { value: "US", label: "United States" },
+                { value: "CA", label: "Canada" },
+                { value: "AU", label: "Australia" },
+                { value: "NZ", label: "New Zealand" },
+              ]}
+              className="w-full"
             />
           </div>
         </div>
@@ -148,15 +171,16 @@ export function CustomerForm({ onSubmit, initialData }: CustomerFormProps) {
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Currency
           </label>
-          <select
-            value={form.currency || 'EUR'}
-            onChange={(e) => updateField('currency', e.target.value)}
-            className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm px-4 py-2"
-          >
-            <option value="EUR">EUR</option>
-            <option value="USD">USD</option>
-            <option value="GBP">GBP</option>
-          </select>
+          <Dropdown
+            value={form.currency || "EUR"}
+            onChange={(value) => updateField("currency", value)}
+            options={[
+              { value: "EUR", label: "EUR" },
+              { value: "USD", label: "USD" },
+              { value: "GBP", label: "GBP" },
+            ]}
+            className="w-full"
+          />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -167,10 +191,12 @@ export function CustomerForm({ onSubmit, initialData }: CustomerFormProps) {
               <input
                 type="checkbox"
                 checked={form.isZeroRated || false}
-                onChange={(e) => updateField('isZeroRated', e.target.checked)}
+                onChange={(e) => updateField("isZeroRated", e.target.checked)}
                 className="rounded border-gray-300 dark:border-gray-600 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
               />
-              <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">Zero-rated for VAT</span>
+              <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
+                Zero-rated for VAT
+              </span>
             </label>
           </div>
         </div>

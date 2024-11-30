@@ -10,7 +10,6 @@ interface AuthGuardProps {
 export function AuthGuard({ children }: AuthGuardProps) {
   const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
-  return children;
 
   if (loading) {
     return (

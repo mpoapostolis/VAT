@@ -7,7 +7,8 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
-  maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "full";
+  maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "full";
+  className?: string;
 }
 
 const overlayVariants = {
@@ -74,6 +75,7 @@ export function Modal({
   title,
   children,
   maxWidth = "md",
+  className,
 }: ModalProps) {
   const maxWidthClasses = {
     sm: "max-w-sm",
@@ -83,6 +85,7 @@ export function Modal({
     "2xl": "max-w-2xl",
     "3xl": "max-w-3xl",
     "4xl": "max-w-4xl",
+    "5xl": "max-w-5xl",
     full: "max-w-[95vw] w-full",
   };
 
@@ -91,7 +94,7 @@ export function Modal({
       {isOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <motion.div
-            className="fixed inset-0 bg-black/40 z-40"
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
             variants={overlayVariants}
             initial="hidden"
             animate="visible"

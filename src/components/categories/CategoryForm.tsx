@@ -14,6 +14,7 @@ import {
   CurrencyDollarIcon,
   HashtagIcon,
 } from "@heroicons/react/24/outline";
+import { Dropdown } from "../ui/Dropdown";
 
 interface CategoryFormProps {
   onSubmit: (data: Partial<AccountingCategory>) => Promise<void>;
@@ -39,6 +40,13 @@ const LOGISTICS_TYPES: {
 const TYPE_OPTIONS = [
   { value: "REVENUE", label: "Revenue" },
   { value: "EXPENSE", label: "Expense" },
+];
+
+const VAT_RATE_OPTIONS = [
+  { value: "STANDARD", label: "Standard Rate (20%)" },
+  { value: "REDUCED", label: "Reduced Rate (5%)" },
+  { value: "ZERO", label: "Zero Rate (0%)" },
+  { value: "EXEMPT", label: "VAT Exempt" },
 ];
 
 export function CategoryForm({
@@ -131,17 +139,14 @@ export function CategoryForm({
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Type
             </label>
-            <select
-              {...register("type", { required: "Type is required" })}
-              className="w-full h-10 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-4 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all"
-            >
-              <option value="">Select type...</option>
-              {TYPE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+            <Dropdown
+              value={watch("type")}
+              onChange={(value) => {
+                register("type").onChange(value);
+              }}
+              options={TYPE_OPTIONS}
+              className="w-full"
+            />
             {errors.type && (
               <motion.p
                 initial={{ opacity: 0, y: -10 }}
@@ -179,14 +184,15 @@ export function CategoryForm({
           {/* VAT Rate Field */}
           <div className="col-span-2 sm:col-span-1">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              VAT Rate (%)
+              VAT Rate
             </label>
-            <input
-              type="number"
-              step="0.01"
-              {...register("vatRate")}
-              className="w-full h-10 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-4 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all"
-              placeholder="Enter VAT rate"
+            <Dropdown
+              value={watch("vatRate")}
+              onChange={(value) => {
+                register("vatRate").onChange(value);
+              }}
+              options={VAT_RATE_OPTIONS}
+              className="w-full"
             />
           </div>
         </div>
