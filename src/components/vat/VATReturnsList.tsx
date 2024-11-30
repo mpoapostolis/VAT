@@ -1,290 +1,231 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { VatReturn, VatReturnStatus } from '@/types';
-import { formatCurrency, formatDate } from '@/lib/utils';
-import { Modal } from '@/components/ui/Modal';
-import { VatReturnForm } from './VatReturnForm';
-import { 
+import React, { useState } from "react";
+import { useJotaiStore } from "@/lib/hooks/useJotaiStore";
+import { PlusIcon } from "@heroicons/react/24/outline";
+import { VatReturnForm } from "./VatReturnForm";
+import { LoadingSpinner } from "../ui/LoadingSpinner";
+import { motion, AnimatePresence } from "framer-motion";
+import { Modal } from "../ui/Modal";
+import { Dropdown } from "../ui/Dropdown";
+import {
   DocumentTextIcon,
   CalendarIcon,
   CurrencyDollarIcon,
   CheckCircleIcon,
   ClockIcon,
   ExclamationCircleIcon,
-  DocumentArrowDownIcon,
   EyeIcon,
   ArrowDownTrayIcon,
-  PlusIcon,
-  FunnelIcon,
   PencilIcon,
-  TrashIcon,
-  CalculatorIcon
-} from '@heroicons/react/24/outline';
-import { useVatReturns } from '@/lib/hooks/useVatReturns';
-import { toast } from 'react-hot-toast';
+} from "@heroicons/react/24/outline";
+import { formatCurrency, formatDate } from "@/lib/utils";
 
-const STATUS_CONFIG = {
-  [VatReturnStatus.SUBMITTED]: {
-    label: 'Submitted',
-    icon: CheckCircleIcon,
-    color: 'from-green-500 to-green-600',
-    lightBg: 'bg-green-50 dark:bg-green-900/20',
-    text: 'text-green-700 dark:text-green-300',
-  },
-  [VatReturnStatus.DRAFT]: {
-    label: 'Draft',
-    icon: ClockIcon,
-    color: 'from-yellow-500 to-yellow-600',
-    lightBg: 'bg-yellow-50 dark:bg-yellow-900/20',
-    text: 'text-yellow-700 dark:text-yellow-300',
-  },
-  [VatReturnStatus.REJECTED]: {
-    label: 'Rejected',
-    icon: ExclamationCircleIcon,
-    color: 'from-red-500 to-red-600',
-    lightBg: 'bg-red-50 dark:bg-red-900/20',
-    text: 'text-red-700 dark:text-red-300',
-  },
-  [VatReturnStatus.ACCEPTED]: {
-    label: 'Accepted',
-    icon: CalculatorIcon,
-    color: 'from-blue-500 to-blue-600',
-    lightBg: 'bg-blue-50 dark:bg-blue-900/20',
-    text: 'text-blue-700 dark:text-blue-300',
-  },
-};
+const STATUS_OPTIONS = [
+  { value: "DRAFT", label: "Draft" },
+  { value: "SUBMITTED", label: "Submitted" },
+  { value: "PAID", label: "Paid" },
+];
 
-export function VatReturnsList() {
-  const { vatReturns, createVatReturn, updateVatReturn, deleteVatReturn } = useVatReturns();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingVatReturn, setEditingVatReturn] = useState<VatReturn | null>(null);
-  const [previewVatReturn, setPreviewVatReturn] = useState<VatReturn | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('');
-  const [periodFilter, setPeriodFilter] = useState<string>('');
+const PERIOD_OPTIONS = [
+  { value: "Q1", label: "Q1" },
+  { value: "Q2", label: "Q2" },
+  { value: "Q3", label: "Q3" },
+  { value: "Q4", label: "Q4" },
+];
 
-  const handleSubmit = async (data: Partial<VatReturn>) => {
-    try {
-      if (editingVatReturn) {
-        await updateVatReturn(editingVatReturn.id, data);
-        toast.success('VAT Return updated successfully');
-      } else {
-        await createVatReturn(data);
-        toast.success('VAT Return created successfully');
-      }
-      handleCloseModal();
-    } catch (error) {
-      toast.error(editingVatReturn ? 'Failed to update VAT Return' : 'Failed to create VAT Return');
-    }
-  };
+export function VATReturnsList() {
+  const { vatReturns } = useJotaiStore();
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [selectedReturn, setSelectedReturn] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("");
+  const [periodFilter, setPeriodFilter] = useState("");
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setEditingVatReturn(null);
-  };
+  if (!vatReturns) {
+    return <LoadingSpinner />;
+  }
 
-  const handleDelete = async (vatReturn: VatReturn) => {
-    if (window.confirm('Are you sure you want to delete this VAT Return?')) {
-      try {
-        await deleteVatReturn(vatReturn.id);
-        toast.success('VAT Return deleted successfully');
-      } catch (error) {
-        toast.error('Failed to delete VAT Return');
-      }
-    }
-  };
-
-  const filteredVatReturns = vatReturns.filter(vatReturn => {
-    const matchesSearch = !searchTerm || 
-      vatReturn.period.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vatReturn.reference.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = !statusFilter || vatReturn.status === statusFilter;
-    const matchesPeriod = !periodFilter || vatReturn.period === periodFilter;
-    return matchesSearch && matchesStatus && matchesPeriod;
+  const filteredReturns = vatReturns.filter((vatReturn) => {
+    if (statusFilter && vatReturn.status !== statusFilter) return false;
+    if (periodFilter && vatReturn.period !== periodFilter) return false;
+    return true;
   });
+
+  const getStatusConfig = (status: string) => {
+    switch (status) {
+      case "PAID":
+        return {
+          icon: CheckCircleIcon,
+          color: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+        };
+      case "SUBMITTED":
+        return {
+          icon: ClockIcon,
+          color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+        };
+      default:
+        return {
+          icon: ExclamationCircleIcon,
+          color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+        };
+    }
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">VAT Returns</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Manage your VAT returns and submissions
-          </p>
-        </div>
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg shadow-sm hover:from-indigo-700 hover:to-purple-700 transition-all duration-200"
+        <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+          VAT Returns
+        </h2>
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
         >
           <PlusIcon className="h-5 w-5 mr-2" />
           New VAT Return
-        </motion.button>
+        </button>
       </div>
 
-      <div className="space-y-4">
-        <div className="flex space-x-4">
-          <div className="flex-1 relative">
-            <input
-              type="text"
-              placeholder="Search VAT returns..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all"
-            />
-            <FunnelIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-          </div>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-48 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-4 py-2 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all"
-          >
-            <option value="">All Statuses</option>
-            {Object.entries(STATUS_CONFIG).map(([status, config]) => (
-              <option key={status} value={status}>{config.label}</option>
-            ))}
-          </select>
-          <select
-            value={periodFilter}
-            onChange={(e) => setPeriodFilter(e.target.value)}
-            className="w-48 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-4 py-2 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all"
-          >
-            <option value="">All Periods</option>
-            {/* Add period options dynamically */}
-          </select>
-        </div>
-
-        <div className="space-y-3">
-          <AnimatePresence>
-            {filteredVatReturns.map((vatReturn) => {
-              const statusConfig = STATUS_CONFIG[vatReturn.status];
-              const StatusIcon = statusConfig.icon;
-              
-              return (
-                <motion.div
-                  key={vatReturn.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  className="group relative bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-200"
-                >
-                  <div className="flex items-center p-4">
-                    {/* Left Side - Icon & Status */}
-                    <div className="relative">
-                      <div className={`w-14 h-14 rounded-xl flex items-center justify-center bg-gradient-to-br ${statusConfig.color}`}>
-                        <DocumentArrowDownIcon className="h-7 w-7 text-white" />
-                      </div>
-                      <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center ${statusConfig.lightBg}`}>
-                        <StatusIcon className={`h-4 w-4 ${statusConfig.text}`} />
-                      </div>
-                    </div>
-
-                    {/* Middle - Main Content */}
-                    <div className="flex-1 ml-4">
-                      <div className="flex items-center space-x-2">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                          VAT Return - {vatReturn.period}
-                        </h3>
-                        <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${statusConfig.lightBg} ${statusConfig.text}`}>
-                          {statusConfig.label}
-                        </span>
-                      </div>
-                      
-                      <div className="mt-1 flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                        <span className="flex items-center">
-                          <CalendarIcon className="h-4 w-4 mr-1" />
-                          Due: {formatDate(vatReturn.dueDate)}
-                        </span>
-                        <span className="flex items-center font-medium text-gray-900 dark:text-gray-100">
-                          <CurrencyDollarIcon className="h-4 w-4 mr-1" />
-                          Net VAT: {formatCurrency(vatReturn.netVAT)}
-                        </span>
-                        {vatReturn.reference && (
-                          <span className="flex items-center">
-                            <HashtagIcon className="h-4 w-4 mr-1" />
-                            Ref: {vatReturn.reference}
-                          </span>
-                        )}
-                      </div>
-
-                      {vatReturn.notes && (
-                        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 line-clamp-1">
-                          {vatReturn.notes}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Right Side - Actions */}
-                    <div className="ml-4 flex items-center space-x-2">
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => setPreviewVatReturn(vatReturn)}
-                        className="p-2 rounded-full text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      >
-                        <EyeIcon className="h-5 w-5" />
-                      </motion.button>
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => {/* Download VAT Return */}}
-                        className="p-2 rounded-full text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      >
-                        <ArrowDownTrayIcon className="h-5 w-5" />
-                      </motion.button>
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => {
-                          setEditingVatReturn(vatReturn);
-                          setIsModalOpen(true);
-                        }}
-                        className="p-2 rounded-full text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      >
-                        <PencilIcon className="h-5 w-5" />
-                      </motion.button>
-                      <motion.button
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={() => handleDelete(vatReturn)}
-                        className="p-2 rounded-full text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
-                      >
-                        <TrashIcon className="h-5 w-5" />
-                      </motion.button>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </div>
-      </div>
-
-      <Modal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        title={editingVatReturn ? 'Edit VAT Return' : 'New VAT Return'}
-        maxWidth="xl"
-      >
-        <VatReturnForm
-          onSubmit={handleSubmit}
-          initialData={editingVatReturn || undefined}
+      <div className="flex space-x-4">
+        <Dropdown
+          options={STATUS_OPTIONS}
+          value={statusFilter}
+          onChange={setStatusFilter}
+          placeholder="Filter by status..."
+          className="w-48"
         />
-      </Modal>
+        <Dropdown
+          options={PERIOD_OPTIONS}
+          value={periodFilter}
+          onChange={setPeriodFilter}
+          placeholder="Filter by period..."
+          className="w-48"
+        />
+      </div>
 
-      <Modal
-        isOpen={!!previewVatReturn}
-        onClose={() => setPreviewVatReturn(null)}
-        title="VAT Return Preview"
-        maxWidth="2xl"
-      >
-        {previewVatReturn && (
-          <div className="p-4">
-            {/* Add VAT Return Preview Content */}
-          </div>
+      <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+        <div className="divide-y divide-gray-200 dark:divide-gray-700">
+          {filteredReturns.length === 0 ? (
+            <div className="p-6 text-center text-gray-500 dark:text-gray-400">
+              No VAT returns found. Create your first return!
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead className="bg-gray-50 dark:bg-gray-900/50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Period
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Due Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Total VAT
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                  {filteredReturns.map((vatReturn) => {
+                    const statusConfig = getStatusConfig(vatReturn.status);
+                    return (
+                      <motion.tr
+                        key={vatReturn.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <DocumentTextIcon className="h-5 w-5 text-indigo-500 mr-3" />
+                            <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                              {vatReturn.period} {vatReturn.year}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              statusConfig.color
+                            }`}
+                          >
+                            <statusConfig.icon className="h-4 w-4 mr-1" />
+                            {vatReturn.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center text-sm text-gray-900 dark:text-gray-100">
+                            <CalendarIcon className="h-4 w-4 text-gray-400 mr-1" />
+                            {formatDate(vatReturn.dueDate)}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center text-sm text-gray-900 dark:text-gray-100">
+                            <CurrencyDollarIcon className="h-4 w-4 text-gray-400 mr-1" />
+                            {formatCurrency(vatReturn.totalVAT)}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <div className="flex items-center justify-end space-x-2">
+                            <button
+                              onClick={() => setSelectedReturn(vatReturn)}
+                              className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300"
+                            >
+                              <EyeIcon className="h-5 w-5" />
+                            </button>
+                            {vatReturn.status === "DRAFT" && (
+                              <button
+                                onClick={() => setSelectedReturn(vatReturn)}
+                                className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300"
+                              >
+                                <PencilIcon className="h-5 w-5" />
+                              </button>
+                            )}
+                            <button
+                              onClick={() => {/* Add download handler */}}
+                              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300"
+                            >
+                              <ArrowDownTrayIcon className="h-5 w-5" />
+                            </button>
+                          </div>
+                        </td>
+                      </motion.tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {(showCreateModal || selectedReturn) && (
+          <Modal
+            title={selectedReturn ? "View VAT Return" : "Create VAT Return"}
+            onClose={() => {
+              setShowCreateModal(false);
+              setSelectedReturn(null);
+            }}
+          >
+            <VatReturnForm
+              initialData={selectedReturn}
+              onSubmit={() => {
+                setShowCreateModal(false);
+                setSelectedReturn(null);
+              }}
+              onCancel={() => {
+                setShowCreateModal(false);
+                setSelectedReturn(null);
+              }}
+            />
+          </Modal>
         )}
-      </Modal>
+      </AnimatePresence>
     </div>
   );
 }

@@ -55,7 +55,8 @@ const STATUS_CONFIG = {
 };
 
 export function InvoiceList() {
-  const { invoices, customers } = useJotaiStore();
+  const { invoices, isLoading } = useInvoices();
+  const { customers } = useJotaiStore();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
@@ -63,7 +64,12 @@ export function InvoiceList() {
   const [isNewInvoiceModalOpen, setIsNewInvoiceModalOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
 
-  if (!invoices) {
+  const getCustomerName = (customerId: string) => {
+    const customer = customers.find((c) => c.id === customerId);
+    return customer?.name || "Unknown Customer";
+  };
+
+  if (isLoading) {
     return <LoadingSpinner />;
   }
 
@@ -140,7 +146,7 @@ export function InvoiceList() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="space-y-6 p-6"
+      className="space-y-6 "
     >
       <div className="flex justify-between items-center">
         <motion.h1

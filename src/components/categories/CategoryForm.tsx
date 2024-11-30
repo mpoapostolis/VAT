@@ -7,12 +7,10 @@ import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
 import { useCategories } from "@/lib/hooks/useCategories";
 import {
-  FolderIcon,
   TagIcon,
   ArrowUpIcon,
   DocumentTextIcon,
   SwatchIcon,
-  TruckIcon,
   CurrencyDollarIcon,
   HashtagIcon,
 } from "@heroicons/react/24/outline";
@@ -20,34 +18,52 @@ import {
 interface CategoryFormProps {
   onSubmit: (data: Partial<AccountingCategory>) => Promise<void>;
   initialData?: AccountingCategory;
+  onCancel: () => void;
 }
 
 const LOGISTICS_TYPES: {
   type: LogisticsCategoryType;
   label: string;
-  icon: string;
+  emoji: string;
 }[] = [
-  { type: "TRANSPORTATION", label: "Transportation", icon: "🚛" },
-  { type: "WAREHOUSING", label: "Warehousing", icon: "🏭" },
-  { type: "FREIGHT", label: "Freight", icon: "🚢" },
-  { type: "CUSTOMS", label: "Customs", icon: "📋" },
-  { type: "PACKAGING", label: "Packaging", icon: "📦" },
-  { type: "HANDLING", label: "Handling", icon: "🔧" },
-  { type: "DISTRIBUTION", label: "Distribution", icon: "🚚" },
-  { type: "OTHER", label: "Other", icon: "📝" },
+  { type: "TRANSPORTATION", label: "Transportation", emoji: "🚛" },
+  { type: "WAREHOUSING", label: "Warehousing", emoji: "🏭" },
+  { type: "FREIGHT", label: "Freight", emoji: "🚢" },
+  { type: "CUSTOMS", label: "Customs", emoji: "📋" },
+  { type: "PACKAGING", label: "Packaging", emoji: "📦" },
+  { type: "HANDLING", label: "Handling", emoji: "🔧" },
+  { type: "DISTRIBUTION", label: "Distribution", emoji: "🚚" },
+  { type: "OTHER", label: "Other", emoji: "📝" },
 ];
 
-export function CategoryForm({ onSubmit, initialData }: CategoryFormProps) {
+const TYPE_OPTIONS = [
+  { value: "REVENUE", label: "Revenue" },
+  { value: "EXPENSE", label: "Expense" },
+];
+
+export function CategoryForm({
+  onSubmit,
+  initialData,
+  onCancel,
+}: CategoryFormProps) {
   const [formData, setFormData] = useAtom(categoryFormAtom);
   const { categories } = useCategories();
+
+  const defaultValues = initialData
+    ? {
+        ...initialData,
+        tags: initialData.metadata?.tags?.join(", ") || "",
+      }
+    : formData;
+
   const {
     register,
     handleSubmit,
     control,
     watch,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm({
-    defaultValues: initialData || formData,
+    defaultValues,
   });
 
   const selectedType = watch("type");
@@ -69,10 +85,15 @@ export function CategoryForm({ onSubmit, initialData }: CategoryFormProps) {
         ...data,
         isActive: true,
         metadata: {
-          tags: data.tags?.split(",").map((t: string) => t.trim()) || [],
+          tags:
+            data.tags
+              ?.split(",")
+              .map((t: string) => t.trim())
+              .filter(Boolean) || [],
           notes: data.notes,
         },
       });
+      setFormData({}); // Reset form after successful submission
     } catch (error) {
       console.error("Error submitting form:", error);
       toast.error("Failed to save category");
@@ -107,78 +128,71 @@ export function CategoryForm({ onSubmit, initialData }: CategoryFormProps) {
         {/* Type Field */}
         <div>
           <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            <FolderIcon className="h-4 w-4 mr-2" />
+            <CurrencyDollarIcon className="h-4 w-4 mr-2" />
             Type
           </label>
-          <Controller
-            name="type"
-            control={control}
-            render={({ field }) => (
-              <div className="grid grid-cols-2 gap-4">
-                <motion.button
-                  type="button"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => field.onChange("REVENUE")}
-                  className={`flex items-center justify-center p-4 rounded-lg border ${
-                    field.value === "REVENUE"
-                      ? "border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300"
-                      : "border-gray-200 dark:border-gray-700 hover:border-green-400 dark:hover:border-green-500"
-                  }`}
-                >
-                  <ArrowUpIcon className="h-5 w-5 mr-2" />
-                  Revenue
-                </motion.button>
-                <motion.button
-                  type="button"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => field.onChange("EXPENSE")}
-                  className={`flex items-center justify-center p-4 rounded-lg border ${
-                    field.value === "EXPENSE"
-                      ? "border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300"
-                      : "border-gray-200 dark:border-gray-700 hover:border-red-400 dark:hover:border-red-500"
-                  }`}
-                >
-                  <ArrowUpIcon className="h-5 w-5 mr-2 rotate-180" />
-                  Expense
-                </motion.button>
-              </div>
-            )}
-          />
+          <select
+            {...register("type", { required: "Type is required" })}
+            className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-4 py-2 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all"
+          >
+            <option value="">Select type...</option>
+            {TYPE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          {errors.type && (
+            <motion.p
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-1 text-sm text-red-600 dark:text-red-400"
+            >
+              {errors.type.message}
+            </motion.p>
+          )}
         </div>
 
         {/* Logistics Type Field */}
         <div>
           <label className="flex items-center text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            <TruckIcon className="h-4 w-4 mr-2" />
             Logistics Type
           </label>
           <Controller
             name="logisticsType"
             control={control}
+            rules={{ required: "Logistics type is required" }}
             render={({ field }) => (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                {LOGISTICS_TYPES.map(({ type, label, icon }) => (
+              <div className=" flex flex-wrap gap-4">
+                {LOGISTICS_TYPES.map(({ type, label, emoji }) => (
                   <motion.button
                     key={type}
                     type="button"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => field.onChange(type)}
-                    className={`flex items-center text-xs justify-center p-4 rounded-lg border ${
+                    className={`flex  items-center text-xs justify-center p-2 rounded-lg border ${
                       field.value === type
                         ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300"
                         : "border-gray-200 dark:border-gray-700 hover:border-indigo-400 dark:hover:border-indigo-500"
                     }`}
                   >
-                    <span className="mr-2">{icon}</span>
+                    <span className="mr-2 text-xl">{emoji}</span>
                     {label}
                   </motion.button>
                 ))}
               </div>
             )}
           />
+          {errors.logisticsType && (
+            <motion.p
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-1 text-sm text-red-600 dark:text-red-400"
+            >
+              {errors.logisticsType.message}
+            </motion.p>
+          )}
         </div>
 
         {/* VAT Rate Field */}
@@ -268,12 +282,50 @@ export function CategoryForm({ onSubmit, initialData }: CategoryFormProps) {
 
       <div className="flex justify-end space-x-4 pt-6">
         <motion.button
-          type="submit"
+          type="button"
+          onClick={onCancel}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg shadow-sm hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
+          className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
         >
-          {initialData ? "Update Category" : "Create Category"}
+          Cancel
+        </motion.button>
+        <motion.button
+          type="submit"
+          disabled={isSubmitting}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg shadow-sm hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 disabled:opacity-50"
+        >
+          {isSubmitting ? (
+            <span className="flex items-center">
+              <svg
+                className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              Saving...
+            </span>
+          ) : initialData ? (
+            "Update Category"
+          ) : (
+            "Create Category"
+          )}
         </motion.button>
       </div>
     </form>

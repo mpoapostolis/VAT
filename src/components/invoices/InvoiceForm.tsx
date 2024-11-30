@@ -1,6 +1,7 @@
 import React from "react";
 import { useAtom, useAtomValue } from "jotai";
 import { DatePicker } from "@/components/ui/DatePicker";
+import { Dropdown } from '../ui/Dropdown';
 import { CategorySelect } from "@/components/categories/CategorySelect";
 import { Invoice, InvoiceLine } from "@/types";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,6 +16,7 @@ import {
   invoiceFormAtom,
   selectedCustomerAtom,
   invoiceTotalsAtom,
+  categoriesAtom
 } from "@/lib/state/atoms";
 
 interface InvoiceFormProps {
@@ -34,6 +36,7 @@ export function InvoiceForm({
   const [form, setForm] = useAtom(invoiceFormAtom);
   const selectedCustomer = useAtomValue(selectedCustomerAtom);
   const totals = useAtomValue(invoiceTotalsAtom);
+  const categories = useAtomValue(categoriesAtom);
 
   React.useEffect(() => {
     if (initialData) {
@@ -46,15 +49,24 @@ export function InvoiceForm({
   const canProceedToNext = () => {
     switch (currentStep) {
       case 0: // Customer step
-        return !!form.customerId;
+        return Boolean(form.customerId && form.customerId.length > 0);
       case 1: // Category and dates step
-        return !!form.categoryId && !!form.date && !!form.dueDate;
+        return Boolean(
+          form.categoryId && 
+          form.categoryId.length > 0 && 
+          form.date && 
+          form.dueDate
+        );
       case 2: // Items step
-        return (
+        return Boolean(
           lines.length > 0 &&
           lines.every(
             (line) =>
-              !!line.description && line.quantity > 0 && line.unitPrice >= 0
+              line.description &&
+              line.description.length > 0 &&
+              line.quantity > 0 &&
+              line.unitPrice >= 0 &&
+              line.vatRate >= 0
           )
         );
       default:
@@ -127,22 +139,17 @@ export function InvoiceForm({
             exit={{ opacity: 0, x: -20 }}
             className="space-y-6"
           >
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Customer
-              </label>
-              <select
-                value={form.customerId || ""}
-                onChange={(e) => updateField("customerId", e.target.value)}
-                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm px-4 py-2.5"
-              >
-                <option value="">Select customer...</option>
-                {customers.map((customer) => (
-                  <option key={customer.id} value={customer.id}>
-                    {customer.name}
-                  </option>
-                ))}
-              </select>
+            <div className="relative">
+              <Dropdown
+                label="Customer"
+                value={form.customerId || ''}
+                onChange={(value) => updateField('customerId', value)}
+                options={customers.map(customer => ({
+                  value: customer.id,
+                  label: customer.name
+                }))}
+                placeholder="Select customer..."
+              />
             </div>
 
             {selectedCustomer && (
@@ -176,8 +183,7 @@ export function InvoiceForm({
                   <div className="text-gray-900 dark:text-gray-100 font-medium">
                     {selectedCustomer.address.street}
                     <br />
-                    {selectedCustomer.address.city},{" "}
-                    {selectedCustomer.address.postalCode}
+                    {selectedCustomer.address.city}, {selectedCustomer.address.postalCode}
                     <br />
                     {selectedCustomer.address.country}
                   </div>
@@ -195,14 +201,18 @@ export function InvoiceForm({
             exit={{ opacity: 0, x: -20 }}
             className="space-y-6"
           >
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Category
-              </label>
-              <CategorySelect
-                value={form.categoryId}
-                onChange={(categoryId) => updateField("categoryId", categoryId)}
-                type="REVENUE"
+            <div className="relative">
+              <Dropdown
+                label="Category"
+                value={form.categoryId || ''}
+                onChange={(value) => updateField('categoryId', value)}
+                options={categories
+                  .filter(cat => cat.type === 'REVENUE')
+                  .map(category => ({
+                    value: category.id,
+                    label: category.name
+                  }))}
+                placeholder="Select category..."
               />
             </div>
 
@@ -213,7 +223,7 @@ export function InvoiceForm({
                 </label>
                 <DatePicker
                   value={form.date}
-                  onChange={(date) => updateField("date", date)}
+                  onChange={(date) => updateField('date', date)}
                 />
               </div>
 
@@ -223,7 +233,7 @@ export function InvoiceForm({
                 </label>
                 <DatePicker
                   value={form.dueDate}
-                  onChange={(date) => updateField("dueDate", date)}
+                  onChange={(date) => updateField('dueDate', date)}
                 />
               </div>
             </div>
@@ -238,7 +248,7 @@ export function InvoiceForm({
             exit={{ opacity: 0, x: -20 }}
             className="space-y-6"
           >
-            <div className="grid  gap-4 items-end bg-gradient-to-br from-gray-50 to-indigo-50 dark:from-gray-800/50 dark:to-indigo-900/20 p-4 rounded-xl border border-indigo-100 dark:border-indigo-800/50">
+            <div className="grid  gap-4 items-end bg-gradient-to-br from-gray-50 to-indigo-50 dark:from-gray-800/50 dark:to-indigo-900/20 p-4 rounded-xl border border-indigo-100 dark:border-indigo-800">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-medium bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent"></h3>
                 <motion.button
@@ -261,10 +271,10 @@ export function InvoiceForm({
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
-                    className="flex gap-4 items-end bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg"
+                    className="flex gap-3 items-end bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg"
                   >
-                    <div className="w-full">
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <div className="flex-[2]">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Description
                       </label>
                       <input
@@ -273,11 +283,11 @@ export function InvoiceForm({
                         onChange={(e) =>
                           updateLine(index, "description", e.target.value)
                         }
-                        className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm px-4 py-2"
+                        className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm px-3 py-1.5 text-sm"
                       />
                     </div>
-                    <div className="">
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <div className="w-24">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Quantity
                       </label>
                       <input
@@ -291,11 +301,11 @@ export function InvoiceForm({
                             parseInt(e.target.value)
                           )
                         }
-                        className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm px-4 py-2"
+                        className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm px-3 py-1.5 text-sm"
                       />
                     </div>
-                    <div className="">
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <div className="w-32">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Unit Price
                       </label>
                       <input
@@ -310,12 +320,12 @@ export function InvoiceForm({
                             parseFloat(e.target.value)
                           )
                         }
-                        className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm px-4 py-2"
+                        className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm px-3 py-1.5 text-sm"
                       />
                     </div>
-                    <div className="">
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        VAT Rate
+                    <div className="w-24">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        VAT %
                       </label>
                       <input
                         type="number"
@@ -325,10 +335,10 @@ export function InvoiceForm({
                         onChange={(e) =>
                           updateLine(index, "vatRate", parseInt(e.target.value))
                         }
-                        className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm px-4 py-2"
+                        className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 shadow-sm px-3 py-1.5 text-sm"
                       />
                     </div>
-                    <div className="col-span-1">
+                    <div className="flex items-center pb-1">
                       <motion.button
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
