@@ -1,0 +1,222 @@
+{
+  "collections": [
+    {
+      "id": "users",
+      "name": "users",
+      "type": "auth",
+      "system": false,
+      "schema": [
+        {
+          "id": "name",
+          "name": "name",
+          "type": "text",
+          "system": false,
+          "required": true
+        }
+      ],
+      "indexes": [],
+      "listRule": null,
+      "viewRule": null,
+      "createRule": null,
+      "updateRule": null,
+      "deleteRule": null
+    },
+    {
+      "id": "customers",
+      "name": "customers",
+      "type": "base",
+      "system": false,
+      "schema": [
+        {
+          "id": "name",
+          "name": "name",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "vatNumber",
+          "name": "vatNumber",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "email",
+          "name": "email",
+          "type": "email",
+          "required": true
+        },
+        {
+          "id": "address",
+          "name": "address",
+          "type": "json",
+          "required": true
+        },
+        {
+          "id": "isZeroRated",
+          "name": "isZeroRated",
+          "type": "bool",
+          "required": true,
+          "default": false
+        },
+        {
+          "id": "currency",
+          "name": "currency",
+          "type": "text",
+          "required": true,
+          "default": "EUR"
+        }
+      ],
+      "indexes": ["CREATE UNIQUE INDEX idx_unique_vat ON customers (vatNumber)"]
+    },
+    {
+      "id": "invoices",
+      "name": "invoices",
+      "type": "base",
+      "system": false,
+      "schema": [
+        {
+          "id": "number",
+          "name": "number",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "customerId",
+          "name": "customerId",
+          "type": "relation",
+          "required": true,
+          "options": {
+            "collectionId": "customers",
+            "cascadeDelete": false
+          }
+        },
+        {
+          "id": "date",
+          "name": "date",
+          "type": "date",
+          "required": true
+        },
+        {
+          "id": "dueDate",
+          "name": "dueDate",
+          "type": "date",
+          "required": true
+        },
+        {
+          "id": "lines",
+          "name": "lines",
+          "type": "json",
+          "required": true
+        },
+        {
+          "id": "status",
+          "name": "status",
+          "type": "select",
+          "required": true,
+          "options": {
+            "values": ["PENDING", "PAID", "PARTIALLY_PAID", "OVERDUE"]
+          }
+        },
+        {
+          "id": "currency",
+          "name": "currency",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "exchangeRate",
+          "name": "exchangeRate",
+          "type": "number",
+          "required": true,
+          "default": 1
+        },
+        {
+          "id": "totalExVat",
+          "name": "totalExVat",
+          "type": "number",
+          "required": true
+        },
+        {
+          "id": "totalVat",
+          "name": "totalVat",
+          "type": "number",
+          "required": true
+        },
+        {
+          "id": "totalIncVat",
+          "name": "totalIncVat",
+          "type": "number",
+          "required": true
+        },
+        {
+          "id": "notes",
+          "name": "notes",
+          "type": "text",
+          "required": false
+        }
+      ],
+      "indexes": ["CREATE UNIQUE INDEX idx_unique_number ON invoices (number)"]
+    },
+    {
+      "id": "vat_returns",
+      "name": "vat_returns",
+      "type": "base",
+      "system": false,
+      "schema": [
+        {
+          "id": "startDate",
+          "name": "startDate",
+          "type": "date",
+          "required": true
+        },
+        {
+          "id": "endDate",
+          "name": "endDate",
+          "type": "date",
+          "required": true
+        },
+        {
+          "id": "salesVat",
+          "name": "salesVat",
+          "type": "number",
+          "required": true
+        },
+        {
+          "id": "purchasesVat",
+          "name": "purchasesVat",
+          "type": "number",
+          "required": true
+        },
+        {
+          "id": "adjustments",
+          "name": "adjustments",
+          "type": "number",
+          "required": true,
+          "default": 0
+        },
+        {
+          "id": "netVatDue",
+          "name": "netVatDue",
+          "type": "number",
+          "required": true
+        },
+        {
+          "id": "status",
+          "name": "status",
+          "type": "select",
+          "required": true,
+          "options": {
+            "values": ["DRAFT", "SUBMITTED", "ACCEPTED", "REJECTED"]
+          }
+        },
+        {
+          "id": "notes",
+          "name": "notes",
+          "type": "text",
+          "required": false
+        }
+      ],
+      "indexes": []
+    }
+  ]
+}
