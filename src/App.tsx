@@ -8,7 +8,7 @@ import { InvoiceList } from '@/components/invoices/InvoiceList';
 import { InvoiceCreate } from '@/components/invoices/InvoiceCreate';
 import { VatReturnList } from '@/components/vat/VatReturnList';
 import { VatReturnCreate } from '@/components/vat/VatReturnCreate';
-import { CategoryManager } from '@/components/categories/CategoryManager';
+import { CategoryList } from '@/components/categories/CategoryList';
 import { CustomerList } from '@/components/customers/CustomerList';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { RegisterForm } from '@/components/auth/RegisterForm';
@@ -63,11 +63,14 @@ export default function App() {
                   <VatReturnCreate />
                 </AuthGuard>
               } />
-              <Route path="/categories" element={
-                <AuthGuard>
-                  <CategoryManager />
-                </AuthGuard>
-              } />
+              <Route
+                path="/categories"
+                element={
+                  <AuthGuard>
+                    <CategoryList />
+                  </AuthGuard>
+                }
+              />
 
               {/* Catch all route */}
               <Route path="*" element={<Navigate to="/" replace />} />

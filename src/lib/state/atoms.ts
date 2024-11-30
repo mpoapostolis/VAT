@@ -107,3 +107,20 @@ export const resetCustomerForm = atom(
     set(customerFormAtom, defaultCustomerForm);
   }
 );
+
+// Category Form State
+const defaultCategoryForm = {
+  name: '',
+  type: 'REVENUE' as const,
+  description: '',
+  parentId: '',
+};
+
+export const categoryFormAtom = atom<Partial<AccountingCategory>>(defaultCategoryForm);
+
+export const resetCategoryForm = atom(
+  null,
+  (get, set) => {
+    set(categoryFormAtom, defaultCategoryForm);
+  }
+);

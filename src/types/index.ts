@@ -95,13 +95,33 @@ export interface VatReturn {
   status: VatReturnStatus;
 }
 
+export type CategoryType = 'REVENUE' | 'EXPENSE';
+
+export type LogisticsCategoryType = 
+  | 'TRANSPORTATION' 
+  | 'WAREHOUSING'
+  | 'FREIGHT'
+  | 'CUSTOMS'
+  | 'PACKAGING'
+  | 'HANDLING'
+  | 'DISTRIBUTION'
+  | 'OTHER';
+
 export interface AccountingCategory {
   id: string;
   name: string;
-  type: 'REVENUE' | 'EXPENSE' | 'VAT' | 'OTHER';
+  type: CategoryType;
   description?: string;
-  color?: string;
+  color: string;
   parentId?: string;
+  logisticsType?: LogisticsCategoryType;
+  vatRate?: number;
+  isActive: boolean;
+  metadata?: {
+    icon?: string;
+    tags?: string[];
+    notes?: string;
+  };
 }
 
 export interface CategoryTotal {
