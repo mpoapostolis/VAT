@@ -151,7 +151,7 @@ export function CustomerList() {
   );
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8">
+    <div className="">
       <PageHeader
         title="Customers"
         description="Manage your customer information and details"

@@ -104,7 +104,7 @@ export function CategoryList() {
   );
 
   return (
-    <div className="px-4 sm:px-6 lg:px-8">
+    <div className="">
       <PageHeader
         title="Categories"
         description="Manage your expense and income categories"

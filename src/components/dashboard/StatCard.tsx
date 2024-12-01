@@ -4,61 +4,45 @@ import { ArrowUpIcon, ArrowDownIcon } from '@heroicons/react/24/outline';
 
 interface StatCardProps {
   title: string;
-  value: string | number;
-  change?: string;
-  trend?: 'up' | 'down';
-  icon: React.ComponentType<{ className?: string }>;
+  value: string;
+  change: string;
+  trend: 'up' | 'down' | 'neutral';
+  icon: any;
   color: string;
+  bgGlow: string;
   index: number;
 }
 
-export function StatCard({ title, value, change, trend, icon: Icon, color, index }: StatCardProps) {
+export function StatCard({ title, value, change, trend, icon: Icon, color, bgGlow, index }: StatCardProps) {
+  const trendColor = trend === 'up' ? 'text-emerald-600 dark:text-emerald-400' 
+    : trend === 'down' ? 'text-red-600 dark:text-red-400'
+    : 'text-gray-600 dark:text-gray-400';
+
+  const trendIcon = trend === 'up' ? '↑' 
+    : trend === 'down' ? '↓'
+    : '→';
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
-      className="relative group"
+      className={`relative overflow-hidden bg-white dark:bg-gray-800 rounded-2xl shadow-sm before:absolute before:inset-0 before:rounded-2xl before:opacity-[0.15] before:transition-opacity hover:before:opacity-[0.25] ${bgGlow}`}
     >
-      <div 
-        className="absolute -inset-0.5 bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-all duration-500 blur-xl rounded-xl -z-10"
-        style={{ backgroundImage: `linear-gradient(to right, ${color})` }} 
-      />
-      <div className="relative overflow-hidden bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm transition-all duration-300 hover:shadow-lg hover:scale-[1.02] hover:-translate-y-1">
-        <div className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="inline-flex items-center space-x-2">
-              <div className={`p-2 rounded-lg bg-gradient-to-r ${color}`}>
-                <Icon className="h-5 w-5 text-white" />
-              </div>
-              <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">{title}</h3>
-            </div>
-            {trend && (
-              <div className={`flex items-center space-x-1 text-sm ${
-                trend === 'up' ? 'text-green-500 dark:text-green-400' : 'text-red-500 dark:text-red-400'
-              }`}>
-                {trend === 'up' ? (
-                  <ArrowUpIcon className="h-4 w-4" />
-                ) : (
-                  <ArrowDownIcon className="h-4 w-4" />
-                )}
-                <span>{change}</span>
-              </div>
-            )}
+      <div className="relative p-6">
+        <div className="flex items-center justify-between">
+          <div className={`p-2 rounded-xl bg-gradient-to-br ${color}`}>
+            <Icon className="h-5 w-5 text-white" />
           </div>
-          <div className="mt-3">
-            <div 
-              className="text-2xl font-bold bg-gradient-to-r bg-clip-text text-transparent animate-gradient-x"
-              style={{ backgroundImage: `linear-gradient(to right, ${color})` }}
-            >
-              {value}
-            </div>
-          </div>
+          <span className={`flex items-center text-sm font-medium ${trendColor}`}>
+            {change}
+            <span className="ml-1">{trendIcon}</span>
+          </span>
         </div>
-        <div 
-          className="h-1 bg-gradient-to-r w-full" 
-          style={{ backgroundImage: `linear-gradient(to right, ${color})` }} 
-        />
+        <div className="mt-4">
+          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</h3>
+          <p className="mt-2 text-2xl font-semibold text-gray-900 dark:text-white">{value}</p>
+        </div>
       </div>
     </motion.div>
   );
