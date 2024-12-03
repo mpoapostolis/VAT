@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
-import { Mail, Bell, ChevronDown } from 'lucide-react';
-import { useAuth } from '@/lib/auth';
-import { Dropdown } from './ui/dropdown';
-import { Search } from './ui/search';
+import React, { useState } from "react";
+import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
+import { Mail, Bell, ChevronDown } from "lucide-react";
+import { useAuth } from "@/lib/auth";
+import { Dropdown } from "./ui/dropdown";
+import { Search } from "./ui/search";
 
 const navItems = [
-  { name: 'Dashboard', href: '/' },
-  { name: 'Invoices', href: '/invoices' },
-  { name: 'Customers', href: '/customers' },
-  { name: 'Categories', href: '/categories' },
-  { name: 'VAT Return', href: '/vat-return' },
-  { name: 'Settings', href: '/settings' },
+  { name: "Dashboard", href: "/" },
+  { name: "Invoices", href: "/invoices" },
+  { name: "Customers", href: "/customers" },
+  { name: "Categories", href: "/categories" },
+  { name: "VAT Return", href: "/vat-return" },
+  { name: "Settings", href: "/settings" },
 ];
 
 export function Layout() {
@@ -20,15 +20,15 @@ export function Layout() {
   const { user, logout } = useAuth();
 
   const isActiveTab = (href: string) => {
-    if (href === '/') {
-      return location.pathname === '/';
+    if (href === "/") {
+      return location.pathname === "/";
     }
     return location.pathname.startsWith(href);
   };
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
   };
 
   return (
@@ -64,9 +64,9 @@ export function Layout() {
                     </button>
                   }
                   items={[
-                    { label: 'Profile', onClick: () => {} },
-                    { label: 'Settings', onClick: () => navigate('/settings') },
-                    { label: 'Sign out', onClick: handleLogout },
+                    { label: "Profile", onClick: () => {} },
+                    { label: "Settings", onClick: () => navigate("/settings") },
+                    { label: "Sign out", onClick: handleLogout },
                   ]}
                 />
               </div>
@@ -83,8 +83,8 @@ export function Layout() {
                   to={item.href}
                   className={`py-4 px-6 text-sm font-medium transition-colors ${
                     isActiveTab(item.href)
-                      ? 'bg-white text-[#0066FF]'
-                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                      ? "bg-white text-[#0066FF]"
+                      : "text-white/70 hover:text-white hover:bg-white/10"
                   }`}
                 >
                   {item.name}
