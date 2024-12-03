@@ -1,47 +1,75 @@
 import PocketBase from 'pocketbase';
+import { dummyInvoices, dummyCustomers, dummyCategories } from './dummy-data';
 
-// Initialize PocketBase
 export const pb = new PocketBase('https://api.vxlverse.com');
 
-// Collection names
-export const collections = {
-  users: 'users',
-  customers: 'customers',
-  suppliers: 'suppliers',
-  invoices: 'invoices',
-  vatReturns: 'vat_returns',
-  payments: 'payments',
-} as const;
+// Mock PocketBase methods for demo
+// pb.collection = (name: string) => ({``
+//   getList: async () => {
+//     switch (name) {
+//       case 'invoices':
+//         return { items: dummyInvoices };
+//       case 'customers':
+//         return { items: dummyCustomers };
+//       case 'categories':
+//         return { items: dummyCategories };
+//       default:
+//         return { items: [] };
+//     }
+//   },
+//   getOne: async (id: string) => {
+//     switch (name) {
+//       case 'invoices':
+//         return dummyInvoices.find(i => i.id === id);
+//       case 'customers':
+//         return dummyCustomers.find(c => c.id === id);
+//       case 'categories':
+//         return dummyCategories.find(c => c.id === id);
+//       default:
+//         throw new Error('Not found');
+//     }
+//   },
+//   create: async (data: any) => ({ id: String(Date.now()), ...data }),
+//   update: async (id: string, data: any) => ({ id, ...data }),
+//   delete: async (id: string) => true
+// });
 
-// Helper function to check if user is authenticated
-export const isAuthenticated = () => {
-  if (process.env.NODE_ENV === 'development') {
-    return true; // Always return true in development
-  }
-  return pb.authStore.isValid;
-};
+export interface Customer {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  trn: string;
+  address: string;
+  notes?: string;
+}
 
-// Helper function to get current user
-export const getCurrentUser = () => {
-  if (process.env.NODE_ENV === 'development') {
-    return {
-      id: '1',
-      email: 'dev@example.com',
-      name: 'Development User',
-    };
-  }
-  return pb.authStore.model;
-};
+export interface InvoiceItem {
+  description: string;
+  quantity: number;
+  price: number;
+  vat: number;
+  total: number;
+}
 
-// Helper function to handle API errors
-export const handleApiError = (error: any) => {
-  if (process.env.NODE_ENV === 'development') {
-    console.warn('API Error in development mode:', error);
-    return 'Development mode: Operation would have failed in production';
-  }
-  console.error('API Error:', error);
-  if (error.response?.data?.message) {
-    return error.response.data.message;
-  }
-  return 'An unexpected error occurred';
-};
+export interface Invoice {
+  id: string;
+  number: string;
+  customerId: string;
+  date: string;
+  dueDate: string;
+  items: InvoiceItem[];
+  subtotal: number;
+  vat: number;
+  total: number;
+  status: 'draft' | 'pending' | 'paid' | 'overdue';
+  notes?: string;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  type: 'income' | 'expense';
+  description: string;
+  budget?: number;
+}

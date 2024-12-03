@@ -1,120 +1,74 @@
-import React, { useState } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
-import { Navigation } from "@/components/layout/Navigation";
-import { Dashboard } from "@/components/dashboard/Dashboard";
-import { InvoiceList } from "@/components/invoices/InvoiceList";
-import { InvoiceCreate } from "@/components/invoices/InvoiceCreate";
-import { CategoryList } from "@/components/categories/CategoryList";
-import { CustomerList } from "@/components/customers/CustomerList";
-import { Toaster } from "react-hot-toast";
-import { SWRConfig } from "swr";
-import { LoginForm } from "@/components/auth/LoginForm";
-import { RegisterForm } from "@/components/auth/RegisterForm";
-import { AuthGuard } from "@/components/auth/AuthGuard";
-import MobileDrawer from "./components/navigation/MobileDrawer";
-import MobileHeader from "./components/navigation/MobileHeader";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { SWRConfig } from 'swr';
+import { AnimatePresence } from 'framer-motion';
+import { Layout } from './components/Layout';
+import { Dashboard } from './pages/Dashboard';
+import { Invoices } from './pages/Invoices';
+import { Customers } from './pages/Customers';
+import { Categories } from './pages/Categories';
+import { VatReturn } from './pages/VatReturn';
+import { Settings } from './pages/Settings';
+import { Reports } from './pages/Reports';
+import { Login } from './pages/Login';
+import { ErrorBoundary } from './components/ui/error-boundary';
+import { ToastContainer } from './components/ui/toast-container';
+import { AuthProvider, useAuth } from './lib/auth';
+import { pb } from './lib/pocketbase';
+import { Loading } from './components/ui/loading';
+
+function PrivateRoute({ children }: { children: React.ReactNode }) {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <Loading className="min-h-screen" />;
+  }
+
+  if (!user) {
+    return <Navigate to="/login" />;
+  }
+
+  return children;
+}
 
 export default function App() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   return (
-    <SWRConfig
-      value={{
-        revalidateOnFocus: false,
-        revalidateOnReconnect: false,
-        shouldRetryOnError: false,
-      }}
-    >
-      <Router>
-        <div className="min-h-screen bg-background text-foreground">
-          {/* Mobile navigation - only visible on mobile */}
-          <div className="lg:hidden">
-            <MobileDrawer isOpen={mobileMenuOpen} setIsOpen={setMobileMenuOpen} />
-            <MobileHeader openDrawer={() => setMobileMenuOpen(true)} title="VAT Management" />
-          </div>
-
-          {/* Desktop navigation - only visible on desktop */}
-          <div className="hidden lg:block">
-            <Navigation />
-          </div>
-
-          {/* Main content */}
-          <main className="lg:max-w-7xl lg:mx-auto py-6 px-4 sm:px-6 lg:px-8 animate-fade-in">
-            {/* Mobile padding adjustment */}
-            <div className="pt-16 lg:pt-0">
+    <ErrorBoundary>
+      <AuthProvider>
+        <SWRConfig
+          value={{
+            provider: () => new Map(),
+            fetcher: (url) => pb.collection(url).getList(1, 50),
+            revalidateOnFocus: false,
+            shouldRetryOnError: false,
+          }}
+        >
+          <Router>
+            <AnimatePresence mode="wait">
               <Routes>
-                {/* Public routes */}
-                <Route path="/login" element={<LoginForm />} />
-                <Route path="/register" element={<RegisterForm />} />
-
-                {/* Protected routes */}
+                <Route path="/login" element={<Login />} />
                 <Route
                   path="/"
                   element={
-                    <AuthGuard>
-                      <Dashboard />
-                    </AuthGuard>
+                    <PrivateRoute>
+                      <Layout />
+                    </PrivateRoute>
                   }
-                />
-                <Route
-                  path="/invoices"
-                  element={
-                    <AuthGuard>
-                      <InvoiceList />
-                    </AuthGuard>
-                  }
-                />
-                <Route
-                  path="/invoices/new"
-                  element={
-                    <AuthGuard>
-                      <InvoiceCreate />
-                    </AuthGuard>
-                  }
-                />
-                <Route
-                  path="/customers"
-                  element={
-                    <AuthGuard>
-                      <CustomerList />
-                    </AuthGuard>
-                  }
-                />
-
-                <Route
-                  path="/categories"
-                  element={
-                    <AuthGuard>
-                      <CategoryList />
-                    </AuthGuard>
-                  }
-                />
-
-                {/* Catch all route */}
-                <Route path="*" element={<Navigate to="/" replace />} />
+                >
+                  <Route index element={<Dashboard />} />
+                  <Route path="invoices/*" element={<Invoices />} />
+                  <Route path="customers/*" element={<Customers />} />
+                  <Route path="categories/*" element={<Categories />} />
+                  <Route path="vat-return/*" element={<VatReturn />} />
+                  <Route path="reports/*" element={<Reports />} />
+                  <Route path="settings" element={<Settings />} />
+                </Route>
               </Routes>
-            </div>
-          </main>
-
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              className: "animate-slide-up",
-              duration: 4000,
-              style: {
-                background: "var(--background)",
-                color: "var(--foreground)",
-                border: "1px solid var(--border)",
-              },
-            }}
-          />
-        </div>
-      </Router>
-    </SWRConfig>
+            </AnimatePresence>
+          </Router>
+          <ToastContainer />
+        </SWRConfig>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
