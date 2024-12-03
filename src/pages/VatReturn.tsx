@@ -4,6 +4,7 @@ import { AnimatedPage } from '@/components/AnimatedPage';
 import { Button } from '@/components/ui/button';
 import { VatReturnList } from '@/components/vat-return/VatReturnList';
 import { CreateVatReturn } from '@/components/vat-return/CreateVatReturn';
+import { EditVatReturn } from '@/components/vat-return/EditVatReturn';
 
 export function VatReturn() {
   return (
@@ -28,6 +29,7 @@ export function VatReturn() {
         }
       />
       <Route path="new" element={<CreateVatReturn />} />
+      <Route path="/:id/edit" element={<EditVatReturn />} />
     </Routes>
   );
 }

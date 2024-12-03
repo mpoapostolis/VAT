@@ -5,8 +5,10 @@ import { ArrowLeft } from 'lucide-react';
 import { AnimatedPage } from '@/components/AnimatedPage';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
 import { FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { vatReturnService } from '@/lib/services/vat-return-service';
+import { useToast } from '@/lib/hooks/useToast';
+import { formatCurrency } from '@/lib/utils';
 
 interface VatReturnFormData {
   period: string;
@@ -17,15 +19,9 @@ interface VatReturnFormData {
   notes?: string;
 }
 
-const periodOptions = [
-  { value: 'Q1', label: 'Q1 2024' },
-  { value: 'Q2', label: 'Q2 2024' },
-  { value: 'Q3', label: 'Q3 2024' },
-  { value: 'Q4', label: 'Q4 2024' },
-];
-
 export function CreateVatReturn() {
   const navigate = useNavigate();
+  const { addToast } = useToast();
   const {
     register,
     handleSubmit,
@@ -34,16 +30,38 @@ export function CreateVatReturn() {
     formState: { errors, isSubmitting },
   } = useForm<VatReturnFormData>();
 
+  const startDate = watch('startDate');
+  const endDate = watch('endDate');
   const salesVat = watch('salesVat', 0);
   const purchasesVat = watch('purchasesVat', 0);
   const netVat = (salesVat || 0) - (purchasesVat || 0);
 
+  const calculateVatTotals = async () => {
+    if (!startDate || !endDate) {
+      addToast('Please select both start and end dates', 'error');
+      return;
+    }
+
+    try {
+      const totals = await vatReturnService.calculateVatTotals(startDate, endDate);
+      setValue('salesVat', totals.salesVat);
+      setValue('purchasesVat', totals.purchasesVat);
+    } catch (error) {
+      addToast('Failed to calculate VAT totals', 'error');
+    }
+  };
+
   const onSubmit = async (data: VatReturnFormData) => {
     try {
-      // Handle VAT return creation
+      await vatReturnService.create({
+        ...data,
+        status: 'draft',
+        netVat,
+      });
+      addToast('VAT return created successfully', 'success');
       navigate('/vat-return');
     } catch (error) {
-      console.error('Failed to create VAT return:', error);
+      addToast('Failed to create VAT return', 'error');
     }
   };
 
@@ -69,11 +87,9 @@ export function CreateVatReturn() {
             <div className="grid grid-cols-3 gap-6">
               <FormItem>
                 <FormLabel>Period</FormLabel>
-                <Select
-                  options={periodOptions}
-                  placeholder="Select period"
-                  onChange={(value) => setValue('period', value)}
-                  error={!!errors.period}
+                <Input
+                  {...register('period', { required: 'Period is required' })}
+                  placeholder="e.g., Q1 2024"
                 />
                 {errors.period && <FormMessage>{errors.period.message}</FormMessage>}
               </FormItem>
@@ -97,6 +113,17 @@ export function CreateVatReturn() {
                 />
                 {errors.endDate && <FormMessage>{errors.endDate.message}</FormMessage>}
               </FormItem>
+            </div>
+
+            <div className="flex justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={calculateVatTotals}
+                className="text-[#0066FF]"
+              >
+                Calculate from Invoices
+              </Button>
             </div>
 
             <div className="grid grid-cols-2 gap-6">
@@ -133,14 +160,11 @@ export function CreateVatReturn() {
               </FormItem>
             </div>
 
-            <div className="bg-gray-50 p-4">
+            <div className="bg-gray-50 p-4 rounded-lg">
               <div className="flex justify-between items-center">
                 <span className="font-medium text-gray-900">Net VAT</span>
-                <span className="text-lg font-bold text-gray-900">
-                  {new Intl.NumberFormat('en-US', {
-                    style: 'currency',
-                    currency: 'USD',
-                  }).format(netVat)}
+                <span className={`text-lg font-bold ${netVat >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {formatCurrency(netVat)}
                 </span>
               </div>
             </div>
@@ -149,7 +173,7 @@ export function CreateVatReturn() {
               <FormLabel>Notes</FormLabel>
               <textarea
                 {...register('notes')}
-                className="w-full h-24 border border-gray-200 px-3 py-2"
+                className="w-full h-24 border border-gray-200 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:border-transparent resize-none"
                 placeholder="Enter any additional notes"
               />
             </FormItem>

@@ -2,20 +2,23 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import useSWR from 'swr';
-import { ArrowLeft } from 'lucide-react';
 import { AnimatedPage } from '@/components/AnimatedPage';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { pb } from '@/lib/pocketbase';
-import type { Customer } from '@/lib/pocketbase';
+import { PageHeader } from '@/components/ui/page-header';
+import { customerService } from '@/lib/services/customer-service';
 import { useToast } from '@/lib/hooks/useToast';
+import type { Customer } from '@/lib/pocketbase';
 
 export function EditCustomer() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToast } = useToast();
-  const { data: customer } = useSWR<Customer>(`customers/${id}`);
+  const { data: customer } = useSWR<Customer>(
+    id ? `customers/${id}` : null,
+    () => customerService.getById(id!)
+  );
 
   const {
     register,
@@ -25,9 +28,10 @@ export function EditCustomer() {
     defaultValues: customer,
   });
 
-  const onSubmit = async (data: Customer) => {
+  const onSubmit = async (data: Partial<Customer>) => {
+    if (!id) return;
     try {
-      await pb.collection('customers').update(id!, data);
+      await customerService.update(id, data);
       addToast('Customer updated successfully', 'success');
       navigate('/customers');
     } catch (error) {
@@ -35,27 +39,37 @@ export function EditCustomer() {
     }
   };
 
-  if (!customer) return null;
+  if (!customer) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+      </div>
+    );
+  }
+
+  const headerActions = (
+    <>
+      <Button variant="outline" onClick={() => navigate('/customers')}>
+        Cancel
+      </Button>
+      <Button type="submit" form="customer-form">
+        Save Changes
+      </Button>
+    </>
+  );
 
   return (
     <AnimatedPage>
       <div className="space-y-6">
-        <div className="flex items-center space-x-4">
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/customers')}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Edit Customer</h1>
-            <p className="text-sm text-gray-500 mt-1">Update customer information</p>
-          </div>
-        </div>
+        <PageHeader
+          title="Edit Customer"
+          subtitle="Update customer information"
+          onBack={() => navigate('/customers')}
+          actions={headerActions}
+        />
 
-        <div className="bg-white">
-          <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
+        <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20">
+          <form id="customer-form" onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
             <div className="grid grid-cols-2 gap-6">
               <FormItem>
                 <FormLabel>Company Name</FormLabel>
@@ -115,22 +129,9 @@ export function EditCustomer() {
               <textarea
                 {...register('notes')}
                 defaultValue={customer.notes}
-                className="w-full h-24 px-3 py-2 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full h-24 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:border-transparent resize-none"
               />
             </FormItem>
-
-            <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate('/customers')}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </div>
           </form>
         </div>
       </div>

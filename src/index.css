@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Typography */
+@layer base {
+  h1 {
+    @apply text-3xl font-bold tracking-tight text-gray-900;
+  }
+  h2 {
+    @apply text-2xl font-semibold tracking-tight text-gray-900;
+  }
+  h3 {
+    @apply text-xl font-semibold tracking-tight text-gray-900;
+  }
+  p {
+    @apply text-base leading-relaxed text-gray-600;
+  }
+}
+
 /* Base Animations */
 @keyframes fadeIn {
   from {
@@ -36,6 +52,15 @@
   }
 }
 
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
 /* Animation Classes */
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out forwards;
@@ -47,6 +72,19 @@
 
 .animate-scale-in {
   animation: scaleIn 0.2s ease-out forwards;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
 }
 
 /* Stagger Animation for Lists */
@@ -117,4 +155,84 @@
   opacity: 0;
   transform: translateY(-10px);
   transition: opacity 0.2s, transform 0.2s;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Table Styles */
+.data-table {
+  @apply w-full border-collapse;
+}
+
+.data-table th {
+  @apply text-left py-4 px-6 bg-gray-50 text-sm font-semibold text-gray-600 border-b border-gray-200;
+}
+
+.data-table td {
+  @apply py-4 px-6 text-sm text-gray-600 border-b border-gray-100;
+}
+
+.data-table tr:hover {
+  @apply bg-gray-50/50;
+}
+
+/* Form Controls */
+.form-input,
+.form-select {
+  @apply w-full rounded-none border-gray-200 shadow-sm focus:border-blue-500 focus:ring-blue-500;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-gray-700 mb-1;
+}
+
+/* Card Styles */
+.card {
+  @apply bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20;
+}
+
+.card-header {
+  @apply px-6 py-4 border-b border-gray-200;
+}
+
+.card-body {
+  @apply p-6;
+}
+
+/* Typography Utilities */
+.heading-1 {
+  @apply text-3xl font-bold tracking-tight text-gray-900;
+}
+
+.heading-2 {
+  @apply text-2xl font-semibold tracking-tight text-gray-900;
+}
+
+.heading-3 {
+  @apply text-xl font-semibold tracking-tight text-gray-900;
+}
+
+.text-body {
+  @apply text-base leading-relaxed text-gray-600;
+}
+
+.text-small {
+  @apply text-sm text-gray-500;
 }

@@ -1,10 +1,12 @@
-import React from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
-import { AnimatedPage } from '@/components/AnimatedPage';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
-import { CategoryList } from '@/components/categories/CategoryList';
-import { CreateCategory } from '@/components/categories/CreateCategory';
+import React from "react";
+import { Routes, Route, Link } from "react-router-dom";
+import { AnimatedPage } from "@/components/AnimatedPage";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { CategoryList } from "@/components/categories/CategoryList";
+import { CreateCategory } from "@/components/categories/CreateCategory";
+import { EditCategory } from "@/components/categories/EditCategory";
+import { ViewCategory } from "@/components/categories/ViewCategory";
 
 export function Categories() {
   return (
@@ -16,8 +18,12 @@ export function Categories() {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="text-2xl font-semibold text-gray-900">Categories</h1>
-                  <p className="text-sm text-gray-500 mt-1">Manage transaction categories</p>
+                  <h1 className="text-2xl font-semibold text-gray-900">
+                    Categories
+                  </h1>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Manage transaction categories
+                  </p>
                 </div>
                 <Link to="new">
                   <Button>
@@ -32,6 +38,8 @@ export function Categories() {
         }
       />
       <Route path="new" element={<CreateCategory />} />
+      <Route path="/:id/view" element={<ViewCategory />} />
+      <Route path="/:id/edit" element={<EditCategory />} />
     </Routes>
   );
 }

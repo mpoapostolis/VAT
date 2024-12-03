@@ -1,106 +1,170 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Eye, FileEdit, Trash2, FolderOpen } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import useSWR from "swr";
+import { DataTable } from "@/components/ui/data-table";
+import { ActionDropdown } from "@/components/ui/action-dropdown";
+import { createColumnHelper } from "@tanstack/react-table";
+import { FolderOpen } from "lucide-react";
+import { categoryService } from "@/lib/services/category-service";
+import { useMutateData } from "@/lib/hooks/useMutateData";
+import { ConfirmationModal } from "@/components/ui/confirmation-modal";
+import { useTableParams } from "@/lib/hooks/useTableParams";
+import { formatCurrency, formatDate } from "@/lib/utils";
+import type { Category } from "@/lib/pocketbase";
 
-const categories = [
-  {
-    id: 1,
-    name: 'Office Supplies',
-    description: 'General office supplies and stationery',
-    transactions: 145,
-    amount: '$12,450.00',
-    type: 'expense',
-  },
-  {
-    id: 2,
-    name: 'Software Subscriptions',
-    description: 'Monthly and annual software licenses',
-    transactions: 89,
-    amount: '$8,920.00',
-    type: 'expense',
-  },
-  {
-    id: 3,
-    name: 'Consulting Services',
-    description: 'Professional consulting and advisory',
-    transactions: 234,
-    amount: '$45,670.00',
-    type: 'income',
-  },
-  {
-    id: 4,
-    name: 'Marketing',
-    description: 'Marketing and advertising expenses',
-    transactions: 167,
-    amount: '$23,450.00',
-    type: 'expense',
-  },
-];
+const columnHelper = createColumnHelper<
+  Category & { invoiceCount: number; totalAmount: number }
+>();
 
 export function CategoryList() {
-  const handleDeleteCategory = (categoryId: number) => {
-    // Handle category deletion
-    console.log('Deleting category:', categoryId);
+  const navigate = useNavigate();
+  const tableParams = useTableParams();
+  const { data, mutate, isLoading } = useSWR(["categories", tableParams], () =>
+    categoryService.getListWithStats()
+  );
+  const { mutateData } = useMutateData();
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean;
+    categoryId: string | null;
+  }>({
+    isOpen: false,
+    categoryId: null,
+  });
+
+  const handleDelete = async () => {
+    if (!deleteModal.categoryId) return;
+
+    await mutateData(
+      mutate,
+      () => categoryService.delete(deleteModal.categoryId!),
+      {
+        successMessage: "Category deleted successfully",
+        errorMessage: "Failed to delete category",
+      }
+    );
+    setDeleteModal({ isOpen: false, categoryId: null });
   };
 
-  return (
-    <div className="grid grid-cols-2 gap-6">
-      {categories.map((category) => (
-        <div
-          key={category.id}
-          className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 p-6 hover:shadow-xl hover:shadow-gray-200/40 transition-all duration-200 animate-fade-in"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-3">
-              <div className={`p-2 ${
-                category.type === 'income' ? 'bg-green-50' : 'bg-blue-50'
-              }`}>
-                <FolderOpen className={`h-5 w-5 ${
-                  category.type === 'income' ? 'text-green-500' : 'text-blue-500'
-                }`} />
-              </div>
-              <div>
-                <h3 className="font-medium text-gray-900">{category.name}</h3>
-                <p className="text-sm text-gray-500">{category.description}</p>
-              </div>
-            </div>
-            <div className="flex space-x-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => window.open(`/categories/${category.id}`, '_blank')}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <Eye className="h-4 w-4" />
-              </Button>
-              <Link to={`/categories/${category.id}/edit`}>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <FileEdit className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleDeleteCategory(category.id)}
-                className="text-red-500 hover:text-red-700"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
+  const columns = [
+    columnHelper.accessor("name", {
+      header: "Category",
+      cell: (info) => (
+        <div className="flex items-center space-x-3">
+          <div
+            className={`p-2 rounded-lg ${
+              info.row.original.type === "income" ? "bg-green-50" : "bg-red-50"
+            }`}
+          >
+            <FolderOpen
+              className={`h-4 w-4 ${
+                info.row.original.type === "income"
+                  ? "text-green-500"
+                  : "text-red-500"
+              }`}
+            />
           </div>
-          <div className="flex justify-between items-center pt-4 border-t border-gray-100">
+          <div>
+            <Link
+              to={`/categories/${info.row.original.id}/view`}
+              className="font-medium text-gray-900 hover:text-[#0066FF] transition-colors"
+            >
+              {info.getValue()}
+            </Link>
             <div className="text-sm text-gray-500">
-              {category.transactions} transactions
+              {info.row.original.description}
             </div>
-            <div className="font-medium text-gray-900">{category.amount}</div>
           </div>
         </div>
-      ))}
-    </div>
+      ),
+    }),
+    columnHelper.accessor("type", {
+      header: "Type",
+      cell: (info) => (
+        <span
+          className={`inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full ${
+            info.getValue() === "income"
+              ? "bg-green-50 text-green-700 border border-green-200"
+              : "bg-red-50 text-red-700 border border-red-200"
+          }`}
+        >
+          {info.getValue().toUpperCase()}
+        </span>
+      ),
+    }),
+    columnHelper.accessor("invoiceCount", {
+      header: "Invoices",
+      cell: (info) => (
+        <div className="font-medium text-gray-900">
+          {info.getValue()} {info.getValue() === 1 ? "invoice" : "invoices"}
+        </div>
+      ),
+    }),
+    columnHelper.accessor("totalAmount", {
+      header: "Total Amount",
+      cell: (info) => (
+        <div
+          className={`font-medium ${
+            info.row.original.type === "income"
+              ? "text-green-600"
+              : "text-red-600"
+          }`}
+        >
+          {formatCurrency(info.getValue())}
+        </div>
+      ),
+    }),
+    columnHelper.accessor("created", {
+      header: "Created",
+      cell: (info) => (
+        <div className="text-gray-500">{formatDate(info.getValue())}</div>
+      ),
+    }),
+    columnHelper.accessor("id", {
+      header: "",
+      cell: (info) => (
+        <div className="flex justify-end">
+          <ActionDropdown
+            onView={() => navigate(`/categories/${info.getValue()}`)}
+            onEdit={() => navigate(`/categories/${info.getValue()}/edit`)}
+            onDelete={() =>
+              setDeleteModal({ isOpen: true, categoryId: info.getValue() })
+            }
+          />
+        </div>
+      ),
+    }),
+  ];
+
+  return (
+    <>
+      <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded-lg">
+        <DataTable
+          data={data?.items || []}
+          columns={columns}
+          pageCount={Math.ceil((data?.totalItems || 0) / tableParams.perPage)}
+          pageSize={tableParams.perPage}
+          isLoading={isLoading}
+          emptyState={{
+            title: "No categories found",
+            description:
+              "Get started by creating your first transaction category.",
+            action: {
+              label: "Create Category",
+              onClick: () => navigate("/categories/new"),
+            },
+          }}
+        />
+      </div>
+
+      <ConfirmationModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, categoryId: null })}
+        onConfirm={handleDelete}
+        title="Delete Category"
+        message="Are you sure you want to delete this category? This action cannot be undone."
+        confirmLabel="Delete"
+        type="danger"
+      />
+    </>
   );
 }

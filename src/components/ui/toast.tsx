@@ -1,14 +1,22 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { CheckCircle, XCircle, Info, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { CheckCircle, XCircle, Info } from 'lucide-react';
+import type { Toast as ToastType } from '@/lib/hooks/useToast';
 
-interface ToastProps {
-  message: string;
-  type: 'success' | 'error' | 'info';
-  onClose?: () => void;
+interface ToastProps extends ToastType {
+  onRemove: (id: string) => void;
 }
 
-export function Toast({ message, type, onClose }: ToastProps) {
+export function Toast({ id, message, type, onRemove }: ToastProps) {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onRemove(id);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [id, onRemove]);
+
   const Icon = {
     success: CheckCircle,
     error: XCircle,
@@ -16,26 +24,29 @@ export function Toast({ message, type, onClose }: ToastProps) {
   }[type];
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 50, scale: 0.3 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
       className={cn(
-        'flex items-center p-4 mb-4 rounded-lg shadow-lg',
+        'flex items-center justify-between w-full max-w-sm px-4 py-3 rounded-lg shadow-lg',
         {
-          'bg-green-50 text-green-800': type === 'success',
-          'bg-red-50 text-red-800': type === 'error',
-          'bg-blue-50 text-blue-800': type === 'info',
+          'bg-green-50 text-green-800 border border-green-200': type === 'success',
+          'bg-red-50 text-red-800 border border-red-200': type === 'error',
+          'bg-blue-50 text-blue-800 border border-blue-200': type === 'info',
         }
       )}
     >
-      <Icon className="h-5 w-5 mr-3" />
-      <p className="flex-1">{message}</p>
-      {onClose && (
-        <button
-          onClick={onClose}
-          className="ml-4 text-gray-400 hover:text-gray-600"
-        >
-          ×
-        </button>
-      )}
-    </div>
+      <div className="flex items-center space-x-3">
+        <Icon className="h-5 w-5" />
+        <p className="text-sm font-medium">{message}</p>
+      </div>
+      <button
+        onClick={() => onRemove(id)}
+        className="ml-4 inline-flex text-gray-400 hover:text-gray-500 focus:outline-none"
+      >
+        <X className="h-4 w-4" />
+      </button>
+    </motion.div>
   );
 }

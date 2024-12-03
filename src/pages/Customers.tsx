@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { CustomersList } from '@/components/customers/CustomersList';
 import { CreateCustomer } from '@/components/customers/CreateCustomer';
 import { ViewCustomer } from '@/components/customers/ViewCustomer';
+import { EditCustomer } from '@/components/customers/EditCustomer';
 
 export function Customers() {
   return (
@@ -36,6 +37,7 @@ export function Customers() {
       />
       <Route path="/new" element={<CreateCustomer />} />
       <Route path="/:id" element={<ViewCustomer />} />
+      <Route path="/:id/edit" element={<EditCustomer />} />
     </Routes>
   );
 }

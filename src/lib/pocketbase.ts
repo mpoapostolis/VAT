@@ -1,38 +1,6 @@
 import PocketBase from 'pocketbase';
-import { dummyInvoices, dummyCustomers, dummyCategories } from './dummy-data';
 
 export const pb = new PocketBase('https://api.vxlverse.com');
-
-// Mock PocketBase methods for demo
-// pb.collection = (name: string) => ({``
-//   getList: async () => {
-//     switch (name) {
-//       case 'invoices':
-//         return { items: dummyInvoices };
-//       case 'customers':
-//         return { items: dummyCustomers };
-//       case 'categories':
-//         return { items: dummyCategories };
-//       default:
-//         return { items: [] };
-//     }
-//   },
-//   getOne: async (id: string) => {
-//     switch (name) {
-//       case 'invoices':
-//         return dummyInvoices.find(i => i.id === id);
-//       case 'customers':
-//         return dummyCustomers.find(c => c.id === id);
-//       case 'categories':
-//         return dummyCategories.find(c => c.id === id);
-//       default:
-//         throw new Error('Not found');
-//     }
-//   },
-//   create: async (data: any) => ({ id: String(Date.now()), ...data }),
-//   update: async (id: string, data: any) => ({ id, ...data }),
-//   delete: async (id: string) => true
-// });
 
 export interface Customer {
   id: string;
@@ -42,6 +10,8 @@ export interface Customer {
   trn: string;
   address: string;
   notes?: string;
+  created: string;
+  updated: string;
 }
 
 export interface InvoiceItem {
@@ -56,6 +26,7 @@ export interface Invoice {
   id: string;
   number: string;
   customerId: string;
+  categoryId: string;
   date: string;
   dueDate: string;
   items: InvoiceItem[];
@@ -72,4 +43,20 @@ export interface Category {
   type: 'income' | 'expense';
   description: string;
   budget?: number;
+  transactions?: number;
+  amount?: number;
+}
+
+export interface VatReturn {
+  id: string;
+  period: string;
+  startDate: string;
+  endDate: string;
+  salesVat: number;
+  purchasesVat: number;
+  netVat: number;
+  status: 'draft' | 'submitted';
+  submittedAt?: string;
+  notes?: string;
+  dueDate: string;
 }

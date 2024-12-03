@@ -2,15 +2,15 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import useSWR from 'swr';
-import { ArrowLeft } from 'lucide-react';
 import { AnimatedPage } from '@/components/AnimatedPage';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { pb } from '@/lib/pocketbase';
-import type { Category } from '@/lib/pocketbase';
+import { PageHeader } from '@/components/ui/page-header';
+import { categoryService } from '@/lib/services/category-service';
 import { useToast } from '@/lib/hooks/useToast';
+import type { Category } from '@/lib/pocketbase';
 
 const typeOptions = [
   { value: 'income', label: 'Income' },
@@ -21,7 +21,10 @@ export function EditCategory() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToast } = useToast();
-  const { data: category } = useSWR<Category>(`categories/${id}`);
+  const { data: category } = useSWR<Category>(
+    id ? `categories/${id}` : null,
+    () => categoryService.getById(id!)
+  );
 
   const {
     register,
@@ -32,9 +35,10 @@ export function EditCategory() {
     defaultValues: category,
   });
 
-  const onSubmit = async (data: Category) => {
+  const onSubmit = async (data: Partial<Category>) => {
+    if (!id) return;
     try {
-      await pb.collection('categories').update(id!, data);
+      await categoryService.update(id, data);
       addToast('Category updated successfully', 'success');
       navigate('/categories');
     } catch (error) {
@@ -42,27 +46,37 @@ export function EditCategory() {
     }
   };
 
-  if (!category) return null;
+  if (!category) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+      </div>
+    );
+  }
+
+  const headerActions = (
+    <>
+      <Button variant="outline" onClick={() => navigate('/categories')}>
+        Cancel
+      </Button>
+      <Button type="submit" form="category-form">
+        Save Changes
+      </Button>
+    </>
+  );
 
   return (
     <AnimatedPage>
       <div className="space-y-6">
-        <div className="flex items-center space-x-4">
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/categories')}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Edit Category</h1>
-            <p className="text-sm text-gray-500 mt-1">Update category details</p>
-          </div>
-        </div>
+        <PageHeader
+          title="Edit Category"
+          subtitle="Update category details"
+          onBack={() => navigate('/categories')}
+          actions={headerActions}
+        />
 
-        <div className="bg-white">
-          <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
+        <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20">
+          <form id="category-form" onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
             <div className="grid grid-cols-2 gap-6">
               <FormItem>
                 <FormLabel>Category Name</FormLabel>
@@ -87,9 +101,10 @@ export function EditCategory() {
 
             <FormItem>
               <FormLabel>Description</FormLabel>
-              <Input
+              <textarea
                 {...register('description', { required: 'Description is required' })}
                 defaultValue={category.description}
+                className="w-full h-24 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0066FF] focus:border-transparent resize-none"
               />
               {errors.description && (
                 <FormMessage>{errors.description.message}</FormMessage>
@@ -97,7 +112,7 @@ export function EditCategory() {
             </FormItem>
 
             <FormItem>
-              <FormLabel>Monthly Budget (Optional)</FormLabel>
+              <FormLabel>Budget (Optional)</FormLabel>
               <Input
                 type="number"
                 step="0.01"
@@ -105,19 +120,6 @@ export function EditCategory() {
                 defaultValue={category.budget}
               />
             </FormItem>
-
-            <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => navigate('/categories')}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </div>
           </form>
         </div>
       </div>

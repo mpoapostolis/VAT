@@ -1,136 +1,157 @@
-import React from 'react';
-import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { Eye, Download, FileEdit, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { DataTable } from '@/components/ui/data-table';
+import { ActionDropdown } from '@/components/ui/action-dropdown';
+import { createColumnHelper } from '@tanstack/react-table';
 import { formatCurrency } from '@/lib/utils';
+import { motion } from 'framer-motion';
+import { vatReturnService } from '@/lib/services/vat-return-service';
+import useSWR from 'swr';
+import type { VatReturn } from '@/lib/pocketbase';
+import { useMutateData } from '@/lib/hooks/useMutateData';
+import { ConfirmationModal } from '@/components/ui/confirmation-modal';
 
-const vatPeriods = [
-  {
-    id: 1,
-    period: 'Q1 2024',
-    startDate: '2024-01-01',
-    endDate: '2024-03-31',
-    salesVat: 45000,
-    purchasesVat: 32000,
-    netVat: 13000,
-    status: 'Due',
-    dueDate: '2024-04-30',
-  },
-  {
-    id: 2,
-    period: 'Q4 2023',
-    startDate: '2023-10-01',
-    endDate: '2023-12-31',
-    salesVat: 52000,
-    purchasesVat: 38000,
-    netVat: 14000,
-    status: 'Submitted',
-    dueDate: '2024-01-31',
-  },
-  {
-    id: 3,
-    period: 'Q3 2023',
-    startDate: '2023-07-01',
-    endDate: '2023-09-30',
-    salesVat: 48000,
-    purchasesVat: 35000,
-    netVat: 13000,
-    status: 'Submitted',
-    dueDate: '2023-10-31',
-  },
-];
+const columnHelper = createColumnHelper<VatReturn>();
 
 export function VatReturnList() {
-  const handleDownloadPdf = (vatReturnId: number) => {
-    // Handle PDF download
-    console.log('Downloading PDF for VAT return:', vatReturnId);
+  const navigate = useNavigate();
+  const { data: vatReturnsData, isLoading, mutate } = useSWR('vat_returns', () => vatReturnService.getAll());
+  const { mutateData } = useMutateData();
+  const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; vatReturnId: string | null }>({
+    isOpen: false,
+    vatReturnId: null
+  });
+
+  const handleDelete = async () => {
+    if (!deleteModal.vatReturnId) return;
+    
+    await mutateData(
+      mutate,
+      () => vatReturnService.delete(deleteModal.vatReturnId!),
+      {
+        successMessage: 'VAT return deleted successfully',
+        errorMessage: 'Failed to delete VAT return'
+      }
+    );
+    setDeleteModal({ isOpen: false, vatReturnId: null });
   };
 
-  const handleDeleteVatReturn = (vatReturnId: number) => {
-    // Handle VAT return deletion
-    console.log('Deleting VAT return:', vatReturnId);
+  const handleDownload = async (id: string) => {
+    await mutateData(
+      mutate,
+      async () => {
+        // Simulated download - replace with actual download logic
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        return true;
+      },
+      {
+        successMessage: 'VAT return downloaded successfully',
+        errorMessage: 'Failed to download VAT return'
+      }
+    );
   };
+
+  const columns = [
+    columnHelper.accessor('period', {
+      header: 'Period',
+      cell: (info) => <span className="font-medium">{info.getValue()}</span>,
+    }),
+    columnHelper.accessor(row => `${row.startDate} - ${row.endDate}`, {
+      header: 'Date Range',
+      cell: (info) => {
+        const [start, end] = info.getValue().split(' - ');
+        return (
+          <span className="text-gray-500">
+            {new Date(start).toLocaleDateString()} -{' '}
+            {new Date(end).toLocaleDateString()}
+          </span>
+        );
+      },
+    }),
+    columnHelper.accessor('salesVat', {
+      header: 'Sales VAT',
+      cell: (info) => formatCurrency(info.getValue()),
+    }),
+    columnHelper.accessor('purchasesVat', {
+      header: 'Purchases VAT',
+      cell: (info) => formatCurrency(info.getValue()),
+    }),
+    columnHelper.accessor('netVat', {
+      header: 'Net VAT',
+      cell: (info) => (
+        <span className="font-medium">{formatCurrency(info.getValue())}</span>
+      ),
+    }),
+    columnHelper.accessor('status', {
+      header: 'Status',
+      cell: (info) => (
+        <span className={`inline-flex items-center px-2.5 py-0.5 text-xs font-medium ${
+          info.getValue() === 'draft'
+            ? 'bg-yellow-50 text-yellow-800 border border-yellow-200'
+            : 'bg-green-50 text-green-800 border border-green-200'
+        }`}>
+          {info.getValue().charAt(0).toUpperCase() + info.getValue().slice(1)}
+        </span>
+      ),
+    }),
+    columnHelper.accessor('dueDate', {
+      header: 'Due Date',
+      cell: (info) => new Date(info.getValue()).toLocaleDateString(),
+    }),
+    columnHelper.accessor('id', {
+      header: '',
+      cell: (info) => (
+        <div className="flex justify-end">
+          <ActionDropdown
+            onView={() => navigate(`/vat-return/${info.getValue()}`)}
+            onDownload={() => handleDownload(info.getValue())}
+            onEdit={() => navigate(`/vat-return/${info.getValue()}/edit`)}
+            onDelete={() => setDeleteModal({ isOpen: true, vatReturnId: info.getValue() })}
+          />
+        </div>
+      ),
+    }),
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+      </div>
+    );
+  }
 
   return (
-    <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20">
-      <div className="px-6 py-4 border-b border-gray-200">
-        <h2 className="text-lg font-medium">VAT Return Periods</h2>
-      </div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Period</TableHead>
-            <TableHead>Date Range</TableHead>
-            <TableHead>Sales VAT</TableHead>
-            <TableHead>Purchases VAT</TableHead>
-            <TableHead>Net VAT</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Due Date</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {vatPeriods.map((period) => (
-            <TableRow key={period.id} className="animate-fade-in">
-              <TableCell className="font-medium">{period.period}</TableCell>
-              <TableCell>
-                {new Date(period.startDate).toLocaleDateString()} -{' '}
-                {new Date(period.endDate).toLocaleDateString()}
-              </TableCell>
-              <TableCell>{formatCurrency(period.salesVat)}</TableCell>
-              <TableCell>{formatCurrency(period.purchasesVat)}</TableCell>
-              <TableCell className="font-medium">{formatCurrency(period.netVat)}</TableCell>
-              <TableCell>
-                <span
-                  className={`inline-flex items-center px-2.5 py-0.5 text-xs font-medium ${
-                    period.status === 'Due'
-                      ? 'bg-yellow-50 text-yellow-800 border border-yellow-200'
-                      : 'bg-green-50 text-green-800 border border-green-200'
-                  }`}
-                >
-                  {period.status}
-                </span>
-              </TableCell>
-              <TableCell>{new Date(period.dueDate).toLocaleDateString()}</TableCell>
-              <TableCell>
-                <div className="flex justify-end space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => window.open(`/vat-return/${period.id}`, '_blank')}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDownloadPdf(period.id)}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    <Download className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    <FileEdit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDeleteVatReturn(period.id)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+    <>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <DataTable
+          data={vatReturnsData?.items || []}
+          columns={columns}
+          pageSize={10}
+          emptyState={{
+            title: 'No VAT returns found',
+            description: 'Get started by preparing your first VAT return.',
+            action: {
+              label: 'Prepare VAT Return',
+              onClick: () => navigate('/vat-return/new')
+            }
+          }}
+        />
+      </motion.div>
+
+      <ConfirmationModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, vatReturnId: null })}
+        onConfirm={handleDelete}
+        title="Delete VAT Return"
+        message="Are you sure you want to delete this VAT return? This action cannot be undone."
+        confirmLabel="Delete"
+        type="danger"
+      />
+    </>
   );
 }

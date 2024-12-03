@@ -1,21 +1,13 @@
-import { useState, useCallback } from 'react';
-
-interface Toast {
-  id: string;
-  message: string;
-  type: 'success' | 'error' | 'info';
-}
+import { useContext } from 'react';
+import { ToastContext } from '../contexts/toast-context';
+import type { ToastType } from '../contexts/toast-context';
 
 export function useToast() {
-  const [toasts, setToasts] = useState<Toast[]>([]);
-
-  const addToast = useCallback((message: string, type: Toast['type'] = 'info') => {
-    const id = Math.random().toString(36).substring(7);
-    setToasts((prev) => [...prev, { id, message, type }]);
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((toast) => toast.id !== id));
-    }, 3000);
-  }, []);
-
-  return { toasts, addToast };
+  const context = useContext(ToastContext);
+  if (!context) {
+    throw new Error('useToast must be used within a ToastProvider');
+  }
+  return context;
 }
+
+export type { ToastType };

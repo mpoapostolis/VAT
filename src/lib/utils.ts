@@ -26,6 +26,10 @@ export function formatDate(date: string | Date): string {
   return format(new Date(date), 'PPP');
 }
 
+export function formatDateForInput(date: string | Date): string {
+  return format(new Date(date), 'yyyy-MM-dd');
+}
+
 export function calculateDueDate(date: Date): Date {
   const dueDate = new Date(date);
   dueDate.setDate(dueDate.getDate() + 30);

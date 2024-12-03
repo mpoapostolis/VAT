@@ -1,27 +1,26 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { ArrowLeft } from 'lucide-react';
-import { AnimatedPage } from '@/components/AnimatedPage';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
-import { FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { ArrowLeft } from "lucide-react";
+import { AnimatedPage } from "@/components/AnimatedPage";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { categoryService } from "@/lib/services/category-service";
+import { useToast } from "@/lib/hooks/useToast";
+import type { Category } from "@/lib/pocketbase";
 
-interface CategoryFormData {
-  name: string;
-  description: string;
-  type: 'income' | 'expense';
-  budget?: number;
-}
+type CategoryFormData = Omit<Category, "id" | "transactions" | "amount">;
 
 const typeOptions = [
-  { value: 'income', label: 'Income' },
-  { value: 'expense', label: 'Expense' },
+  { value: "income", label: "Income" },
+  { value: "expense", label: "Expense" },
 ];
 
 export function CreateCategory() {
   const navigate = useNavigate();
+  const { addToast } = useToast();
   const {
     register,
     handleSubmit,
@@ -31,10 +30,12 @@ export function CreateCategory() {
 
   const onSubmit = async (data: CategoryFormData) => {
     try {
-      // Handle category creation
-      navigate('/categories');
+      await categoryService.create(data);
+      addToast("Category created successfully", "success");
+      navigate("/categories");
     } catch (error) {
-      console.error('Failed to create category:', error);
+      console.error("Failed to create category:", error);
+      addToast("Failed to create category", "error");
     }
   };
 
@@ -44,14 +45,18 @@ export function CreateCategory() {
         <div className="flex items-center space-x-4">
           <Button
             variant="ghost"
-            onClick={() => navigate('/categories')}
+            onClick={() => navigate("/categories")}
             className="text-gray-500 hover:text-gray-700"
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">New Category</h1>
-            <p className="text-sm text-gray-500 mt-1">Create a new transaction category</p>
+            <h1 className="text-2xl font-semibold text-gray-900">
+              New Category
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Create a new transaction category
+            </p>
           </div>
         </div>
 
@@ -61,10 +66,14 @@ export function CreateCategory() {
               <FormItem>
                 <FormLabel>Category Name</FormLabel>
                 <Input
-                  {...register('name', { required: 'Category name is required' })}
+                  {...register("name", {
+                    required: "Category name is required",
+                  })}
                   placeholder="Enter category name"
                 />
-                {errors.name && <FormMessage>{errors.name.message}</FormMessage>}
+                {errors.name && (
+                  <FormMessage>{errors.name.message}</FormMessage>
+                )}
               </FormItem>
 
               <FormItem>
@@ -72,17 +81,23 @@ export function CreateCategory() {
                 <Select
                   options={typeOptions}
                   placeholder="Select type"
-                  onChange={(value) => setValue('type', value as 'income' | 'expense')}
+                  onChange={(value) =>
+                    setValue("type", value as "income" | "expense")
+                  }
                   error={!!errors.type}
                 />
-                {errors.type && <FormMessage>{errors.type.message}</FormMessage>}
+                {errors.type && (
+                  <FormMessage>{errors.type.message}</FormMessage>
+                )}
               </FormItem>
             </div>
 
             <FormItem>
               <FormLabel>Description</FormLabel>
               <Input
-                {...register('description', { required: 'Description is required' })}
+                {...register("description", {
+                  required: "Description is required",
+                })}
                 placeholder="Enter category description"
               />
               {errors.description && (
@@ -90,26 +105,16 @@ export function CreateCategory() {
               )}
             </FormItem>
 
-            <FormItem>
-              <FormLabel>Monthly Budget (Optional)</FormLabel>
-              <Input
-                type="number"
-                step="0.01"
-                {...register('budget', { min: 0 })}
-                placeholder="Enter monthly budget amount"
-              />
-            </FormItem>
-
             <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => navigate('/categories')}
+                onClick={() => navigate("/categories")}
               >
                 Cancel
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Creating...' : 'Create Category'}
+                {isSubmitting ? "Creating..." : "Create Category"}
               </Button>
             </div>
           </form>
