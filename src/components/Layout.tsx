@@ -1,6 +1,5 @@
-import React, { useState } from "react";
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
-import { Mail, Bell, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { Dropdown } from "@/components/ui/dropdown";
 import { Search } from "@/components/ui/search";
@@ -32,14 +31,15 @@ export function Layout() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50/50">
       <div className="sticky top-0 z-50">
-        <div className="bg-[#0066FF]">
-          <div className="container mx-auto px-6">
-            <div className="flex items-center justify-between py-4">
+        {/* Top Header */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-[1400px] mx-auto">
+            <div className="flex h-16 items-center justify-between px-8">
               <Link to="/" className="flex items-center space-x-2">
-                <div className="text-white text-2xl font-bold">
-                  <span className="text-3xl">C</span> CashFlow
+                <div className="text-gray-900 font-bold tracking-tight">
+                  <span className="text-[#0066FF]">C</span> CashFlow
                 </div>
               </Link>
 
@@ -48,13 +48,18 @@ export function Layout() {
 
                 <Dropdown
                   trigger={
-                    <button className="flex items-center space-x-2 text-white">
+                    <button className="flex items-center space-x-3 hover:bg-gray-50 rounded-xl py-2 px-3 transition-colors">
                       <img
                         src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
                         alt="Profile"
-                        className="h-8 w-8 rounded-full border-2 border-white/20"
+                        className="h-8 w-8 rounded-full ring-2 ring-white"
                       />
-                      <ChevronDown className="h-4 w-4" />
+                      <div className="flex items-center">
+                        <span className="text-sm font-medium text-gray-700">
+                          John Doe
+                        </span>
+                        <ChevronDown className="h-4 w-4 ml-2 text-gray-500" />
+                      </div>
                     </button>
                   }
                   items={[
@@ -68,17 +73,18 @@ export function Layout() {
           </div>
         </div>
 
-        <div className="bg-[#0066FF] pt-3">
-          <div className="container mx-auto px-6">
-            <nav className="flex">
+        {/* Navigation */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-[1400px] mx-auto">
+            <nav className="flex px-8">
               {navItems.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`py-2 rounded-t-lg px-6 text-sm font-medium transition-colors ${
+                  className={`py-4 px-5 text-sm font-medium border-b-2 transition-colors ${
                     isActiveTab(item.href)
-                      ? "bg-white text-[#0066FF]"
-                      : "text-white/70 hover:text-white hover:bg-white/10"
+                      ? "border-[#0066FF] text-[#0066FF]"
+                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                   }`}
                 >
                   {item.name}
@@ -89,7 +95,7 @@ export function Layout() {
         </div>
       </div>
 
-      <main className="container mx-auto px-6 py-8">
+      <main className="max-w-[1400px] mx-auto px-8 py-8">
         <Outlet />
       </main>
     </div>

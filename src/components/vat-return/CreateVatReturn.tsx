@@ -19,6 +19,7 @@ import { formatCurrency } from "@/lib/utils";
 import useSWR from "swr";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
+import { AnimatedPage } from "../AnimatedPage";
 
 export function CreateVatReturn() {
   const navigate = useNavigate();

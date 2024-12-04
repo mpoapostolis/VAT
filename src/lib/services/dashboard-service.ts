@@ -1,10 +1,12 @@
 import { pb } from '../pocketbase';
 import type { Invoice } from '../pocketbase';
+import { addDays, isWithinInterval, startOfDay } from 'date-fns';
 
 interface DashboardStats {
-  totalBalance: number;
-  totalIncome: number;
-  totalSpending: number;
+  totalInvoices: number;
+  totalRevenue: number;
+  netSales: number;
+  closeToEnd: number;
   recentInvoices: Invoice[];
 }
 
@@ -22,19 +24,32 @@ class DashboardService {
         expand: 'customerId',
       });
 
-      // Calculate totals
-      const totalIncome = invoices.items.reduce((sum, invoice) => {
-        return invoice.status === 'paid' ? sum + invoice.total : sum;
+      // Calculate total revenue (sum of all invoice totals)
+      const totalRevenue = invoices.items.reduce((sum, invoice) => {
+        return sum + invoice.total;
       }, 0);
 
-      const totalSpending = invoices.items.reduce((sum, invoice) => {
-        return invoice.type === 'expense' ? sum + invoice.total : sum;
+      // Calculate net sales (revenue minus VAT)
+      const netSales = invoices.items.reduce((sum, invoice) => {
+        return sum + (invoice.total - (invoice.vat || 0));
+      }, 0);
+
+      // Count invoices close to end (due within next 7 days)
+      const today = startOfDay(new Date());
+      const closeToEnd = invoices.items.reduce((count, invoice) => {
+        if (!invoice.dueDate) return count;
+        const dueDate = new Date(invoice.dueDate);
+        return isWithinInterval(dueDate, {
+          start: today,
+          end: addDays(today, 7)
+        }) ? count + 1 : count;
       }, 0);
 
       return {
-        totalBalance: totalIncome - totalSpending,
-        totalIncome,
-        totalSpending,
+        totalInvoices: invoices.items.length,
+        totalRevenue,
+        netSales,
+        closeToEnd,
         recentInvoices: invoices.items,
       };
     } catch (error) {
