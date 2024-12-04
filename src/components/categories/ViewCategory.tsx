@@ -1,21 +1,22 @@
-import { useParams, useNavigate, Link } from "react-router-dom";
+import React from "react";
+import { useParams } from "react-router-dom";
 import useSWR from "swr";
-import { FolderOpen, FileText, Printer, Send, FileEdit } from "lucide-react";
+import { motion } from "framer-motion";
 import { AnimatedPage } from "@/components/AnimatedPage";
-import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/ui/page-header";
 import { categoryService } from "@/lib/services/category-service";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import type { Category } from "@/lib/pocketbase";
+import { CategoryHeader } from "./category-header";
+import { Tag, FileText, Calendar, BarChart } from "lucide-react";
+import { formatDate } from "@/lib/utils";
 
 export function ViewCategory() {
   const { id } = useParams();
-  const navigate = useNavigate();
-  const { data: categoryData, isLoading } = useSWR(
+  const { data: category } = useSWR<Category>(
     id ? `categories/${id}` : null,
-    () => categoryService.getWithInvoices(id!)
+    () => categoryService.getById(id!)
   );
 
-  if (isLoading || !categoryData) {
+  if (!category) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
@@ -23,172 +24,75 @@ export function ViewCategory() {
     );
   }
 
-  const { stats } = categoryData;
-
-  const headerActions = (
-    <>
-      <Button variant="outline" size="sm" onClick={() => window.print()}>
-        <Printer className="h-4 w-4 mr-2" />
-        Print
-      </Button>
-      <Button variant="outline" size="sm">
-        <Send className="h-4 w-4 mr-2" />
-        Share
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => navigate(`/categories/${id}/edit`)}
-      >
-        <FileEdit className="h-4 w-4 mr-2" />
-        Edit
-      </Button>
-    </>
-  );
-
   return (
     <AnimatedPage>
-      <div className="space-y-6">
-        <PageHeader
-          title={categoryData.name}
-          subtitle={`${categoryData.type.charAt(0).toUpperCase() + categoryData.type.slice(1)} Category`}
-          onBack={() => navigate("/categories")}
-          actions={headerActions}
-          type={categoryData.type}
-        />
+      <div className="space-y-6 max-w-6xl mx-auto">
+        <CategoryHeader mode="view" />
 
-        <div className="grid grid-cols-3 gap-6">
-          <div className="col-span-2 bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 p-6 space-y-6">
-            <div>
-              <h2 className="text-lg font-medium text-gray-900 mb-4">
-                Basic Information
-              </h2>
-              <div className="space-y-4">
+        <div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+          >
+            {/* Basic Information */}
+            <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded-xl overflow-hidden">
+              <div className="border-b border-gray-200/60 bg-gray-50/50 px-6 py-4">
+                <h2 className="font-medium text-gray-800">Basic Information</h2>
+                <p className="text-sm text-gray-500">Category details and metadata</p>
+              </div>
+
+              <div className="p-6 space-y-6">
                 <div className="flex items-start space-x-3">
-                  <div
-                    className={`p-2 rounded-lg ${
-                      categoryData.type === "income"
-                        ? "bg-green-50"
-                        : "bg-red-50"
-                    }`}
-                  >
-                    <FolderOpen
-                      className={`h-5 w-5 ${
-                        categoryData.type === "income"
-                          ? "text-green-500"
-                          : "text-red-500"
-                      }`}
-                    />
-                  </div>
+                  <Tag className="h-5 w-5 text-gray-400 mt-0.5" />
                   <div>
-                    <div className="font-medium text-gray-900">
-                      {categoryData.name}
-                    </div>
+                    <div className="font-medium text-gray-900">{category.name}</div>
                     <div className="text-sm text-gray-500">Category Name</div>
                   </div>
                 </div>
 
-                <div className="flex items-start space-x-3">
-                  <div className="p-2 rounded-lg bg-gray-50">
-                    <FileText className="h-5 w-5 text-gray-400" />
+                {category.description && (
+                  <div className="flex items-start space-x-3">
+                    <FileText className="h-5 w-5 text-gray-400 mt-0.5" />
+                    <div>
+                      <div className="font-medium text-gray-900 whitespace-pre-wrap">
+                        {category.description}
+                      </div>
+                      <div className="text-sm text-gray-500">Description</div>
+                    </div>
                   </div>
+                )}
+
+                <div className="flex items-start space-x-3">
+                  <Calendar className="h-5 w-5 text-gray-400 mt-0.5" />
                   <div>
                     <div className="font-medium text-gray-900">
-                      {categoryData.description}
+                      {formatDate(category.created)}
                     </div>
-                    <div className="text-sm text-gray-500">Description</div>
+                    <div className="text-sm text-gray-500">Created Date</div>
                   </div>
                 </div>
+              </div>
+            </div>
 
+            {/* Statistics */}
+            <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded-xl overflow-hidden">
+              <div className="border-b border-gray-200/60 bg-gray-50/50 px-6 py-4">
+                <h2 className="font-medium text-gray-800">Statistics</h2>
+                <p className="text-sm text-gray-500">Usage and performance metrics</p>
+              </div>
+
+              <div className="p-6 space-y-6">
                 <div className="flex items-start space-x-3">
-                  <div
-                    className={`p-2 rounded-lg ${
-                      categoryData.type === "income"
-                        ? "bg-green-50"
-                        : "bg-red-50"
-                    }`}
-                  >
-                    <div
-                      className={`h-5 w-5 rounded-full border-2 ${
-                        categoryData.type === "income"
-                          ? "border-green-500 bg-green-100"
-                          : "border-red-500 bg-red-100"
-                      }`}
-                    />
-                  </div>
+                  <BarChart className="h-5 w-5 text-gray-400 mt-0.5" />
                   <div>
-                    <div className="font-medium text-gray-900">
-                      {categoryData.type.charAt(0).toUpperCase() +
-                        categoryData.type.slice(1)}
-                    </div>
-                    <div className="text-sm text-gray-500">Type</div>
+                    <div className="font-medium text-gray-900">Coming Soon</div>
+                    <div className="text-sm text-gray-500">Category Statistics</div>
                   </div>
                 </div>
               </div>
             </div>
-
-            <div className="pt-6 border-t border-gray-200">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <div className="text-gray-500">Created</div>
-                  <div className="font-medium text-gray-900">
-                    {formatDate(categoryData.created)}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-gray-500">Last Updated</div>
-                  <div className="font-medium text-gray-900">
-                    {formatDate(categoryData.updated)}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-6">
-            <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">
-                Statistics
-              </h2>
-              <div className="space-y-4">
-                <div>
-                  <div className="text-sm text-gray-500">Total Amount</div>
-                  <div
-                    className={`text-2xl font-semibold mt-1 ${
-                      categoryData.type === "income"
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {formatCurrency(stats.totalAmount)}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
-                  <div>
-                    <div className="text-sm text-gray-500">Paid</div>
-                    <div className="font-medium text-green-600 mt-1">
-                      {formatCurrency(stats.paidAmount)}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500">Pending</div>
-                    <div className="font-medium text-yellow-600 mt-1">
-                      {formatCurrency(stats.pendingAmount)}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t border-gray-100">
-                  <div className="text-sm text-gray-500">Total Invoices</div>
-                  <div className="font-medium text-gray-900 mt-1">
-                    {stats.invoiceCount}{" "}
-                    {stats.invoiceCount === 1 ? "invoice" : "invoices"}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </AnimatedPage>

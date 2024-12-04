@@ -73,13 +73,14 @@ export function InvoiceHeader({
     <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <button
-            onClick={() => navigate("/invoices")}
-            className="inline-flex items-center justify-center h-9 px-3 text-sm font-medium text-gray-700 transition-colors bg-white border rounded-md hover:bg-gray-50 active:bg-gray-100"
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate("/vat-return")}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Invoices
-          </button>
+            Back
+          </Button>
         </div>
 
         <div className="flex items-center space-x-3">

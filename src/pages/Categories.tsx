@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, useNavigate } from "react-router-dom";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -9,6 +9,7 @@ import { EditCategory } from "@/components/categories/EditCategory";
 import { ViewCategory } from "@/components/categories/ViewCategory";
 
 export function Categories() {
+  const navigate = useNavigate();
   return (
     <Routes>
       <Route
@@ -25,12 +26,10 @@ export function Categories() {
                     Manage transaction categories
                   </p>
                 </div>
-                <Link to="new">
-                  <Button>
-                    <Plus className="h-4 w-4 mr-2" />
-                    New Category
-                  </Button>
-                </Link>
+                <Button size="sm" onClick={() => navigate("new")}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Category
+                </Button>
               </div>
               <CategoryList />
             </div>

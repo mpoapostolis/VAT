@@ -63,7 +63,14 @@ export function VatReturnList() {
   const columns = [
     columnHelper.accessor("period", {
       header: "Period",
-      cell: (info) => <span className="font-medium">{info.getValue()}</span>,
+      cell: (info) => (
+        <button
+          onClick={() => navigate(`/vat-return/${info.row.original.id}`)}
+          className="font-medium text-blue-600 hover:text-blue-700 hover:underline focus:outline-none"
+        >
+          {info.getValue()}
+        </button>
+      ),
     }),
 
     columnHelper.accessor("salesVat", {

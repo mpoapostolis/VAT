@@ -1,9 +1,9 @@
-import React from 'react';
-import { Eye, Download, FileEdit, Trash2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
-import { pb } from '@/lib/pocketbase';
-import { useToast } from '@/lib/hooks/useToast';
+import React from "react";
+import { Eye, Download, FileEdit, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { pb } from "@/lib/pocketbase";
+import { useToast } from "@/lib/hooks/useToast";
 
 interface InvoiceActionsProps {
   invoiceId: string;
@@ -15,18 +15,18 @@ export function InvoiceActions({ invoiceId, onDelete }: InvoiceActionsProps) {
   const { addToast } = useToast();
 
   const handlePreview = () => {
-    window.open(`/invoices/${invoiceId}`, '_blank');
+    window.open(`/invoices/${invoiceId}`, "_blank");
   };
 
   const handleDownload = async () => {
     try {
       // In a real app, this would call an API endpoint to generate the PDF
-      const response = await pb.collection('invoices').getOne(invoiceId);
-      
+      const response = await pb.collection("invoices").getOne(invoiceId);
+
       // Simulate PDF download
-      addToast('Invoice downloaded successfully', 'success');
+      addToast("Invoice downloaded successfully", "success");
     } catch (error) {
-      addToast('Failed to download invoice', 'error');
+      addToast("Failed to download invoice", "error");
     }
   };
 
@@ -35,13 +35,13 @@ export function InvoiceActions({ invoiceId, onDelete }: InvoiceActionsProps) {
   };
 
   const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this invoice?')) {
+    if (window.confirm("Are you sure you want to delete this invoice?")) {
       try {
-        await pb.collection('invoices').delete(invoiceId);
-        addToast('Invoice deleted successfully', 'success');
+        await pb.collection("invoices").delete(invoiceId);
+        addToast("Invoice deleted successfully", "success");
         onDelete?.();
       } catch (error) {
-        addToast('Failed to delete invoice', 'error');
+        addToast("Failed to delete invoice", "error");
       }
     }
   };

@@ -16,7 +16,7 @@ class DashboardService {
         : '';
 
       // Get recent invoices with expanded customer data
-      const invoices = await pb.collection('invoices').getList(1, 5, {
+      const invoices = await pb.collection('invoices').getList(1, 500, {
         filter,
         sort: '-created',
         expand: 'customerId',

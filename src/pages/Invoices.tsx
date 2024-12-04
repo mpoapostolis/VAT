@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { ViewInvoice } from "@/components/invoices/ViewInvoice";
 import { EditInvoice } from "@/components/invoices/EditInvoice";
 
 export function Invoices() {
+  const navigate = useNavigate();
   return (
     <Routes>
       <Route
@@ -27,13 +28,10 @@ export function Invoices() {
                 </div>
 
                 <div>
-                  <Link
-                    to="/invoices/new"
-                    className="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-white bg-[#0066FF] rounded-lg shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-                  >
+                  <Button size="sm" onClick={() => navigate("/invoices/new")}>
                     <Plus className="w-4 h-4 mr-2" />
                     New Invoice
-                  </Link>
+                  </Button>
                 </div>
               </div>
               <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded-lg">
