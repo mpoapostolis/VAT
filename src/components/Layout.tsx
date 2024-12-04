@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
-import { Mail, Bell, ChevronDown } from 'lucide-react';
-import { useAuth } from '@/lib/auth';
-import { Dropdown } from './ui/dropdown';
-import { Search } from './ui/search';
+import React, { useState } from "react";
+import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
+import { Mail, Bell, ChevronDown } from "lucide-react";
+import { useAuth } from "@/lib/auth";
+import { Dropdown } from "@/components/ui/dropdown";
+import { Search } from "@/components/ui/search";
 
 const navItems = [
-  { name: 'Dashboard', href: '/' },
-  { name: 'Invoices', href: '/invoices' },
-  { name: 'Customers', href: '/customers' },
-  { name: 'Categories', href: '/categories' },
-  { name: 'VAT Return', href: '/vat-return' },
-  { name: 'Settings', href: '/settings' },
+  { name: "Dashboard", href: "/" },
+  { name: "Invoices", href: "/invoices" },
+  { name: "Customers", href: "/customers" },
+  { name: "Categories", href: "/categories" },
+  { name: "VAT Return", href: "/vat-return" },
+  { name: "Settings", href: "/settings" },
 ];
 
 export function Layout() {
@@ -20,15 +20,15 @@ export function Layout() {
   const { user, logout } = useAuth();
 
   const isActiveTab = (href: string) => {
-    if (href === '/') {
-      return location.pathname === '/';
+    if (href === "/") {
+      return location.pathname === "/";
     }
     return location.pathname.startsWith(href);
   };
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
   };
 
   return (
@@ -45,28 +45,22 @@ export function Layout() {
 
               <div className="flex items-center space-x-6">
                 <Search />
-                <button className="relative p-2 text-white/70 hover:text-white">
-                  <Mail className="h-5 w-5" />
-                </button>
-                <button className="relative p-2 text-white/70 hover:text-white">
-                  <Bell className="h-5 w-5" />
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                </button>
+
                 <Dropdown
                   trigger={
                     <button className="flex items-center space-x-2 text-white">
                       <img
                         src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
                         alt="Profile"
-                        className="h-8 w-8 border-2 border-white/20"
+                        className="h-8 w-8 rounded-full border-2 border-white/20"
                       />
                       <ChevronDown className="h-4 w-4" />
                     </button>
                   }
                   items={[
-                    { label: 'Profile', onClick: () => {} },
-                    { label: 'Settings', onClick: () => navigate('/settings') },
-                    { label: 'Sign out', onClick: handleLogout },
+                    { label: "Profile", onClick: () => {} },
+                    { label: "Settings", onClick: () => navigate("/settings") },
+                    { label: "Sign out", onClick: handleLogout },
                   ]}
                 />
               </div>
@@ -74,17 +68,17 @@ export function Layout() {
           </div>
         </div>
 
-        <div className="bg-[#0066FF]">
+        <div className="bg-[#0066FF] pt-3">
           <div className="container mx-auto px-6">
             <nav className="flex">
               {navItems.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`py-4 px-6 text-sm font-medium transition-colors ${
+                  className={`py-2 rounded-t-lg px-6 text-sm font-medium transition-colors ${
                     isActiveTab(item.href)
-                      ? 'bg-white text-[#0066FF]'
-                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                      ? "bg-white text-[#0066FF]"
+                      : "text-white/70 hover:text-white hover:bg-white/10"
                   }`}
                 >
                   {item.name}

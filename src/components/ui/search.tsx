@@ -1,10 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Search as SearchIcon, Building2, FileText, FolderOpen, Calculator } from 'lucide-react';
-import useSWR from 'swr';
-import { searchService } from '@/lib/services/search-service';
-import { formatCurrency } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Search as SearchIcon,
+  Building2,
+  FileText,
+  FolderOpen,
+  Calculator,
+} from "lucide-react";
+import useSWR from "swr";
+import { searchService } from "@/lib/services/search-service";
+import { formatCurrency } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface SearchGroup {
   title: string;
@@ -19,10 +25,10 @@ interface SearchGroup {
 
 export function Search() {
   const navigate = useNavigate();
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [groupedResults, setGroupedResults] = useState<SearchGroup[]>([]);
   const { data: searchResults, mutate } = useSWR(
-    query ? ['search', query] : null,
+    query ? ["search", query] : null,
     () => searchService.search(query)
   );
 
@@ -34,53 +40,56 @@ export function Search() {
 
     const groups: SearchGroup[] = [
       {
-        title: 'Invoices',
+        title: "Invoices",
         icon: FileText,
-        results: searchResults.invoices.map(invoice => ({
+        results: searchResults.invoices.map((invoice) => ({
           id: invoice.id,
           title: `Invoice ${invoice.number}`,
-          subtitle: `${invoice.expand?.customerId?.name || 'Unknown'} - ${formatCurrency(invoice.total)}`,
-          href: `/invoices/${invoice.id}`
-        }))
+          subtitle: `${
+            invoice.expand?.customerId?.name || "Unknown"
+          } - ${formatCurrency(invoice.total)}`,
+          href: `/invoices/${invoice.id}`,
+        })),
       },
       {
-        title: 'Customers',
+        title: "Customers",
         icon: Building2,
-        results: searchResults.customers.map(customer => ({
+        results: searchResults.customers.map((customer) => ({
           id: customer.id,
           title: customer.name,
           subtitle: customer.email,
-          href: `/customers/${customer.id}`
-        }))
+          href: `/customers/${customer.id}`,
+        })),
       },
       {
-        title: 'Categories',
+        title: "Categories",
         icon: FolderOpen,
-        results: searchResults.categories.map(category => ({
+        results: searchResults.categories.map((category) => ({
           id: category.id,
           title: category.name,
-          subtitle: category.type.charAt(0).toUpperCase() + category.type.slice(1),
-          href: `/categories/${category.id}`
-        }))
+          subtitle:
+            category.type.charAt(0).toUpperCase() + category.type.slice(1),
+          href: `/categories/${category.id}`,
+        })),
       },
       {
-        title: 'VAT Returns',
+        title: "VAT Returns",
         icon: Calculator,
-        results: searchResults.vatReturns.map(vatReturn => ({
+        results: searchResults.vatReturns.map((vatReturn) => ({
           id: vatReturn.id,
           title: `VAT Return ${vatReturn.period}`,
           subtitle: formatCurrency(vatReturn.netVat),
-          href: `/vat-return/${vatReturn.id}`
-        }))
-      }
-    ].filter(group => group.results.length > 0);
+          href: `/vat-return/${vatReturn.id}`,
+        })),
+      },
+    ].filter((group) => group.results.length > 0);
 
     setGroupedResults(groups);
   }, [searchResults]);
 
   const handleResultClick = (href: string) => {
     navigate(href);
-    setQuery('');
+    setQuery("");
     setGroupedResults([]);
   };
 
@@ -110,8 +119,12 @@ export function Search() {
               <div key={group.title}>
                 <div className="px-3 py-1.5 bg-gray-50 flex items-center space-x-2">
                   <group.icon className="h-3.5 w-3.5 text-gray-400" />
-                  <div className="text-xs font-medium text-gray-700">{group.title}</div>
-                  <div className="text-[10px] text-gray-400">({group.results.length})</div>
+                  <div className="text-xs font-medium text-gray-700">
+                    {group.title}
+                  </div>
+                  <div className="text-[10px] text-gray-400">
+                    ({group.results.length})
+                  </div>
                 </div>
                 <div>
                   {group.results.map((result, index) => (
@@ -123,18 +136,28 @@ export function Search() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05 }}
                     >
-                      <div className={`p-1.5 rounded-lg ${
-                        group.title === 'Invoices' ? 'bg-blue-50 group-hover:bg-blue-100' :
-                        group.title === 'Customers' ? 'bg-green-50 group-hover:bg-green-100' :
-                        group.title === 'Categories' ? 'bg-purple-50 group-hover:bg-purple-100' :
-                        'bg-orange-50 group-hover:bg-orange-100'
-                      }`}>
-                        <group.icon className={`h-3.5 w-3.5 ${
-                          group.title === 'Invoices' ? 'text-blue-500' :
-                          group.title === 'Customers' ? 'text-green-500' :
-                          group.title === 'Categories' ? 'text-purple-500' :
-                          'text-orange-500'
-                        }`} />
+                      <div
+                        className={`p-1.5 rounded-lg ${
+                          group.title === "Invoices"
+                            ? "bg-blue-50 group-hover:bg-blue-100"
+                            : group.title === "Customers"
+                            ? "bg-green-50 group-hover:bg-green-100"
+                            : group.title === "Categories"
+                            ? "bg-purple-50 group-hover:bg-purple-100"
+                            : "bg-orange-50 group-hover:bg-orange-100"
+                        }`}
+                      >
+                        <group.icon
+                          className={`h-3.5 w-3.5 ${
+                            group.title === "Invoices"
+                              ? "text-blue-500"
+                              : group.title === "Customers"
+                              ? "text-green-500"
+                              : group.title === "Categories"
+                              ? "text-purple-500"
+                              : "text-orange-500"
+                          }`}
+                        />
                       </div>
                       <div>
                         <div className="text-sm font-medium text-gray-900 group-hover:text-[#0066FF] transition-colors">
