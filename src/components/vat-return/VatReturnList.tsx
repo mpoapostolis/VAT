@@ -1,36 +1,45 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { DataTable } from '@/components/ui/data-table';
-import { ActionDropdown } from '@/components/ui/action-dropdown';
-import { createColumnHelper } from '@tanstack/react-table';
-import { formatCurrency } from '@/lib/utils';
-import { motion } from 'framer-motion';
-import { vatReturnService } from '@/lib/services/vat-return-service';
-import useSWR from 'swr';
-import type { VatReturn } from '@/lib/pocketbase';
-import { useMutateData } from '@/lib/hooks/useMutateData';
-import { ConfirmationModal } from '@/components/ui/confirmation-modal';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { DataTable } from "@/components/ui/data-table";
+import { ActionDropdown } from "@/components/ui/action-dropdown";
+import { createColumnHelper } from "@tanstack/react-table";
+import { formatCurrency } from "@/lib/utils";
+import { motion } from "framer-motion";
+import { vatReturnService } from "@/lib/services/vat-return-service";
+import useSWR from "swr";
+import type { VatReturn } from "@/lib/pocketbase";
+import { useMutateData } from "@/lib/hooks/useMutateData";
+import { ConfirmationModal } from "@/components/ui/confirmation-modal";
 
 const columnHelper = createColumnHelper<VatReturn>();
 
 export function VatReturnList() {
   const navigate = useNavigate();
-  const { data: vatReturnsData, isLoading, mutate } = useSWR('vat_returns', () => vatReturnService.getAll());
+  const {
+    data: vatReturnsData,
+    isLoading,
+    mutate,
+  } = useSWR("vat_returns", () => vatReturnService.getAll());
+
+  console.log(vatReturnsData);
   const { mutateData } = useMutateData();
-  const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; vatReturnId: string | null }>({
+  const [deleteModal, setDeleteModal] = useState<{
+    isOpen: boolean;
+    vatReturnId: string | null;
+  }>({
     isOpen: false,
-    vatReturnId: null
+    vatReturnId: null,
   });
 
   const handleDelete = async () => {
     if (!deleteModal.vatReturnId) return;
-    
+
     await mutateData(
       mutate,
       () => vatReturnService.delete(deleteModal.vatReturnId!),
       {
-        successMessage: 'VAT return deleted successfully',
-        errorMessage: 'Failed to delete VAT return'
+        successMessage: "VAT return deleted successfully",
+        errorMessage: "Failed to delete VAT return",
       }
     );
     setDeleteModal({ isOpen: false, vatReturnId: null });
@@ -41,72 +50,62 @@ export function VatReturnList() {
       mutate,
       async () => {
         // Simulated download - replace with actual download logic
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         return true;
       },
       {
-        successMessage: 'VAT return downloaded successfully',
-        errorMessage: 'Failed to download VAT return'
+        successMessage: "VAT return downloaded successfully",
+        errorMessage: "Failed to download VAT return",
       }
     );
   };
 
   const columns = [
-    columnHelper.accessor('period', {
-      header: 'Period',
+    columnHelper.accessor("period", {
+      header: "Period",
       cell: (info) => <span className="font-medium">{info.getValue()}</span>,
     }),
-    columnHelper.accessor(row => `${row.startDate} - ${row.endDate}`, {
-      header: 'Date Range',
-      cell: (info) => {
-        const [start, end] = info.getValue().split(' - ');
-        return (
-          <span className="text-gray-500">
-            {new Date(start).toLocaleDateString()} -{' '}
-            {new Date(end).toLocaleDateString()}
-          </span>
-        );
-      },
-    }),
-    columnHelper.accessor('salesVat', {
-      header: 'Sales VAT',
+
+    columnHelper.accessor("salesVat", {
+      header: "Sales VAT",
       cell: (info) => formatCurrency(info.getValue()),
     }),
-    columnHelper.accessor('purchasesVat', {
-      header: 'Purchases VAT',
+    columnHelper.accessor("purchasesVat", {
+      header: "Purchases VAT",
       cell: (info) => formatCurrency(info.getValue()),
     }),
-    columnHelper.accessor('netVat', {
-      header: 'Net VAT',
+    columnHelper.accessor("netVAT", {
+      header: "Net VAT",
       cell: (info) => (
         <span className="font-medium">{formatCurrency(info.getValue())}</span>
       ),
     }),
-    columnHelper.accessor('status', {
-      header: 'Status',
+    columnHelper.accessor("status", {
+      header: "Status",
       cell: (info) => (
-        <span className={`inline-flex items-center px-2.5 py-0.5 text-xs font-medium ${
-          info.getValue() === 'draft'
-            ? 'bg-yellow-50 text-yellow-800 border border-yellow-200'
-            : 'bg-green-50 text-green-800 border border-green-200'
-        }`}>
+        <span
+          className={`inline-flex items-center px-2.5 py-0.5 text-xs font-medium ${
+            info.getValue() === "draft"
+              ? "bg-yellow-50 text-yellow-800 border border-yellow-200"
+              : "bg-green-50 text-green-800 border border-green-200"
+          }`}
+        >
           {info.getValue().charAt(0).toUpperCase() + info.getValue().slice(1)}
         </span>
       ),
     }),
-    columnHelper.accessor('dueDate', {
-      header: 'Due Date',
-      cell: (info) => new Date(info.getValue()).toLocaleDateString(),
-    }),
-    columnHelper.accessor('id', {
-      header: '',
+
+    columnHelper.accessor("id", {
+      header: "",
       cell: (info) => (
         <div className="flex justify-end">
           <ActionDropdown
             onView={() => navigate(`/vat-return/${info.getValue()}`)}
             onDownload={() => handleDownload(info.getValue())}
             onEdit={() => navigate(`/vat-return/${info.getValue()}/edit`)}
-            onDelete={() => setDeleteModal({ isOpen: true, vatReturnId: info.getValue() })}
+            onDelete={() =>
+              setDeleteModal({ isOpen: true, vatReturnId: info.getValue() })
+            }
           />
         </div>
       ),
@@ -129,16 +128,16 @@ export function VatReturnList() {
         transition={{ duration: 0.3 }}
       >
         <DataTable
-          data={vatReturnsData?.items || []}
+          data={vatReturnsData || []}
           columns={columns}
           pageSize={10}
           emptyState={{
-            title: 'No VAT returns found',
-            description: 'Get started by preparing your first VAT return.',
+            title: "No VAT returns found",
+            description: "Get started by preparing your first VAT return.",
             action: {
-              label: 'Prepare VAT Return',
-              onClick: () => navigate('/vat-return/new')
-            }
+              label: "Prepare VAT Return",
+              onClick: () => navigate("/vat-return/new"),
+            },
           }}
         />
       </motion.div>

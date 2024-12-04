@@ -7,6 +7,16 @@ class VatReturnService extends BaseService<VatReturn> {
     super('vat_returns');
   }
 
+
+  async getAll() {
+    try {
+      return await pb.collection(this.collection).getFullList(500);
+    } catch (error) {
+      console.error(`Failed to fetch ${this.collection}:`, error);
+      throw error;
+    }
+  }
+
   async calculateVatTotals(startDate: string, endDate: string) {
     try {
       // Get all paid invoices within the date range
