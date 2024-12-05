@@ -1,24 +1,25 @@
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom";
-import { ChevronDown, Menu } from "lucide-react";
+import { ChevronDown, Menu, LayoutDashboard, FileText, Users, FolderOpen, Calculator, Settings } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { Dropdown } from "@/components/ui/dropdown";
 import { Search } from "@/components/ui/search";
 import { useState } from "react";
+import { Drawer } from "@/components/ui/drawer";
 
 const navItems = [
-  { name: "Dashboard", href: "/" },
-  { name: "Invoices", href: "/invoices" },
-  { name: "Customers", href: "/customers" },
-  { name: "Categories", href: "/categories" },
-  { name: "VAT Return", href: "/vat-return" },
-  { name: "Settings", href: "/settings" },
+  { name: "Dashboard", href: "/", icon: LayoutDashboard },
+  { name: "Invoices", href: "/invoices", icon: FileText },
+  { name: "Customers", href: "/customers", icon: Users },
+  { name: "Categories", href: "/categories", icon: FolderOpen },
+  { name: "VAT Return", href: "/vat-return", icon: Calculator },
+  { name: "Settings", href: "/settings", icon: Settings },
 ];
 
 export function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const isActiveTab = (href: string) => {
     if (href === "/") {
@@ -34,14 +35,14 @@ export function Layout() {
 
   return (
     <div className="min-h-screen bg-gray-50/50">
-      <div className="sticky top-0 z-50">
+      <div className="sticky top-0 z-40">
         {/* Top Header */}
         <div className="bg-white border-b border-gray-200">
           <div className="max-w-[1400px] mx-auto">
             <div className="flex h-16 items-center justify-between px-4 sm:px-8">
               <div className="flex items-center">
                 <button
-                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  onClick={() => setIsDrawerOpen(true)}
                   className="p-2 -ml-2 mr-2 rounded-lg hover:bg-gray-100 lg:hidden"
                 >
                   <Menu className="h-5 w-5 text-gray-500" />
@@ -109,27 +110,37 @@ export function Layout() {
                 </Link>
               ))}
             </nav>
-
-            {/* Mobile Navigation */}
-            <nav className={`lg:hidden ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block py-3 px-4 text-sm font-medium border-l-4 transition-colors ${
-                    isActiveTab(item.href)
-                      ? "border-[#0066FF] text-[#0066FF] bg-blue-50"
-                      : "border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
           </div>
         </div>
       </div>
+
+      {/* Mobile Navigation Drawer */}
+      <Drawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        title="Menu"
+      >
+        <div className="py-2">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.name}
+                to={item.href}
+                onClick={() => setIsDrawerOpen(false)}
+                className={`flex items-center space-x-3 px-4 py-3 text-sm font-medium transition-colors ${
+                  isActiveTab(item.href)
+                    ? "text-[#0066FF] bg-blue-50"
+                    : "text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <Icon className={`h-5 w-5 ${isActiveTab(item.href) ? "text-[#0066FF]" : "text-gray-400"}`} />
+                <span>{item.name}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </Drawer>
 
       <main className="max-w-[1400px] mx-auto px-4 sm:px-8 py-8">
         <Outlet />

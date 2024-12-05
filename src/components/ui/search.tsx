@@ -94,7 +94,7 @@ export function Search() {
   };
 
   return (
-    <div className="relative w-96">
+    <div className="relative md:w-96 w-80">
       <div className="relative">
         <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
         <input
