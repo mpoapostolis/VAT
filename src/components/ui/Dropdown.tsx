@@ -1,6 +1,6 @@
-import React, { Fragment } from 'react';
-import { Menu, Transition } from '@headlessui/react';
-import { cn } from '@/lib/utils';
+import React, { Fragment } from "react";
+import { Menu, Transition } from "@headlessui/react";
+import { cn } from "@/lib/utils";
 
 interface DropdownProps {
   trigger: React.ReactNode;
@@ -31,8 +31,8 @@ export function Dropdown({ trigger, items }: DropdownProps) {
                   <button
                     onClick={item.onClick}
                     className={cn(
-                      'flex w-full items-center px-4 py-2 text-sm',
-                      active ? 'bg-gray-100 text-gray-900' : 'text-gray-700'
+                      "flex w-full items-center px-4 py-2 text-sm",
+                      active ? "bg-gray-100 text-gray-900" : "text-gray-700"
                     )}
                   >
                     {item.icon && (
