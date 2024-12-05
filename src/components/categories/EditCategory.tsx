@@ -64,7 +64,7 @@ export function EditCategory() {
 
   return (
     <AnimatedPage>
-      <div className="space-y-6 max-w-6xl mx-auto">
+      <div className="space-y-6   mx-auto">
         <CategoryHeader mode="edit" />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

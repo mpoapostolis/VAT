@@ -11,9 +11,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { useToast } from "@/lib/hooks/useToast";
 import { motion } from "framer-motion";
-import { Building2, Mail, Phone, FileText, MapPin, CreditCard } from "lucide-react";
+import {
+  Building2,
+  Mail,
+  Phone,
+  FileText,
+  MapPin,
+  CreditCard,
+} from "lucide-react";
 import { useForm } from "react-hook-form";
-import { pb } from '@/lib/pocketbase';
+import { pb } from "@/lib/pocketbase";
 
 export function CreateCustomer() {
   const navigate = useNavigate();
@@ -27,9 +34,9 @@ export function CreateCustomer() {
 
   const onSubmit = async (data: any) => {
     try {
-      await pb.collection('customers').create(data);
+      await pb.collection("customers").create(data);
       addToast("Customer created successfully", "success");
-      navigate('/customers');
+      navigate("/customers");
     } catch (error) {
       console.error("Failed to create customer:", error);
       addToast("Failed to create customer", "error");
@@ -38,7 +45,7 @@ export function CreateCustomer() {
 
   return (
     <AnimatedPage>
-      <div className="space-y-6 max-w-6xl mx-auto">
+      <div className="space-y-6   mx-auto">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <button
@@ -147,9 +154,7 @@ export function CreateCustomer() {
                   className="bg-white"
                   placeholder="Enter tax registration number"
                 />
-                {errors.trn && (
-                  <FormMessage>{errors.trn.message}</FormMessage>
-                )}
+                {errors.trn && <FormMessage>{errors.trn.message}</FormMessage>}
               </FormItem>
 
               <div className="flex justify-end space-x-4 pt-4 border-t border-gray-100">
@@ -165,7 +170,7 @@ export function CreateCustomer() {
                   disabled={isSubmitting}
                   className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
-                  {isSubmitting ? 'Creating...' : 'Create Customer'}
+                  {isSubmitting ? "Creating..." : "Create Customer"}
                 </button>
               </div>
             </form>
@@ -178,7 +183,9 @@ export function CreateCustomer() {
             className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded-xl overflow-hidden"
           >
             <div className="border-b border-gray-200/60 bg-gray-50/50 px-6 py-4">
-              <h2 className="font-medium text-gray-800">Additional Information</h2>
+              <h2 className="font-medium text-gray-800">
+                Additional Information
+              </h2>
               <p className="text-sm text-gray-500">
                 Optional details about the customer
               </p>

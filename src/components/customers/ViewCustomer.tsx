@@ -62,7 +62,7 @@ export function ViewCustomer() {
 
   return (
     <AnimatedPage>
-      <div className="space-y-6 max-w-6xl mx-auto">
+      <div className="space-y-6   mx-auto">
         <CustomerHeader mode="view" onDownload={handleDownload} />
 
         <div ref={customerRef}>

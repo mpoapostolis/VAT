@@ -29,7 +29,7 @@ export function CreateInvoice() {
 
   return (
     <AnimatedPage>
-      <div className="space-y-6 max-w-6xl mx-auto">
+      <div className="space-y-6   mx-auto">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <button

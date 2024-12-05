@@ -78,7 +78,7 @@ export function EditCustomer() {
 
   return (
     <AnimatedPage>
-      <div className="space-y-6 max-w-6xl mx-auto">
+      <div className="space-y-6   mx-auto">
         <CustomerHeader mode="edit" actions={headerActions} />
 
         <motion.div

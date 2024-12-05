@@ -62,7 +62,7 @@ export function ViewVatReturn() {
 
   return (
     <AnimatedPage>
-      <div className="space-y-6 max-w-6xl mx-auto">
+      <div className="space-y-6   mx-auto">
         <VatReturnHeader mode="view" actions={headerActions} />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

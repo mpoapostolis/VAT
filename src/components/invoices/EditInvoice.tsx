@@ -49,7 +49,7 @@ export function EditInvoice() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="  mx-auto">
       <InvoiceHeader mode="edit" />
 
       <div className="my-6"></div>

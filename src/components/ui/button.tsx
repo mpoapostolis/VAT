@@ -25,22 +25,22 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             // Secondary button
             "bg-gray-100 text-gray-900": variant === "secondary",
             "hover:bg-gray-200 active:bg-gray-300": variant === "secondary" && !disabled,
-            "focus-visible:ring-gray-400/30": variant === "secondary",
             
             // Outline button
             "border border-gray-200 bg-white text-gray-700": variant === "outline",
             "hover:border-gray-300 hover:bg-gray-50 active:bg-gray-100": variant === "outline" && !disabled,
-            "focus-visible:ring-gray-400/30": variant === "outline",
             
             // Ghost button
             "text-gray-700": variant === "ghost",
             "hover:bg-gray-100 active:bg-gray-200": variant === "ghost" && !disabled,
-            "focus-visible:ring-gray-400/30": variant === "ghost",
 
             // Danger button
             "bg-red-600 text-white shadow-sm": variant === "danger",
             "hover:bg-red-700 active:bg-red-800": variant === "danger" && !disabled,
             "focus-visible:ring-red-600/30": variant === "danger",
+            
+            // Focus rings for secondary, outline, and ghost
+            "focus-visible:ring-gray-400/30": ["secondary", "outline", "ghost"].includes(variant),
             
             // Sizes
             "text-sm px-3.5 h-9 gap-1.5": size === "sm",
