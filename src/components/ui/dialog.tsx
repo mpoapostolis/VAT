@@ -27,7 +27,7 @@ export function Dialog({ isOpen, onClose, title, children }: DialogProps) {
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center p-4 text-center">
+          <div className="flex min-h-full items-center justify-center p-4">
             <Transition.Child
               as={React.Fragment}
               enter="ease-out duration-300"
@@ -37,16 +37,19 @@ export function Dialog({ isOpen, onClose, title, children }: DialogProps) {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <HeadlessDialog.Panel className="w-full max-w-2xl transform overflow-hidden rounded-lg bg-white p-6 text-left align-middle shadow-xl transition-all">
-                <div className="flex items-center justify-between mb-4">
-                  <HeadlessDialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
+              <HeadlessDialog.Panel className="w-full max-w-5xl transform rounded-lg bg-white shadow-xl">
+                <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+                  <HeadlessDialog.Title as="h3" className="text-xl font-semibold leading-6 text-gray-900">
                     {title}
                   </HeadlessDialog.Title>
                   <Button variant="ghost" size="sm" onClick={onClose}>
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
-                {children}
+
+                <div className="max-h-[calc(100vh-12rem)] overflow-y-auto px-6 py-4">
+                  {children}
+                </div>
               </HeadlessDialog.Panel>
             </Transition.Child>
           </div>

@@ -1,29 +1,62 @@
-import { useForm } from 'react-hook-form';
-import type { Company } from '../../types/company';
-import { EMIRATES, BUSINESS_TYPES, FREE_ZONES } from '../../types/company';
-import { companyService } from '../../lib/services/company';
-import { Input } from '../ui/input';
-import { Select } from '../ui/select';
-import { Button } from '../ui/button';
-import { Checkbox } from '../ui/checkbox';
-
+import { useForm } from "react-hook-form";
+import type { Company } from "../../types/company";
+import { EMIRATES, BUSINESS_TYPES, FREE_ZONES } from "../../types/company";
+import { companyService } from "../../lib/services/company";
+import { Input } from "../ui/input";
+import { Select } from "../ui/select";
+import { Button } from "../ui/button";
+import { Checkbox } from "../ui/checkbox";
+import { Building2, User, CreditCard, Landmark } from "lucide-react";
 interface CompanyFormProps {
   company?: Company;
   onSuccess: () => void;
 }
 
 export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<Company>({
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+    setValue,
+  } = useForm<Company>({
     defaultValues: company || {
-      baseCurrency: 'AED',
+      baseCurrency: "AED",
       defaultVatRate: 5,
       reverseChargeMechanism: false,
-      defaultPaymentTerms: 30
-    }
+      defaultPaymentTerms: 30,
+      billingAddress: {
+        country: "United Arab Emirates",
+      },
+      bankDetails: {
+        bankName: "",
+        branch: "",
+        accountNumber: "",
+        swiftCode: "",
+      },
+    },
   });
 
-  const selectedEmirate = watch('emirate');
-  const selectedBusinessType = watch('primaryBusinessType');
+  const selectedEmirate = watch("emirate");
+  const selectedBusinessType = watch("primaryBusinessType");
+
+  const businessTypeOptions = BUSINESS_TYPES.map((type) => ({
+    value: type,
+    label: type,
+  }));
+
+  const emirateOptions = EMIRATES.map((emirate) => ({
+    value: emirate,
+    label: emirate,
+  }));
+
+  const freeZoneOptions =
+    selectedEmirate && FREE_ZONES[selectedEmirate as keyof typeof FREE_ZONES]
+      ? FREE_ZONES[selectedEmirate as keyof typeof FREE_ZONES].map((zone) => ({
+          value: zone,
+          label: zone,
+        }))
+      : [];
 
   const onSubmit = async (data: Company) => {
     try {
@@ -34,162 +67,321 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
       }
       onSuccess();
     } catch (error) {
-      console.error('Failed to save company:', error);
+      console.error("Failed to save company:", error);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Company Name (EN)</label>
-          <Input
-            {...register('companyNameEn', { required: 'Company name is required' })}
-            error={errors.companyNameEn?.message}
-          />
+    <form
+      id="company-form"
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-8"
+    >
+      {/* Basic Information */}
+      <div className="space-y-6">
+        <div className="flex items-center space-x-2 text-gray-800">
+          <Building2 className="w-5 h-5 text-gray-400" />
+          <h3 className="text-lg font-medium">Basic Information</h3>
         </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Company Name (AR)</label>
-          <Input
-            {...register('companyNameAr', { required: 'Arabic name is required' })}
-            error={errors.companyNameAr?.message}
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Trade License Number</label>
-          <Input
-            {...register('tradeLicenseNumber', { required: 'License number is required' })}
-            error={errors.tradeLicenseNumber?.message}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Primary Business Type</label>
-          <Select
-            {...register('primaryBusinessType', { required: 'Business type is required' })}
-            error={errors.primaryBusinessType?.message}
-          >
-            <option value="">Select business type</option>
-            {BUSINESS_TYPES.map(type => (
-              <option key={type} value={type}>{type}</option>
-            ))}
-          </Select>
-        </div>
-      </div>
-
-      {selectedBusinessType === 'Other' && (
-        <div>
-          <label className="block text-sm font-medium mb-1">Business Type Description</label>
-          <Input
-            {...register('businessTypeDescription', { required: 'Description is required for Other business type' })}
-            error={errors.businessTypeDescription?.message}
-          />
-        </div>
-      )}
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Emirate</label>
-          <Select
-            {...register('emirate', { required: 'Emirate is required' })}
-            error={errors.emirate?.message}
-          >
-            <option value="">Select emirate</option>
-            {EMIRATES.map(emirate => (
-              <option key={emirate} value={emirate}>{emirate}</option>
-            ))}
-          </Select>
-        </div>
-        {selectedEmirate && FREE_ZONES[selectedEmirate as keyof typeof FREE_ZONES] && (
-          <div>
-            <label className="block text-sm font-medium mb-1">Free Zone</label>
-            <Select {...register('freeZone')}>
-              <option value="">Select free zone</option>
-              {FREE_ZONES[selectedEmirate as keyof typeof FREE_ZONES].map(zone => (
-                <option key={zone} value={zone}>{zone}</option>
-              ))}
-            </Select>
-          </div>
-        )}
-      </div>
-
-      <div className="space-y-4">
-        <h3 className="font-medium">Billing Address</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <Input {...register('billingAddress.street', { required: true })} placeholder="Street" />
-          <Input {...register('billingAddress.city', { required: true })} placeholder="City" />
-          <Input {...register('billingAddress.state', { required: true })} placeholder="State" />
-          <Input {...register('billingAddress.postalCode', { required: true })} placeholder="Postal Code" />
-          <Input {...register('billingAddress.country', { required: true })} placeholder="Country" />
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        <h3 className="font-medium">Contact Person</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <Input {...register('contactPerson.firstName', { required: true })} placeholder="First Name" />
-          <Input {...register('contactPerson.lastName', { required: true })} placeholder="Last Name" />
-          <Input 
-            {...register('contactPerson.email', { 
-              required: true,
-              pattern: {
-                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                message: "Invalid email address"
-              }
-            })} 
-            placeholder="Email" 
-          />
-          <Input {...register('contactPerson.phoneNumber', { required: true })} placeholder="Phone Number" />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-1">Website</label>
-          <Input {...register('website')} />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1">Default Payment Terms (days)</label>
-          <Input
-            type="number"
-            {...register('defaultPaymentTerms', { 
-              required: true,
-              min: { value: 0, message: 'Must be positive' }
-            })}
-          />
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        <h3 className="font-medium">Financial Settings</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Base Currency</label>
-            <Input {...register('baseCurrency')} disabled value="AED" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Default VAT Rate (%)</label>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Company Name (EN)
+            </label>
             <Input
-              type="number"
-              {...register('defaultVatRate', { 
-                required: true,
-                min: { value: 0, message: 'Must be positive' }
+              {...register("companyNameEn", {
+                required: "Company name is required",
               })}
+              error={errors.companyNameEn?.message}
+              className="w-full"
+              placeholder="Enter company name in English"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Company Name (AR)
+            </label>
+            <Input
+              {...register("companyNameAr", {
+                required: "Arabic name is required",
+              })}
+              error={errors.companyNameAr?.message}
+              className="w-full"
+              placeholder="Enter company name in Arabic"
+              dir="rtl"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Trade License Number
+            </label>
+            <Input
+              {...register("tradeLicenseNumber", {
+                required: "License number is required",
+              })}
+              error={errors.tradeLicenseNumber?.message}
+              className="w-full"
+              placeholder="Enter trade license number"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Primary Business Type
+            </label>
+            <Select
+              options={businessTypeOptions}
+              value={watch("primaryBusinessType")}
+              onChange={(value) => {
+                register("primaryBusinessType").onChange({
+                  target: { value, name: "primaryBusinessType" },
+                });
+              }}
+              error={!!errors.primaryBusinessType}
+              placeholder="Select business type"
+            />
+          </div>
+          {selectedBusinessType === "Other" && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Business Type Description
+              </label>
+              <Input
+                {...register("businessTypeDescription", {
+                  required: "Description is required for Other business type",
+                })}
+                error={errors.businessTypeDescription?.message}
+                className="w-full"
+                placeholder="Describe your business type"
+              />
+            </div>
+          )}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Emirate
+            </label>
+            <Select
+              options={emirateOptions}
+              value={watch("emirate")}
+              onChange={(value) => {
+                register("emirate").onChange({
+                  target: { value, name: "emirate" },
+                });
+              }}
+              error={!!errors.emirate}
+              placeholder="Select emirate"
+            />
+          </div>
+          {selectedEmirate &&
+            FREE_ZONES[selectedEmirate as keyof typeof FREE_ZONES] && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Free Zone
+                </label>
+                <Select
+                  options={freeZoneOptions}
+                  value={watch("freeZone")}
+                  onChange={(value) => {
+                    register("freeZone").onChange({
+                      target: { value, name: "freeZone" },
+                    });
+                  }}
+                  placeholder="Select free zone"
+                />
+              </div>
+            )}
+        </div>
+      </div>
+
+      {/* Contact Information */}
+      <div className="space-y-6">
+        <div className="flex items-center space-x-2 text-gray-800">
+          <User className="w-5 h-5 text-gray-400" />
+          <h3 className="text-lg font-medium">Contact Information</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              First Name
+            </label>
+            <Input
+              {...register("contactPerson.firstName", {
+                required: "First name is required",
+              })}
+              error={errors.contactPerson?.firstName?.message}
+              className="w-full"
+              placeholder="Enter first name"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Last Name
+            </label>
+            <Input
+              {...register("contactPerson.lastName", {
+                required: "Last name is required",
+              })}
+              error={errors.contactPerson?.lastName?.message}
+              className="w-full"
+              placeholder="Enter last name"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
+            <Input
+              type="email"
+              {...register("contactPerson.email", {
+                required: "Email is required",
+                pattern: {
+                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                  message: "Invalid email address",
+                },
+              })}
+              error={errors.contactPerson?.email?.message}
+              className="w-full"
+              placeholder="Enter email address"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Phone Number
+            </label>
+            <Input
+              {...register("contactPerson.phoneNumber", {
+                required: "Phone number is required",
+              })}
+              error={errors.contactPerson?.phoneNumber?.message}
+              className="w-full"
+              placeholder="Enter phone number"
             />
           </div>
         </div>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <Checkbox {...register('reverseChargeMechanism')} />
-        <label className="text-sm">Enable Reverse Charge Mechanism</label>
+      {/* Payment and VAT Settings */}
+      <div className="space-y-6">
+        <div className="flex items-center space-x-2 text-gray-800">
+          <CreditCard className="w-5 h-5 text-gray-400" />
+          <h3 className="text-lg font-medium">Payment and VAT Settings</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Default Payment Terms (Days)
+            </label>
+            <Input
+              type="number"
+              min="0"
+              max="365"
+              {...register("defaultPaymentTerms", {
+                required: "Payment terms are required",
+                min: {
+                  value: 0,
+                  message: "Must be at least 0 days",
+                },
+                max: {
+                  value: 365,
+                  message: "Must be less than 365 days",
+                },
+              })}
+              error={errors.defaultPaymentTerms?.message}
+              className="w-full"
+              placeholder="Enter payment terms"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Default VAT Rate (%)
+            </label>
+            <Input
+              type="number"
+              min="0"
+              max="100"
+              step="0.01"
+              {...register("defaultVatRate", {
+                required: "VAT rate is required",
+                min: {
+                  value: 0,
+                  message: "Must be at least 0%",
+                },
+                max: {
+                  value: 100,
+                  message: "Must be less than 100%",
+                },
+              })}
+              error={errors.defaultVatRate?.message}
+              className="w-full"
+              placeholder="Enter VAT rate"
+            />
+          </div>
+          <div className="flex items-center">
+            <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 cursor-pointer">
+              <Checkbox
+                {...register("reverseChargeMechanism")}
+                onCheckedChange={(checked) => {
+                  setValue("reverseChargeMechanism", checked);
+                }}
+              />
+              <span>Reverse Charge Mechanism</span>
+            </label>
+          </div>
+        </div>
       </div>
 
-      <div className="flex justify-end space-x-4">
+      {/* Bank Details */}
+      <div className="space-y-6">
+        <div className="flex items-center space-x-2 text-gray-800">
+          <Landmark className="w-5 h-5 text-gray-400" />
+          <h3 className="text-lg font-medium">Bank Details</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Bank Name
+            </label>
+            <Input
+              {...register("bankDetails.bankName")}
+              className="w-full"
+              placeholder="Enter bank name"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Branch
+            </label>
+            <Input
+              {...register("bankDetails.branch")}
+              className="w-full"
+              placeholder="Enter branch name"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Account Number
+            </label>
+            <Input
+              {...register("bankDetails.accountNumber")}
+              className="w-full"
+              placeholder="Enter account number"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              SWIFT Code
+            </label>
+            <Input
+              {...register("bankDetails.swiftCode")}
+              className="w-full"
+              placeholder="Enter SWIFT code"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-end border-t border-gray-200 pt-4 mt-8">
         <Button type="submit" variant="primary">
-          {company ? 'Update Company' : 'Create Company'}
+          {company ? "Update Company" : "Create Company"}
         </Button>
       </div>
     </form>

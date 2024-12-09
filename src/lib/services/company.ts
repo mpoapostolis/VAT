@@ -17,7 +17,9 @@ export const companyService = {
   },
 
   async list(page = 1, perPage = 30) {
-    return pb.collection(COLLECTION).getList(page, perPage);
+    return pb.collection(COLLECTION).getList(page, perPage, {
+      sort: '-created'
+    });
   },
 
   async delete(id: string) {

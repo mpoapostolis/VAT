@@ -1,18 +1,20 @@
 import { useState } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import useSWR from 'swr';
 import { Plus } from 'lucide-react';
 import { companyService } from '../lib/services/company';
 import { Button } from '../components/ui/button';
 import { CompanyForm } from '../components/company/company-form';
 import { CompanyList } from '../components/company/company-list';
-import { Dialog } from '../components/ui/dialog';
+import { AnimatedPage } from '../components/AnimatedPage';
+import { CompanyFormPage } from './CompanyForm';
 
 export function Companies() {
-  const [isOpen, setIsOpen] = useState(false);
-  const { data, error, mutate } = useSWR('companies/1/30', companyService.getCompanies);
+  const navigate = useNavigate();
+  const { data: response, error, mutate } = useSWR('companies/1/30', companyService.getCompanies);
 
   const handleSuccess = () => {
-    setIsOpen(false);
+    navigate('/companies');
     mutate();
   };
 
@@ -20,29 +22,40 @@ export function Companies() {
     return <div>Failed to load companies</div>;
   }
 
-  if (!data) {
+  if (!response) {
     return <div>Loading...</div>;
   }
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold">Companies</h1>
-        <Button onClick={() => setIsOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Company
-        </Button>
-      </div>
-
-      <CompanyList companies={data.items} onRefresh={() => mutate()} />
-
-      <Dialog
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-        title="Add New Company"
-      >
-        <CompanyForm onSuccess={handleSuccess} />
-      </Dialog>
-    </div>
+    <Routes>
+      <Route
+        index
+        element={
+          <AnimatedPage>
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-2xl font-semibold text-gray-900">
+                    Companies
+                  </h1>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Manage your company profiles
+                  </p>
+                </div>
+                <Button size="sm" onClick={() => navigate('new')}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Company
+                </Button>
+              </div>
+              <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20">
+                <CompanyList companies={response.items || []} onRefresh={() => mutate()} />
+              </div>
+            </div>
+          </AnimatedPage>
+        }
+      />
+      <Route path="new" element={<CompanyFormPage />} />
+      <Route path=":id/edit" element={<CompanyFormPage />} />
+    </Routes>
   );
 }
