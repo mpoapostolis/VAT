@@ -25,7 +25,7 @@ function CompanySelector() {
       trigger={
         <button
           className={cn(
-            "h-10 px-4 text-sm rounded-lg",
+            "h-10 px-4 text-sm rounded",
             "bg-white border border-gray-200",
             "hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20",
             "flex items-center gap-3"
@@ -51,7 +51,7 @@ function UserDropdown() {
   return (
     <Dropdown
       trigger={
-        <button className="flex items-center gap-3 hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors">
+        <button className="flex items-center gap-3 hover:bg-gray-50 px-3 py-2 rounded transition-colors">
           <div className="flex flex-col items-end">
             <span className="text-sm font-medium text-gray-900">
               {user?.email || "John Doe"}

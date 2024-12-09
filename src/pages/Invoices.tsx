@@ -34,7 +34,7 @@ export function Invoices() {
                   </Button>
                 </div>
               </div>
-              <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded-lg">
+              <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded">
                 <InvoicesList />
               </div>
             </div>

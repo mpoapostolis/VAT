@@ -1,7 +1,7 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Button } from './button';
-import type { LucideIcon } from 'lucide-react';
+import React from "react";
+import { motion } from "framer-motion";
+import { Button } from "./button";
+import type { LucideIcon } from "lucide-react";
 
 interface EmptyStateProps {
   icon: LucideIcon;
@@ -13,12 +13,17 @@ interface EmptyStateProps {
   };
 }
 
-export function EmptyState({ icon: Icon, title, description, action }: EmptyStateProps) {
+export function EmptyState({
+  icon: Icon,
+  title,
+  description,
+  action,
+}: EmptyStateProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex flex-col items-center justify-center p-8 text-center bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded-lg"
+      className="flex flex-col items-center justify-center p-8 text-center bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded"
     >
       <div className="w-16 h-16 mb-4 rounded-full bg-gray-50 flex items-center justify-center">
         <Icon className="w-8 h-8 text-gray-400" />

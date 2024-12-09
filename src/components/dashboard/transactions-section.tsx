@@ -101,7 +101,7 @@ export function TransactionsSection({
       <div className="py-4">
         <h2 className="text-lg font-semibold text-gray-900">Recent Invoices</h2>
       </div>
-      <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded-lg">
+      <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded">
         <DataTable
           sortable={false}
           data={transactions}

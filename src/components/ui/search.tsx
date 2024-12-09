@@ -102,7 +102,7 @@ export function Search() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search invoices, customers, and more..."
-          className="w-full bg-gray-50 text-gray-900 placeholder-gray-500 pl-10 pr-4 py-2.5 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0066FF]/10 focus:border-[#0066FF] transition-all rounded-xl text-sm"
+          className="w-full bg-gray-50 text-gray-900 placeholder-gray-500 pl-10 pr-4 py-2.5 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0066FF]/10 focus:border-[#0066FF] transition-all rounded text-sm"
         />
       </div>
 
@@ -113,7 +113,7 @@ export function Search() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-full left-0 w-full mt-2 bg-white border border-gray-200 shadow-lg shadow-gray-100/40 rounded-xl divide-y divide-gray-100 overflow-hidden z-50 max-h-[80vh] overflow-y-auto"
+            className="absolute top-full left-0 w-full mt-2 bg-white border border-gray-200 shadow-lg shadow-gray-100/40 rounded divide-y divide-gray-100 overflow-hidden z-50 max-h-[80vh] overflow-y-auto"
           >
             {groupedResults.map((group, groupIndex) => (
               <div key={group.title}>
@@ -137,7 +137,7 @@ export function Search() {
                       transition={{ delay: index * 0.05 }}
                     >
                       <div
-                        className={`p-2 rounded-lg ${
+                        className={`p-2 rounded ${
                           group.title === "Invoices"
                             ? "bg-blue-50 text-blue-600 group-hover:bg-blue-100"
                             : group.title === "Customers"

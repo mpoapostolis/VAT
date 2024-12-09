@@ -124,10 +124,10 @@ export function CreateVatReturn() {
             animate={{ opacity: 1, y: 0 }}
           >
             {/* Period Info */}
-            <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded-xl p-6">
+            <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded p-6">
               <div className="flex w-full items-center justify-between mb-6">
                 <div className="flex w-full items-center space-x-3">
-                  <div className="p-2 bg-blue-50 rounded-lg">
+                  <div className="p-2 bg-blue-50 rounded">
                     <ClipboardList className="h-5 w-5 text-blue-600" />
                   </div>
                   <div className="col-span-2 w-full">
@@ -206,9 +206,9 @@ export function CreateVatReturn() {
               transition={{ delay: 0.1 }}
               className="mt-6"
             >
-              <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded-xl p-6">
+              <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded p-6">
                 <div className="flex items-center space-x-3 mb-6">
-                  <div className="p-2 bg-blue-50 rounded-lg">
+                  <div className="p-2 bg-blue-50 rounded">
                     <ClipboardList className="h-5 w-5 text-blue-600" />
                   </div>
                   <h3 className="font-semibold text-gray-900">Notes</h3>
@@ -229,10 +229,10 @@ export function CreateVatReturn() {
             transition={{ delay: 0.2 }}
           >
             {/* VAT Summary */}
-            <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded-xl p-6">
+            <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-blue-50 rounded-lg">
+                  <div className="p-2 bg-blue-50 rounded">
                     <Calculator className="h-5 w-5 text-blue-600" />
                   </div>
                   <div>
@@ -253,7 +253,7 @@ export function CreateVatReturn() {
               </div>
 
               <div className="space-y-4 mb-6">
-                <div className="p-4 bg-gray-50 rounded-lg">
+                <div className="p-4 bg-gray-50 rounded">
                   <div className="flex items-center space-x-3">
                     <ArrowUpRight className="h-5 w-5 text-green-600" />
                     <div>
@@ -273,7 +273,7 @@ export function CreateVatReturn() {
                   />
                 </div>
 
-                <div className="p-4 bg-gray-50 rounded-lg">
+                <div className="p-4 bg-gray-50 rounded">
                   <div className="flex items-center space-x-3">
                     <ArrowDownRight className="h-5 w-5 text-red-600" />
                     <div>
@@ -294,7 +294,7 @@ export function CreateVatReturn() {
                 </div>
               </div>
 
-              <div className="p-6 bg-blue-50 rounded-xl border border-blue-100">
+              <div className="p-6 bg-blue-50 rounded border border-blue-100">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
                     <h4 className="text-sm font-medium text-blue-900">

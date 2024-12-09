@@ -84,7 +84,7 @@ export function EditCustomer() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded-xl overflow-hidden"
+          className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded overflow-hidden"
         >
           <div className="border-b border-gray-200/60 bg-gray-50/50 px-6 py-4">
             <h2 className="font-medium text-gray-800">Customer Details</h2>
@@ -199,7 +199,7 @@ export function EditCustomer() {
                   {...register("notes")}
                   defaultValue={customer.notes}
                   placeholder="Enter any additional notes about the customer"
-                  className="w-full h-24 px-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
+                  className="w-full h-24 px-3 py-2 bg-white border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
                 />
               </FormItem>
             </div>

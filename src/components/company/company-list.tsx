@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import type { Company } from '../../types/company';
-import { companyService } from '../../lib/services/company';
-import { Button } from '../ui/button';
-import { Pencil, Trash2 } from 'lucide-react';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import type { Company } from "../../types/company";
+import { companyService } from "../../lib/services/company";
+import { Button } from "../ui/button";
+import { Pencil, Trash2 } from "lucide-react";
 
 interface CompanyListProps {
   companies: Company[];
@@ -14,7 +14,7 @@ export function CompanyList({ companies, onRefresh }: CompanyListProps) {
   const navigate = useNavigate();
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this company?')) {
+    if (!window.confirm("Are you sure you want to delete this company?")) {
       return;
     }
 
@@ -22,7 +22,7 @@ export function CompanyList({ companies, onRefresh }: CompanyListProps) {
       await companyService.delete(id);
       onRefresh();
     } catch (error) {
-      console.error('Failed to delete company:', error);
+      console.error("Failed to delete company:", error);
     }
   };
 
@@ -35,7 +35,7 @@ export function CompanyList({ companies, onRefresh }: CompanyListProps) {
   }
 
   return (
-    <div className="bg-white shadow rounded-lg overflow-hidden">
+    <div className="bg-white shadow rounded overflow-hidden">
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
@@ -63,8 +63,12 @@ export function CompanyList({ companies, onRefresh }: CompanyListProps) {
           {companies.map((company) => (
             <tr key={company.id}>
               <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm font-medium text-gray-900">{company.companyNameEn}</div>
-                <div className="text-sm text-gray-500">{company.companyNameAr}</div>
+                <div className="text-sm font-medium text-gray-900">
+                  {company.companyNameEn}
+                </div>
+                <div className="text-sm text-gray-500">
+                  {company.companyNameAr}
+                </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {company.tradeLicenseNumber}
@@ -75,7 +79,9 @@ export function CompanyList({ companies, onRefresh }: CompanyListProps) {
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {company.emirate}
                 {company.freeZone && (
-                  <div className="text-xs text-gray-400">{company.freeZone}</div>
+                  <div className="text-xs text-gray-400">
+                    {company.freeZone}
+                  </div>
                 )}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

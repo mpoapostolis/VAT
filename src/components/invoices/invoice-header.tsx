@@ -137,7 +137,7 @@ export function InvoiceHeader({
                 <ChevronDown className="w-4 h-4 ml-1.5" />
               </Button>
               {showStatusMenu && (
-                <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
+                <div className="absolute right-0 mt-1 w-48 bg-white rounded shadow-lg border border-gray-200 py-1 z-10">
                   <button
                     className="w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-50"
                     onClick={() => {

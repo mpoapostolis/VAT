@@ -1,32 +1,43 @@
-import React from 'react';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from './button';
-import { motion } from 'framer-motion';
+import React from "react";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "./button";
+import { motion } from "framer-motion";
 
 interface PageHeaderProps {
   title: string;
   subtitle: string;
   onBack: () => void;
   actions?: React.ReactNode;
-  type?: 'income' | 'expense';
+  type?: "income" | "expense";
 }
 
-export function PageHeader({ title, subtitle, onBack, actions, type }: PageHeaderProps) {
+export function PageHeader({
+  title,
+  subtitle,
+  onBack,
+  actions,
+  type,
+}: PageHeaderProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded-lg overflow-hidden"
+      className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded overflow-hidden"
     >
-      <div className={`h-2 ${type === 'income' ? 'bg-green-500' : type === 'expense' ? 'bg-red-500' : 'bg-blue-500'}`} />
-      
+      <div
+        className={`h-2 ${
+          type === "income"
+            ? "bg-green-500"
+            : type === "expense"
+            ? "bg-red-500"
+            : "bg-blue-500"
+        }`}
+      />
+
       <div className="p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button
                 variant="ghost"
                 onClick={onBack}
@@ -35,7 +46,7 @@ export function PageHeader({ title, subtitle, onBack, actions, type }: PageHeade
                 <ArrowLeft className="h-5 w-5 text-gray-600" />
               </Button>
             </motion.div>
-            
+
             <div>
               <motion.h1
                 initial={{ opacity: 0, x: -20 }}
@@ -55,7 +66,7 @@ export function PageHeader({ title, subtitle, onBack, actions, type }: PageHeade
               </motion.p>
             </div>
           </div>
-          
+
           {actions && (
             <motion.div
               initial={{ opacity: 0, x: 20 }}

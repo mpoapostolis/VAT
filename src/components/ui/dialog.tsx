@@ -1,7 +1,7 @@
-import React from 'react';
-import { Dialog as HeadlessDialog, Transition } from '@headlessui/react';
-import { X } from 'lucide-react';
-import { Button } from './button';
+import React from "react";
+import { Dialog as HeadlessDialog, Transition } from "@headlessui/react";
+import { X } from "lucide-react";
+import { Button } from "./button";
 
 interface DialogProps {
   isOpen: boolean;
@@ -37,9 +37,12 @@ export function Dialog({ isOpen, onClose, title, children }: DialogProps) {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <HeadlessDialog.Panel className="w-full max-w-5xl transform rounded-lg bg-white shadow-xl">
+              <HeadlessDialog.Panel className="w-full max-w-5xl transform rounded bg-white shadow-xl">
                 <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-                  <HeadlessDialog.Title as="h3" className="text-xl font-semibold leading-6 text-gray-900">
+                  <HeadlessDialog.Title
+                    as="h3"
+                    className="text-xl font-semibold leading-6 text-gray-900"
+                  >
                     {title}
                   </HeadlessDialog.Title>
                   <Button variant="ghost" size="sm" onClick={onClose}>

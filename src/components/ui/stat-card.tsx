@@ -19,8 +19,8 @@ export function StatCard({ icon, label, value, isLoading }: StatCardProps) {
         <div className="space-y-6">
           <div className="w-12 h-12 bg-gray-100 rounded-2xl" />
           <div className="space-y-2">
-            <div className="h-5 w-24 bg-gray-100 rounded-lg" />
-            <div className="h-8 w-36 bg-gray-100 rounded-lg" />
+            <div className="h-5 w-24 bg-gray-100 rounded" />
+            <div className="h-8 w-36 bg-gray-100 rounded" />
           </div>
         </div>
       </div>
@@ -31,7 +31,7 @@ export function StatCard({ icon, label, value, isLoading }: StatCardProps) {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="group relative h-[180px] bg-white border border-gray-200/60  hover:bg-gray-50/50 rounded-xl shadow-sm p-6 transition-all duration-300"
+      className="group relative h-[180px] bg-white border border-gray-200/60  hover:bg-gray-50/50 rounded shadow-sm p-6 transition-all duration-300"
     >
       {/* Decorative elements */}
       <div className="absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

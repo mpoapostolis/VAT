@@ -54,7 +54,7 @@ export function EditInvoice() {
 
       <div className="my-6"></div>
 
-      <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded-lg p-6">
+      <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded p-6">
         <InvoiceForm
           customers={customersData}
           onSubmit={handleSubmit}

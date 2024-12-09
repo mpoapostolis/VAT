@@ -51,7 +51,7 @@ export function CategoryList() {
       cell: (info) => (
         <div className="flex items-center space-x-3">
           <div
-            className={`p-2 rounded-lg ${
+            className={`p-2 rounded ${
               info.row.original.type === "income" ? "bg-green-50" : "bg-red-50"
             }`}
           >
@@ -137,7 +137,7 @@ export function CategoryList() {
 
   return (
     <>
-      <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded-lg">
+      <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded">
         <DataTable
           data={data?.items || []}
           columns={columns}

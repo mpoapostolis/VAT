@@ -57,9 +57,9 @@ export function DateRangePicker({ onChange, value }: DateRangePickerProps) {
   return (
     <div className="relative" ref={containerRef}>
       <div className="flex items-center gap-2">
-        <div 
+        <div
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-3 px-4 py-2 bg-white border border-gray-200 rounded-xl cursor-pointer hover:border-gray-300 transition-colors duration-200"
+          className="flex items-center gap-3 px-4 py-2 bg-white border border-gray-200 rounded cursor-pointer hover:border-gray-300 transition-colors duration-200"
         >
           <div className="flex items-center gap-2 text-gray-500">
             <CalendarIcon className="h-4 w-4" />
@@ -104,7 +104,7 @@ export function DateRangePicker({ onChange, value }: DateRangePickerProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 z-50 mt-2 origin-top-right bg-white border border-gray-200 rounded-xl shadow-xl"
+            className="absolute right-0 z-50 mt-2 origin-top-right bg-white border border-gray-200 rounded shadow-xl"
             style={{
               boxShadow: "0 4px 24px rgba(0, 0, 0, 0.12)",
             }}
@@ -126,7 +126,7 @@ export function DateRangePicker({ onChange, value }: DateRangePickerProps) {
                 showDateDisplay={false}
                 rangeColors={["#0066FF"]}
                 color="#0066FF"
-                className="[&_.rdrMonthAndYearWrapper]:mb-4 [&_.rdrMonth]:rounded-lg [&_.rdrStartEdge]:!rounded-l-full [&_.rdrEndEdge]:!rounded-r-full [&_.rdrDayStartPreview]:!rounded-l-full [&_.rdrDayEndPreview]:!rounded-r-full [&_.rdrDayToday_.rdrDayNumber]:after:hidden [&_.rdrDayToday]:text-[#0066FF] [&_.rdrDayToday]:font-medium"
+                className="[&_.rdrMonthAndYearWrapper]:mb-4 [&_.rdrMonth]:rounded [&_.rdrStartEdge]:!rounded-l-full [&_.rdrEndEdge]:!rounded-r-full [&_.rdrDayStartPreview]:!rounded-l-full [&_.rdrDayEndPreview]:!rounded-r-full [&_.rdrDayToday_.rdrDayNumber]:after:hidden [&_.rdrDayToday]:text-[#0066FF] [&_.rdrDayToday]:font-medium"
               />
             </div>
           </motion.div>

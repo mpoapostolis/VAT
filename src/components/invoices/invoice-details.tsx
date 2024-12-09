@@ -12,7 +12,7 @@ export function InvoiceDetails({ invoice, customer }: InvoiceDetailsProps) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white rounded-xl shadow-sm border border-gray-200/60 overflow-hidden"
+      className="bg-white rounded shadow-sm border border-gray-200/60 overflow-hidden"
     >
       <div className="p-6 md:p-8">
         <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-8">
@@ -46,7 +46,7 @@ export function InvoiceDetails({ invoice, customer }: InvoiceDetailsProps) {
           <div className="space-y-4">
             <div className="space-y-2">
               <div className="text-sm font-medium text-gray-500">From</div>
-              <div className="p-4 bg-gray-50/50 rounded-lg border border-gray-200/60">
+              <div className="p-4 bg-gray-50/50 rounded border border-gray-200/60">
                 <div className="text-base font-semibold text-gray-900 mb-1">
                   Your Company Name
                 </div>
@@ -59,34 +59,40 @@ export function InvoiceDetails({ invoice, customer }: InvoiceDetailsProps) {
           <div className="space-y-4">
             <div className="space-y-2">
               <div className="text-sm font-medium text-gray-500">Bill To</div>
-              <div className="p-4 bg-gray-50/50 rounded-lg border border-gray-200/60">
+              <div className="p-4 bg-gray-50/50 rounded border border-gray-200/60">
                 <div className="text-base font-semibold text-gray-900 mb-1">
                   {customer.name}
                 </div>
                 <div className="text-sm text-gray-600">{customer.address}</div>
                 <div className="text-sm text-gray-600">{customer.email}</div>
-                <div className="text-sm text-gray-600 mt-2">VAT: {customer.trn}</div>
+                <div className="text-sm text-gray-600 mt-2">
+                  VAT: {customer.trn}
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6 mb-8">
-          <div className="p-4 bg-gray-50/50 rounded-lg border border-gray-200/60">
-            <div className="text-sm font-medium text-gray-500 mb-1">Issue Date</div>
+          <div className="p-4 bg-gray-50/50 rounded border border-gray-200/60">
+            <div className="text-sm font-medium text-gray-500 mb-1">
+              Issue Date
+            </div>
             <div className="text-sm text-gray-900">
               {new Date(invoice.date).toLocaleDateString()}
             </div>
           </div>
-          <div className="p-4 bg-gray-50/50 rounded-lg border border-gray-200/60">
-            <div className="text-sm font-medium text-gray-500 mb-1">Due Date</div>
+          <div className="p-4 bg-gray-50/50 rounded border border-gray-200/60">
+            <div className="text-sm font-medium text-gray-500 mb-1">
+              Due Date
+            </div>
             <div className="text-sm text-gray-900">
               {new Date(invoice.dueDate).toLocaleDateString()}
             </div>
           </div>
         </div>
 
-        <div className="mb-8 rounded-lg border border-gray-200/60 overflow-hidden">
+        <div className="mb-8 rounded border border-gray-200/60 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
@@ -108,7 +114,9 @@ export function InvoiceDetails({ invoice, customer }: InvoiceDetailsProps) {
               <tbody className="divide-y divide-gray-200/60">
                 {invoice.items.map((item: any, index: number) => (
                   <tr key={index} className="text-sm">
-                    <td className="py-3 px-4 text-gray-900">{item.description}</td>
+                    <td className="py-3 px-4 text-gray-900">
+                      {item.description}
+                    </td>
                     <td className="text-right py-3 px-4 text-gray-600 font-medium">
                       {item.quantity}
                     </td>
@@ -126,7 +134,7 @@ export function InvoiceDetails({ invoice, customer }: InvoiceDetailsProps) {
         </div>
 
         <div className="flex justify-end mb-8">
-          <div className="w-72 space-y-3 bg-gray-50/50 p-4 rounded-lg border border-gray-200/60">
+          <div className="w-72 space-y-3 bg-gray-50/50 p-4 rounded border border-gray-200/60">
             <div className="flex justify-between text-sm">
               <div className="text-gray-500">Subtotal</div>
               <div className="font-medium text-gray-900">
@@ -151,7 +159,7 @@ export function InvoiceDetails({ invoice, customer }: InvoiceDetailsProps) {
         {invoice.notes && (
           <div className="space-y-2">
             <div className="text-sm font-medium text-gray-500">Notes</div>
-            <div className="text-sm text-gray-600 bg-gray-50/50 p-4 rounded-lg border border-gray-200/60">
+            <div className="text-sm text-gray-600 bg-gray-50/50 p-4 rounded border border-gray-200/60">
               {invoice.notes}
             </div>
           </div>

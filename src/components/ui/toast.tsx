@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, XCircle, Info, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import type { Toast as ToastType } from '@/lib/hooks/useToast';
+import React, { useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { CheckCircle, XCircle, Info, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { Toast as ToastType } from "@/lib/hooks/useToast";
 
 interface ToastProps extends ToastType {
   onRemove: (id: string) => void;
@@ -29,11 +29,12 @@ export function Toast({ id, message, type, onRemove }: ToastProps) {
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
       className={cn(
-        'flex items-center justify-between w-full max-w-sm px-4 py-3 rounded-lg shadow-lg',
+        "flex items-center justify-between w-full max-w-sm px-4 py-3 rounded shadow-lg",
         {
-          'bg-green-50 text-green-800 border border-green-200': type === 'success',
-          'bg-red-50 text-red-800 border border-red-200': type === 'error',
-          'bg-blue-50 text-blue-800 border border-blue-200': type === 'info',
+          "bg-green-50 text-green-800 border border-green-200":
+            type === "success",
+          "bg-red-50 text-red-800 border border-red-200": type === "error",
+          "bg-blue-50 text-blue-800 border border-blue-200": type === "info",
         }
       )}
     >

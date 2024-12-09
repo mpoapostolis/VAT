@@ -224,7 +224,7 @@ export function InvoiceForm({
           {fields?.map((field, index) => (
             <div
               key={field.id}
-              className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_1fr_1fr_32px] gap-4 p-4 bg-gray-50/50 rounded-lg border border-gray-200/60"
+              className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_1fr_1fr_32px] gap-4 p-4 bg-gray-50/50 rounded border border-gray-200/60"
             >
               <FormItem className="md:col-span-2">
                 <FormLabel>Description</FormLabel>
@@ -302,7 +302,7 @@ export function InvoiceForm({
       {/* Totals */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div></div>
-        <div className="space-y-4 bg-gray-50/50 p-4 rounded-lg border border-gray-200/60">
+        <div className="space-y-4 bg-gray-50/50 p-4 rounded border border-gray-200/60">
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-600">Subtotal:</span>
             <span className="text-sm font-medium">

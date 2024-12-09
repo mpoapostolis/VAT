@@ -36,7 +36,7 @@ export function Dashboard() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded-xl p-6"
+          className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded p-6"
         >
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>

@@ -36,7 +36,7 @@ export function ViewCategory() {
             className="grid grid-cols-1 lg:grid-cols-2 gap-6"
           >
             {/* Basic Information */}
-            <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded-xl overflow-hidden">
+            <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded overflow-hidden">
               <div className="border-b border-gray-200/60 bg-gray-50/50 px-6 py-4">
                 <h2 className="font-medium text-gray-800">Basic Information</h2>
                 <p className="text-sm text-gray-500">
@@ -80,7 +80,7 @@ export function ViewCategory() {
             </div>
 
             {/* Statistics */}
-            <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded-xl overflow-hidden">
+            <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded overflow-hidden">
               <div className="border-b border-gray-200/60 bg-gray-50/50 px-6 py-4">
                 <h2 className="font-medium text-gray-800">Statistics</h2>
                 <p className="text-sm text-gray-500">

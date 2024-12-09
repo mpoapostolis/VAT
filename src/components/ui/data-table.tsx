@@ -89,14 +89,14 @@ export function DataTable<T>({
 
   if (!isLoading && !data.length) {
     return (
-      <div className="w-full overflow-auto border border-gray-200 bg-white rounded-lg">
+      <div className="w-full overflow-auto border border-gray-200 bg-white rounded">
         <TableEmptyState {...emptyState} />
       </div>
     );
   }
 
   return (
-    <div className="w-full overflow-auto border border-gray-200 bg-white rounded-lg">
+    <div className="w-full overflow-auto border border-gray-200 bg-white rounded">
       <div className="min-w-full inline-block align-middle">
         <div className="overflow-hidden">
           <table className="min-w-full divide-y divide-gray-200">
