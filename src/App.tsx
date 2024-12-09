@@ -1,22 +1,28 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { SWRConfig } from 'swr';
-import { AnimatePresence } from 'framer-motion';
-import { Layout } from './components/Layout';
-import { Dashboard } from './pages/Dashboard';
-import { Invoices } from './pages/Invoices';
-import { Customers } from './pages/Customers';
-import { Categories } from './pages/Categories';
-import { VatReturn } from './pages/VatReturn';
-import { Settings } from './pages/Settings';
-import { Reports } from './pages/Reports';
-import { Login } from './pages/Login';
-import { ErrorBoundary } from './components/ui/error-boundary';
-import { ToastContainer } from './components/ui/toast-container';
-import { AuthProvider, useAuth } from './lib/auth';
-import { ToastProvider } from './lib/contexts/toast-context';
-import { pb } from './lib/pocketbase';
-import { Loading } from './components/ui/loading';
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { SWRConfig } from "swr";
+import { AnimatePresence } from "framer-motion";
+import { Layout } from "./components/layout/layout";
+import { Dashboard } from "./pages/Dashboard";
+import { Invoices } from "./pages/Invoices";
+import { Customers } from "./pages/Customers";
+import { Categories } from "./pages/Categories";
+import { Companies } from "./pages/Companies";
+import { VatReturn } from "./pages/VatReturn";
+import { Settings } from "./pages/Settings";
+import { Reports } from "./pages/Reports";
+import { Login } from "./pages/Login";
+import { ErrorBoundary } from "./components/ui/error-boundary";
+import { ToastContainer } from "./components/ui/toast-container";
+import { AuthProvider, useAuth } from "./lib/auth";
+import { ToastProvider } from "./lib/contexts/toast-context";
+import { pb } from "./lib/pocketbase";
+import { Loading } from "./components/ui/loading";
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
@@ -61,6 +67,7 @@ export default function App() {
                     <Route path="invoices/*" element={<Invoices />} />
                     <Route path="customers/*" element={<Customers />} />
                     <Route path="categories/*" element={<Categories />} />
+                    <Route path="companies/*" element={<Companies />} />
                     <Route path="vat-return/*" element={<VatReturn />} />
                     <Route path="reports/*" element={<Reports />} />
                     <Route path="settings" element={<Settings />} />

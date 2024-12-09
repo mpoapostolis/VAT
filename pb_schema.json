@@ -1,0 +1,134 @@
+{
+  "companies": {
+    "name": "companies",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "name": "companyNameEn",
+        "type": "text",
+        "system": false,
+        "required": true
+      },
+      {
+        "name": "companyNameAr",
+        "type": "text",
+        "system": false,
+        "required": true
+      },
+      {
+        "name": "tradeLicenseNumber",
+        "type": "text",
+        "system": false,
+        "required": true,
+        "unique": true
+      },
+      {
+        "name": "primaryBusinessType",
+        "type": "text",
+        "system": false,
+        "required": true
+      },
+      {
+        "name": "businessTypeDescription",
+        "type": "text",
+        "system": false,
+        "required": false
+      },
+      {
+        "name": "emirate",
+        "type": "text",
+        "system": false,
+        "required": true
+      },
+      {
+        "name": "freeZone",
+        "type": "text",
+        "system": false,
+        "required": false
+      },
+      {
+        "name": "billingAddress",
+        "type": "json",
+        "system": false,
+        "required": true
+      },
+      {
+        "name": "shippingAddress",
+        "type": "json",
+        "system": false,
+        "required": false
+      },
+      {
+        "name": "contactPerson",
+        "type": "json",
+        "system": false,
+        "required": true
+      },
+      {
+        "name": "website",
+        "type": "url",
+        "system": false,
+        "required": false
+      },
+      {
+        "name": "logo",
+        "type": "file",
+        "system": false,
+        "required": false,
+        "options": {
+          "maxSelect": 1,
+          "maxSize": 5242880,
+          "mimeTypes": [
+            "image/jpeg",
+            "image/png",
+            "image/gif",
+            "image/webp"
+          ]
+        }
+      },
+      {
+        "name": "baseCurrency",
+        "type": "text",
+        "system": false,
+        "required": true,
+        "default": "AED"
+      },
+      {
+        "name": "defaultVatRate",
+        "type": "number",
+        "system": false,
+        "required": true,
+        "default": 5
+      },
+      {
+        "name": "bankDetails",
+        "type": "json",
+        "system": false,
+        "required": false
+      },
+      {
+        "name": "defaultPaymentTerms",
+        "type": "number",
+        "system": false,
+        "required": true,
+        "default": 30
+      },
+      {
+        "name": "reverseChargeMechanism",
+        "type": "bool",
+        "system": false,
+        "required": true,
+        "default": false
+      }
+    ],
+    "indexes": [
+      "CREATE UNIQUE INDEX idx_unique_trade_license ON companies (tradeLicenseNumber)"
+    ],
+    "listRule": "@request.auth.id != ''",
+    "viewRule": "@request.auth.id != ''",
+    "createRule": "@request.auth.id != ''",
+    "updateRule": "@request.auth.id != ''",
+    "deleteRule": "@request.auth.id != ''"
+  }
+}
