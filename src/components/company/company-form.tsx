@@ -7,6 +7,7 @@ import { Select } from "../ui/select";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { Building2, User, CreditCard, Landmark } from "lucide-react";
+
 interface CompanyFormProps {
   company?: Company;
   onSuccess: () => void;
@@ -17,10 +18,10 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
     register,
     handleSubmit,
     watch,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     setValue,
   } = useForm<Company>({
-    defaultValues: company || {
+    defaultValues: {
       baseCurrency: "AED",
       defaultVatRate: 5,
       reverseChargeMechanism: false,
@@ -34,6 +35,7 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
         accountNumber: "",
         swiftCode: "",
       },
+      ...company, // Spread the company data last to override defaults if editing
     },
   });
 
@@ -60,10 +62,18 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
 
   const onSubmit = async (data: Company) => {
     try {
+      // Convert numeric strings to numbers and ensure boolean for reverseChargeMechanism
+      const formattedData = {
+        ...data,
+        defaultPaymentTerms: Number(data.defaultPaymentTerms),
+        defaultVatRate: Number(data.defaultVatRate),
+        reverseChargeMechanism: data.reverseChargeMechanism === true,
+      };
+
       if (company?.id) {
-        await companyService.update(company.id, data);
+        await companyService.update(company.id, formattedData);
       } else {
-        await companyService.create(data);
+        await companyService.create(formattedData);
       }
       onSuccess();
     } catch (error) {
@@ -73,17 +83,19 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
 
   return (
     <form
-      id="company-form"
       onSubmit={handleSubmit(onSubmit)}
-      className="space-y-8"
+      className="max-w-5xl mx-auto space-y-8 bg-white p-6"
     >
       {/* Basic Information */}
       <div className="space-y-6">
-        <div className="flex items-center space-x-2 text-gray-800">
-          <Building2 className="w-5 h-5 text-gray-400" />
-          <h3 className="text-lg font-medium">Basic Information</h3>
+        <div className="flex items-center space-x-2 pb-4 border-b">
+          <Building2 className="h-5 w-5 text-gray-400" />
+          <h2 className="text-lg font-medium text-gray-900">
+            Basic Information
+          </h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Company Name (EN)
@@ -193,12 +205,15 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
       </div>
 
       {/* Contact Information */}
-      <div className="space-y-6">
-        <div className="flex items-center space-x-2 text-gray-800">
-          <User className="w-5 h-5 text-gray-400" />
-          <h3 className="text-lg font-medium">Contact Information</h3>
+      <div className="space-y-6 pt-4">
+        <div className="flex items-center space-x-2 pb-4 border-b">
+          <User className="h-5 w-5 text-gray-400" />
+          <h2 className="text-lg font-medium text-gray-900">
+            Contact Information
+          </h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               First Name
@@ -260,12 +275,15 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
       </div>
 
       {/* Payment and VAT Settings */}
-      <div className="space-y-6">
-        <div className="flex items-center space-x-2 text-gray-800">
-          <CreditCard className="w-5 h-5 text-gray-400" />
-          <h3 className="text-lg font-medium">Payment and VAT Settings</h3>
+      <div className="space-y-6 pt-4">
+        <div className="flex items-center space-x-2 pb-4 border-b">
+          <CreditCard className="h-5 w-5 text-gray-400" />
+          <h2 className="text-lg font-medium text-gray-900">
+            Payment and VAT Settings
+          </h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Default Payment Terms (Days)
@@ -315,12 +333,14 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
               placeholder="Enter VAT rate"
             />
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center bg-gray-50 p-4">
             <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 cursor-pointer">
-              <Checkbox
+              <input
+                type="checkbox"
+                className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
                 {...register("reverseChargeMechanism")}
-                onCheckedChange={(checked) => {
-                  setValue("reverseChargeMechanism", checked);
+                onChange={(e) => {
+                  setValue("reverseChargeMechanism", e.target.checked);
                 }}
               />
               <span>Reverse Charge Mechanism</span>
@@ -330,12 +350,13 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
       </div>
 
       {/* Bank Details */}
-      <div className="space-y-6">
-        <div className="flex items-center space-x-2 text-gray-800">
-          <Landmark className="w-5 h-5 text-gray-400" />
-          <h3 className="text-lg font-medium">Bank Details</h3>
+      <div className="space-y-6 pt-4">
+        <div className="flex items-center space-x-2 pb-4 border-b">
+          <Landmark className="h-5 w-5 text-gray-400" />
+          <h2 className="text-lg font-medium text-gray-900">Bank Details</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Bank Name
@@ -379,9 +400,24 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
         </div>
       </div>
 
-      <div className="flex justify-end border-t border-gray-200 pt-4 mt-8">
-        <Button type="submit" variant="primary">
-          {company ? "Update Company" : "Create Company"}
+      {/* Submit Button */}
+      <div className="flex justify-end pt-6 border-t">
+        <Button
+          type="submit"
+          variant="primary"
+          disabled={isSubmitting}
+          className="px-6 py-2"
+        >
+          {isSubmitting ? (
+            <div className="flex items-center space-x-2">
+              <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+              <span>Saving...</span>
+            </div>
+          ) : company?.id ? (
+            "Update Company"
+          ) : (
+            "Create Company"
+          )}
         </Button>
       </div>
     </form>
