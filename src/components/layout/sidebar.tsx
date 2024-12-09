@@ -77,7 +77,7 @@ export function Sidebar() {
       )}
     >
       {/* Logo Section */}
-      <div className="h-16 flex items-center px-6 border-b border-gray-200">
+      <div className="h-16 flex items-center px-6 border-b border-gray-200 bg-gradient-to-r from-white to-gray-50">
         <div
           className={cn(
             "flex items-center gap-3 transition-all duration-300",
@@ -87,19 +87,19 @@ export function Sidebar() {
           )}
         >
           <Calculator className="w-7 h-7 opacity-40 text-primary flex-shrink-0" />
-          <span className="text-lg font-semibold bg-gradient-to-r from-primary to-primary/70 text-black bg-clip-text text-transparent whitespace-nowrap">
+          <span className="text-lg font-semibold bg-gradient-to-r from-primary to-primary/70 text-transparent bg-clip-text whitespace-nowrap">
             VAT Manager
           </span>
         </div>
 
-        {/* Collapse button - now absolutely positioned */}
+        {/* Collapse button */}
         <button
           onClick={toggleSidebar}
           className={cn(
             "absolute -right-4 top-4 p-1.5 rounded-full bg-white border border-gray-200",
             "hover:bg-gray-50 text-gray-500 hover:text-gray-700",
-            "transition-colors duration-150 shadow-sm",
-            "focus:outline-none focus:ring-2 focus:ring-primary/20"
+            "transition-all duration-150 shadow-sm hover:shadow",
+            "hover:scale-105"
           )}
         >
           {isSidebarCollapsed ? (
@@ -123,10 +123,10 @@ export function Sidebar() {
               className={({ isActive }) =>
                 cn(
                   "group flex items-center gap-3 px-3 py-2.5 rounded-lg",
-                  "transition-all duration-150 ease-in-out relative",
-                  "hover:bg-gray-50",
+                  "transition-all duration-200 ease-out relative",
+                  "hover:bg-gradient-to-r hover:from-gray-50 hover:to-white",
                   isActive
-                    ? "bg-primary/10 text-primary hover:bg-primary/15"
+                    ? "bg-gradient-to-r from-primary/10 to-primary/5 text-primary border-l-4 border-blue-500  shadow-xs"
                     : "text-gray-600 hover:text-gray-900"
                 )
               }
@@ -134,8 +134,10 @@ export function Sidebar() {
               <div className="relative flex items-center">
                 <item.icon
                   className={cn(
-                    "w-5 h-5 transition-colors duration-150",
-                    "group-hover:text-primary flex-shrink-0"
+                    "w-5 h-5 transition-all duration-200",
+                    "group-hover:text-primary group-hover:scale-110 flex-shrink-0",
+                    ({ isActive }) =>
+                      isActive && "text-primary transform scale-110"
                   )}
                 />
 
@@ -143,16 +145,16 @@ export function Sidebar() {
                 {isSidebarCollapsed && (
                   <div
                     className={cn(
-                      "absolute left-full ml-2 px-2 py-1",
-                      "bg-gray-900 text-white text-xs rounded-md",
+                      "absolute left-full ml-2 px-3 py-2",
+                      "bg-gray-900/95 backdrop-blur-sm text-white text-xs rounded-lg",
                       "opacity-0 group-hover:opacity-100",
-                      "transition-all duration-150 transform",
-                      "pointer-events-none z-50 shadow-lg",
-                      "whitespace-nowrap"
+                      "transition-all duration-200 ease-out",
+                      "pointer-events-none z-50 shadow-xl",
+                      "whitespace-nowrap transform scale-95 group-hover:scale-100"
                     )}
                   >
                     <div className="font-medium">{item.name}</div>
-                    <div className="text-gray-400 text-[10px]">
+                    <div className="text-gray-400 text-[10px] mt-0.5">
                       {item.description}
                     </div>
                   </div>
@@ -162,13 +164,21 @@ export function Sidebar() {
               {!isSidebarCollapsed && (
                 <>
                   <div className="flex-1 flex flex-col min-w-0">
-                    <span className="text-sm font-medium truncate">
+                    <span
+                      className={cn(
+                        "text-sm font-medium truncate transition-all duration-200",
+                        ({ isActive }) =>
+                          isActive &&
+                          "text-primary font-semibold transform scale-[1.02]"
+                      )}
+                    >
                       {item.name}
                     </span>
                     <span
                       className={cn(
-                        "text-xs transition-colors duration-150 truncate",
-                        "text-gray-500 group-hover:text-gray-600"
+                        "text-xs transition-all duration-200 truncate",
+                        "text-gray-500 group-hover:text-gray-600",
+                        ({ isActive }) => isActive && "text-primary/70"
                       )}
                     >
                       {item.description}
@@ -176,10 +186,11 @@ export function Sidebar() {
                   </div>
                   <ChevronRight
                     className={cn(
-                      "w-4 h-4 opacity-0 -translate-x-2",
-                      "transition-all duration-150 ease-in-out",
-                      "group-hover:opacity-100 group-hover:translate-x-0",
-                      "text-gray-400"
+                      "w-4 h-4 transition-all duration-200",
+                      ({ isActive }) =>
+                        isActive
+                          ? "opacity-100 text-primary transform translate-x-0 scale-110"
+                          : "opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 text-gray-400"
                     )}
                   />
                 </>
