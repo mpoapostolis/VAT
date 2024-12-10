@@ -70,116 +70,125 @@ export function InvoiceHeader({
   }
 
   return (
-    <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate("/vat-return")}
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
-          </Button>
-        </div>
-
-        <div className="flex items-center space-x-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() =>
-              navigate(
-                mode === "view" ? `/invoices/${id}/edit` : `/invoices/${id}`
-              )
-            }
-            className="border-gray-200 hover:bg-gray-50"
-          >
-            {mode === "view" && <Edit className="w-4 h-4 mr-1.5" />}
-            {mode === "edit" && <EyeIcon className="w-4 h-4 mr-1.5" />}
-            {mode === "view" ? "Edit Invoice" : "View Invoice"}
-          </Button>
-
-          {mode === "view" && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleDownload}
-              className="border-gray-200 hover:bg-gray-50"
+    <div className="bg-white border-b border-black/10">
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            <button
+              onClick={() => navigate("/invoices")}
+              className="flex items-center gap-2 text-[#64748B] hover:text-[#0F172A] transition-colors"
             >
-              <Download className="w-4 h-4 mr-1.5" />
-              Download PDF
-            </Button>
-          )}
-          {mode === "edit" && (
-            <div className="relative">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowStatusMenu(!showStatusMenu)}
+              <ArrowLeft className="w-4 h-4" />
+              Back to Invoices
+            </button>
+
+            <div className="flex items-center gap-4">
+              <h1 className="text-lg font-medium text-[#0F172A]">
+                Invoice #{invoice.number}
+              </h1>
+              <div
                 className={clsx(
-                  `border-gray-200 hover:bg-gray-50 ${
-                    showStatusMenu ? "bg-gray-50" : ""
-                  }`,
+                  "px-2.5 py-0.5 rounded-md text-xs font-medium",
                   {
-                    "bg-green-50 text-green-700 border border-green-200":
-                      invoice.status === "paid",
-                    "bg-red-50 text-red-700 border border-red-200":
-                      invoice.status === "overdue",
-                    "bg-gray-50 text-gray-700 border border-gray-200":
-                      invoice.status === "draft",
-                    "bg-yellow-50 text-yellow-700 border border-yellow-200":
-                      invoice.status === "pending",
+                    "bg-[#DCFCE7] text-[#10B981]":
+                      invoice.status.toLowerCase() === "paid",
+                    "bg-[#FEF9C3] text-[#F59E0B]":
+                      invoice.status.toLowerCase() === "pending",
+                    "bg-[#FEE2E2] text-[#EF4444]":
+                      invoice.status.toLowerCase() === "overdue",
+                    "bg-[#F1F5F9] text-[#64748B]": !invoice.status,
                   }
                 )}
               >
-                <CircleDot className="w-4 h-4 mr-1.5" />
-                {`${invoice?.status}`}
-                <ChevronDown className="w-4 h-4 ml-1.5" />
-              </Button>
+                {invoice.status}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <button
+                onClick={() => setShowStatusMenu(!showStatusMenu)}
+                className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-[#64748B] hover:text-[#0F172A] transition-colors rounded-lg border border-black/10 hover:border-[#3B82F6]"
+              >
+                <CircleDot className="w-4 h-4" />
+                Update Status
+                <ChevronDown className="w-4 h-4" />
+              </button>
+
               {showStatusMenu && (
-                <div className="absolute right-0 mt-1 w-48 bg-white rounded shadow-lg border border-gray-200 py-1 z-10">
-                  <button
-                    className="w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-50"
-                    onClick={() => {
-                      handleStatusUpdate("draft");
-                      setShowStatusMenu(false);
-                    }}
-                  >
-                    Mark as Draft
-                  </button>
-                  <button
-                    className="w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-50"
-                    onClick={() => {
-                      handleStatusUpdate("pending");
-                      setShowStatusMenu(false);
-                    }}
-                  >
-                    Mark as Pending
-                  </button>
-                  <button
-                    className="w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-50"
-                    onClick={() => {
-                      handleStatusUpdate("paid");
-                      setShowStatusMenu(false);
-                    }}
-                  >
-                    Mark as Paid
-                  </button>
-                  <button
-                    className="w-full px-4 py-2 text-sm text-left text-gray-700 hover:bg-gray-50"
-                    onClick={() => {
-                      handleStatusUpdate("overdue");
-                      setShowStatusMenu(false);
-                    }}
-                  >
-                    Mark as Overdue
-                  </button>
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-black/10 py-1 z-10">
+                  {["paid", "pending", "overdue"].map((status) => (
+                    <button
+                      key={status}
+                      onClick={() => {
+                        handleStatusUpdate(status as Invoice["status"]);
+                        setShowStatusMenu(false);
+                      }}
+                      className={clsx(
+                        "w-full px-4 py-2 text-left text-sm hover:bg-[#F8FAFC] transition-colors",
+                        {
+                          "text-[#10B981]": status === "paid",
+                          "text-[#F59E0B]": status === "pending",
+                          "text-[#EF4444]": status === "overdue",
+                        }
+                      )}
+                    >
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
-          )}
+
+            <button
+              onClick={() =>
+                navigate(
+                  mode === "view" ? `/invoices/${id}/edit` : `/invoices/${id}`
+                )
+              }
+              className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-[#64748B] hover:text-[#0F172A] transition-colors rounded-lg border border-black/10 hover:border-[#3B82F6]"
+            >
+              {mode === "view" ? (
+                <>
+                  <Edit className="w-4 h-4" />
+                  Edit
+                </>
+              ) : (
+                <>
+                  <EyeIcon className="w-4 h-4" />
+                  View
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={handleDownload}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-[#3B82F6] hover:bg-[#2563EB] transition-colors rounded-lg"
+            >
+              <Download className="w-4 h-4" />
+              Download PDF
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-4 flex items-center gap-4">
+          <img
+            src={`https://ui-avatars.com/api/?name=${customer.name}&background=random`}
+            alt={customer.name}
+            className="w-10 h-10 rounded-lg border border-black/10"
+          />
+          <div>
+            <Link
+              to={`/customers/${customer.id}`}
+              className="font-medium text-[#0F172A] hover:text-[#3B82F6] transition-colors"
+            >
+              {customer.name}
+            </Link>
+            <div className="text-sm text-[#64748B]">{customer.email}</div>
+          </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

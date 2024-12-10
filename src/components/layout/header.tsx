@@ -19,51 +19,25 @@ const companies = [
   { id: 3, name: "Wayne Enterprises" },
 ];
 
-function CompanySelector() {
-  return (
-    <Dropdown
-      trigger={
-        <button
-          className={cn(
-            "h-10 px-4 text-sm rounded",
-            "bg-white border border-gray-200",
-            "hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary/20",
-            "flex items-center gap-3"
-          )}
-        >
-          <Building2 className="w-4 h-4 text-gray-400 flex-shrink-0" />
-          <span className="font-medium text-gray-700">Acme Corp</span>
-          <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
-        </button>
-      }
-      items={companies.map((company) => ({
-        label: company.name,
-        onClick: () => console.log("Selected company:", company.name),
-        icon: Building2,
-      }))}
-    />
-  );
-}
-
 function UserDropdown() {
   const { user, logout } = useAuth();
 
   return (
     <Dropdown
       trigger={
-        <button className="flex items-center gap-3 hover:bg-gray-50 px-3 py-2 rounded transition-colors">
+        <button className="flex items-center gap-3 hover:bg-[#F8FAFC] px-3 py-2 rounded-lg transition-colors">
           <div className="flex flex-col items-end">
-            <span className="text-sm font-medium text-gray-900">
+            <span className="text-sm font-medium text-[#0F172A] tracking-tight">
               {user?.email || "John Doe"}
             </span>
-            <span className="text-xs text-gray-500">Administrator</span>
+            <span className="text-[11px] text-[#64748B] font-medium tracking-wide uppercase">
+              Administrator
+            </span>
           </div>
 
-          <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center">
-            <User className="w-5 h-5 text-primary" />
+          <div className="h-9 w-9 rounded-lg bg-[#F1F5F9] flex items-center justify-center">
+            <User className="w-5 h-5 text-[#3B82F6]" />
           </div>
-
-          <ChevronDown className="w-4 h-4 text-gray-400" />
         </button>
       }
       items={[
@@ -71,11 +45,6 @@ function UserDropdown() {
           label: "Profile",
           onClick: () => console.log("Profile clicked"),
           icon: User,
-        },
-        {
-          label: "Settings",
-          onClick: () => console.log("Settings clicked"),
-          icon: Settings,
         },
         {
           label: "Logout",
@@ -89,7 +58,7 @@ function UserDropdown() {
 
 export function Header() {
   return (
-    <header className="border-b border-gray-200 bg-white">
+    <header className="border-b border-black/10 bg-white">
       <div className="h-16 px-8">
         <div className="mx-auto max-w-[1600px] h-full flex items-center justify-between gap-8">
           {/* Left section with menu and search */}
@@ -99,9 +68,8 @@ export function Header() {
             </div>
           </div>
 
-          {/* Right section with company selector and user profile */}
-          <div className="flex items-center gap-6">
-            <CompanySelector />
+          {/* Right section with user dropdown */}
+          <div className="flex items-center gap-4">
             <UserDropdown />
           </div>
         </div>

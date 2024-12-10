@@ -1,5 +1,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { ArrowUpDown } from 'lucide-react';
 
 export const Table = React.forwardRef<
   HTMLTableElement,
@@ -39,26 +40,49 @@ export const TableRow = React.forwardRef<
   <tr
     ref={ref}
     className={cn(
-      'border-b transition-colors hover:bg-gray-50/50',
+      'border-b transition-colors hover:bg-[#F8FAFC]',
       className
     )}
     {...props}
   />
 ));
 
-export const TableHead = React.forwardRef<
-  HTMLTableCellElement,
-  React.ThHTMLAttributes<HTMLTableCellElement>
->(({ className, ...props }, ref) => (
-  <th
-    ref={ref}
-    className={cn(
-      'h-12 px-4 text-left align-middle font-medium text-gray-500',
-      className
-    )}
-    {...props}
-  />
-));
+interface TableHeadProps extends React.ThHTMLAttributes<HTMLTableCellElement> {
+  sortable?: boolean;
+  sorted?: 'asc' | 'desc' | false;
+  onSort?: () => void;
+}
+
+export const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
+  ({ className, children, sortable, sorted, onSort, ...props }, ref) => (
+    <th
+      ref={ref}
+      className={cn(
+        'h-12 px-4 text-left align-middle font-medium text-[#64748B]',
+        sortable && 'cursor-pointer select-none',
+        className
+      )}
+      onClick={sortable ? onSort : undefined}
+      {...props}
+    >
+      {sortable ? (
+        <div className="flex items-center gap-2">
+          <span>{children}</span>
+          <ArrowUpDown
+            className={cn(
+              'w-4 h-4 transition-colors',
+              sorted
+                ? 'text-[#3B82F6]'
+                : 'text-[#CBD5E1]'
+            )}
+          />
+        </div>
+      ) : (
+        children
+      )}
+    </th>
+  )
+);
 
 export const TableCell = React.forwardRef<
   HTMLTableCellElement,
@@ -70,3 +94,65 @@ export const TableCell = React.forwardRef<
     {...props}
   />
 ));
+
+export const TableFooter = React.forwardRef<
+  HTMLTableSectionElement,
+  React.HTMLAttributes<HTMLTableSectionElement>
+>(({ className, ...props }, ref) => (
+  <tfoot
+    ref={ref}
+    className={cn('border-t bg-[#F8FAFC]', className)}
+    {...props}
+  />
+));
+
+export const TablePagination = ({
+  pageIndex,
+  pageSize,
+  pageCount,
+  onPageChange,
+  onPageSizeChange,
+}: {
+  pageIndex: number;
+  pageSize: number;
+  pageCount: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (size: number) => void;
+}) => {
+  return (
+    <div className="flex items-center justify-between px-6 py-4 border-t border-black/10">
+      <div className="flex items-center gap-2">
+        <select
+          className="h-9 px-3 text-sm bg-white border border-black/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent transition-all"
+          value={pageSize}
+          onChange={(e) => onPageSizeChange(Number(e.target.value))}
+        >
+          {[10, 20, 30, 40, 50].map((size) => (
+            <option key={size} value={size}>
+              {size} rows
+            </option>
+          ))}
+        </select>
+        <span className="text-sm text-[#64748B]">
+          Page {pageIndex + 1} of {pageCount}
+        </span>
+      </div>
+      <div className="flex items-center gap-2">
+        <button
+          className="h-9 px-4 text-sm font-medium text-[#64748B] hover:text-[#0F172A] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          onClick={() => onPageChange(pageIndex - 1)}
+          disabled={pageIndex === 0}
+        >
+          Previous
+        </button>
+        <button
+          className="h-9 px-4 text-sm font-medium text-[#64748B] hover:text-[#0F172A] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          onClick={() => onPageChange(pageIndex + 1)}
+          disabled={pageIndex === pageCount - 1}
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  );
+};

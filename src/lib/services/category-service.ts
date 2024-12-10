@@ -46,16 +46,17 @@ class CategoryService extends BaseService<Category> {
 
   async getListWithStats() {
     try {
-      // First get all categories
-      const categories = await pb.collection('categories').getList(1, 50);
-      
-      // Then get all invoices
+      const result = await pb.collection('categories').getList(1, 50, {
+        sort: '-created'
+      });
+
+      // Get all invoices in one query
       const invoices = await pb.collection('invoices').getList(1, 1000, {
-        fields: 'id,categoryId,total,status'
+        fields: 'id,categoryId,total'
       });
 
       // Calculate stats for each category
-      const categoriesWithStats = categories.items.map(category => {
+      const itemsWithStats = result.items.map(category => {
         const categoryInvoices = invoices.items.filter(invoice => invoice.categoryId === category.id);
         return {
           ...category,
@@ -65,8 +66,8 @@ class CategoryService extends BaseService<Category> {
       });
 
       return {
-        ...categories,
-        items: categoriesWithStats
+        ...result,
+        items: itemsWithStats
       };
     } catch (error) {
       console.error('Failed to fetch categories with stats:', error);

@@ -18,7 +18,7 @@ export function StatsSection({ isLoading, stats }: StatsSectionProps) {
   const statCards = [
     {
       id: 1,
-      icon: <Receipt className="h-5 w-5 text-[#0066FF]" />,
+      icon: <Receipt className="h-5 w-5 text-[#3B82F6]" />,
       label: 'Total Invoices',
       value: stats.totalInvoices.toString(),
       trend: {
@@ -28,7 +28,7 @@ export function StatsSection({ isLoading, stats }: StatsSectionProps) {
     },
     {
       id: 2,
-      icon: <CreditCard className="h-5 w-5 text-green-500" />,
+      icon: <CreditCard className="h-5 w-5 text-[#10B981]" />,
       label: 'Total Revenue',
       value: formatCurrency(stats.totalRevenue),
       trend: {
@@ -38,7 +38,7 @@ export function StatsSection({ isLoading, stats }: StatsSectionProps) {
     },
     {
       id: 3,
-      icon: <TrendingUp className="h-5 w-5 text-blue-500" />,
+      icon: <TrendingUp className="h-5 w-5 text-[#3B82F6]" />,
       label: 'Net Sales',
       value: formatCurrency(stats.netSales),
       trend: {
@@ -48,32 +48,52 @@ export function StatsSection({ isLoading, stats }: StatsSectionProps) {
     },
     {
       id: 4,
-      icon: <AlertCircle className="h-5 w-5 text-amber-500" />,
+      icon: <AlertCircle className="h-5 w-5 text-[#F59E0B]" />,
       label: 'Close to End',
       value: stats.closeToEnd.toString(),
       trend: {
-        value: stats.closeToEnd > 0 ? -stats.closeToEnd : 0,
-        label: 'need attention',
+        value: 0,
+        label: 'invoices expiring soon',
       },
     },
   ];
 
   return (
-    <motion.div 
-      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: 0.1 }}
+      transition={{ delay: 0.05 }}
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
     >
-      {statCards.map((stat, index) => (
-        <motion.div
+      {statCards.map((stat) => (
+        <div
           key={stat.id}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: index * 0.1 }}
+          className="bg-white border border-black/10 rounded-lg p-6 hover:border-[#3B82F6]/20 transition-colors"
         >
-          <StatCard {...stat} isLoading={isLoading} />
-        </motion.div>
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-lg bg-[#F1F5F9]">
+              {stat.icon}
+            </div>
+            <div>
+              <p className="text-sm font-medium text-[#64748B]">{stat.label}</p>
+              <p className="text-2xl font-semibold text-[#0F172A] mt-1 tracking-tight">
+                {isLoading ? '-' : stat.value}
+              </p>
+            </div>
+          </div>
+          {stat.trend && (
+            <div className="mt-4 flex items-center text-sm">
+              <span className="text-[#64748B] font-medium">
+                {stat.trend.label}
+              </span>
+              {stat.trend.value > 0 && (
+                <span className="ml-2 text-[#10B981] font-medium">
+                  +{stat.trend.value}%
+                </span>
+              )}
+            </div>
+          )}
+        </div>
       ))}
     </motion.div>
   );

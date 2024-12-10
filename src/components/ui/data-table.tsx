@@ -11,6 +11,7 @@ import { Button } from "./button";
 import { motion } from "framer-motion";
 import { TableEmptyState } from "./table-empty-state";
 import { Loading } from "./loading";
+import { FileX } from "lucide-react";
 
 interface DataTableProps<T> {
   data: T[];
@@ -49,177 +50,108 @@ export function DataTable<T>({
 
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
   const currentPageSize = parseInt(
-    searchParams.get("perPage") || String(pageSize),
+    searchParams.get("pageSize") || pageSize.toString(),
     10
   );
 
   const table = useReactTable({
-    data: isLoading ? Array(currentPageSize).fill({}) : data,
+    data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    manualPagination: true,
-    pageCount,
+    pageCount: pageCount,
+    state: {
+      pagination: {
+        pageIndex: currentPage - 1,
+        pageSize: currentPageSize,
+      },
+    },
   });
 
-  const handleSort = (columnId: string) => {
-    const newParams = new URLSearchParams(searchParams);
-    if (currentSort[0] === columnId) {
-      if (currentSort[1] === "asc") {
-        newParams.set("sort", `${columnId}:desc`);
-      } else if (currentSort[1] === "desc") {
-        newParams.delete("sort");
-      } else {
-        newParams.set("sort", `${columnId}:asc`);
-      }
-    } else {
-      newParams.set("sort", `${columnId}:asc`);
-    }
-    setSearchParams(newParams);
-  };
-
-  const getSortIcon = (columnId: string) => {
-    if (currentSort[0] !== columnId) return null;
-    return currentSort[1] === "asc" ? (
-      <ChevronUp className="h-4 w-4" />
-    ) : (
-      <ChevronDown className="h-4 w-4" />
-    );
-  };
-
-  if (!isLoading && !data.length) {
-    return (
-      <div className="w-full overflow-auto border border-gray-200 bg-white rounded">
-        <TableEmptyState {...emptyState} />
-      </div>
-    );
+  if (isLoading) {
+    return <Loading />;
   }
 
   return (
-    <div className="w-full overflow-auto border border-gray-200 bg-white rounded">
-      <div className="min-w-full inline-block align-middle">
-        <div className="overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id} className="bg-gray-50">
-                  {headerGroup.headers.map((header) => (
-                    <th
-                      key={header.id}
-                      className={`${
-                        compact ? "h-10" : "h-12"
-                      } px-4 sm:px-6 text-left font-medium tracking-wide text-gray-600 text-[13px] uppercase`}
-                    >
-                      <div
-                        className="flex items-center space-x-2 cursor-pointer select-none"
-                        onClick={() =>
-                          sortable && !isLoading && handleSort(header.id)
-                        }
-                      >
-                        <span className="whitespace-nowrap">
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                        </span>
-                        {sortable && (
-                          <span className="w-4">{getSortIcon(header.id)}</span>
-                        )}
-                      </div>
-                    </th>
+    <div className="py-12">
+      {!data.length && !isLoading ? (
+        <div className="flex flex-col items-center justify-center">
+          <div className="w-16 h-16 mb-4 rounded-full bg-[#F8FAFC] flex items-center justify-center">
+            <FileX className="w-8 h-8 text-[#94A3B8]" />
+          </div>
+          <h3 className="text-lg font-medium text-[#0F172A] mb-1">No results found</h3>
+          <p className="text-sm text-[#64748B] mb-6 text-center max-w-sm">
+            No records match your search criteria.
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <tr key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => (
+                        <th
+                          key={header.id}
+                          scope="col"
+                          className="px-6 py-4 text-left text-sm font-medium text-[#64748B] bg-[#F8FAFC] border-b border-black/10"
+                        >
+                          {header.column.columnDef.header}
+                        </th>
+                      ))}
+                    </tr>
                   ))}
                 </tr>
-              ))}
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {isLoading ? (
-                <tr>
-                  <td colSpan={columns.length} className="px-4 py-8">
-                    <Loading className="mx-auto" />
-                  </td>
-                </tr>
-              ) : (
-                table.getRowModel().rows.map((row, index) => (
-                  <motion.tr
-                    key={row.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.2, delay: index * 0.05 }}
-                    className="hover:bg-gray-50/50"
-                  >
+              </thead>
+              <tbody className="divide-y divide-black/10">
+                {table.getRowModel().rows.map((row) => (
+                  <tr key={row.id} className="hover:bg-[#F8FAFC] transition-colors">
                     {row.getVisibleCells().map((cell) => (
-                      <td
-                        key={cell.id}
-                        className={`${
-                          compact ? "h-[48px]" : "h-[60px]"
-                        } px-4 sm:px-6 text-sm text-gray-900 whitespace-nowrap`}
-                      >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+                      <td key={cell.id} className="px-6 py-4 text-sm whitespace-nowrap">
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </td>
                     ))}
-                  </motion.tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="h-14 px-4 sm:px-6 bg-gray-50 border-t border-gray-200">
-          <div className="h-full flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  const newParams = new URLSearchParams(searchParams);
-                  newParams.set("page", String(currentPage - 1));
-                  setSearchParams(newParams);
-                }}
-                disabled={currentPage === 1 || isLoading}
-              >
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  const newParams = new URLSearchParams(searchParams);
-                  newParams.set("page", String(currentPage + 1));
-                  setSearchParams(newParams);
-                }}
-                disabled={currentPage >= pageCount || isLoading}
-              >
-                Next
-              </Button>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm font-medium text-gray-600">
-                Page {currentPage} of {pageCount}
-              </span>
-              <select
-                className="h-9 border border-gray-200 px-2 text-sm rounded-md bg-white"
-                value={currentPageSize}
-                onChange={(e) => {
-                  const newParams = new URLSearchParams(searchParams);
-                  newParams.set("perPage", e.target.value);
-                  newParams.set("page", "1");
-                  setSearchParams(newParams);
-                }}
-                disabled={isLoading}
-              >
-                {[5, 10, 20, 30, 40, 50].map((size) => (
-                  <option key={size} value={size}>
-                    Show {size}
-                  </option>
+                  </tr>
                 ))}
-              </select>
-            </div>
+              </tbody>
+            </table>
           </div>
-        </div>
-      </div>
+
+          {pageCount > 1 && (
+            <div className="flex items-center justify-between gap-2 border-t border-black/10 px-6 py-4">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const newPage = Math.max(1, currentPage - 1);
+                    setSearchParams({ ...searchParams, page: newPage.toString() });
+                  }}
+                  disabled={currentPage === 1}
+                >
+                  Previous
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const newPage = Math.min(pageCount, currentPage + 1);
+                    setSearchParams({ ...searchParams, page: newPage.toString() });
+                  }}
+                  disabled={currentPage === pageCount}
+                >
+                  Next
+                </Button>
+              </div>
+              <div className="text-sm text-[#64748B]">
+                Page {currentPage} of {pageCount}
+              </div>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

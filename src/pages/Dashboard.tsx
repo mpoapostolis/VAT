@@ -32,49 +32,46 @@ export function Dashboard() {
 
   return (
     <AnimatedPage>
-      <div className="space-y-8 mx-auto">
+      <div className="space-y-6 mx-auto max-w-[1600px]">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded p-6"
+          className="bg-white border border-black/10 rounded-lg p-6"
         >
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 className="text-2xl font-semibold text-gray-900">
+              <h1 className="text-2xl font-semibold text-[#0F172A] tracking-tight">
                 Dashboard
               </h1>
-              <p className="text-sm text-gray-500 mt-1">
-                Overview of your business
+              <p className="text-sm text-[#64748B] mt-1">
+                Overview of your business metrics
               </p>
             </div>
             <DateRangePicker onChange={setDateRange} value={dateRange} />
           </div>
         </motion.div>
 
+        <StatsSection isLoading={isLoading} stats={stats || { totalInvoices: 0, totalRevenue: 0, netSales: 0, closeToEnd: 0 }} />
+        
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
+          className="bg-white border border-black/10 rounded-lg p-6"
         >
-          <StatsSection
-            isLoading={isLoading}
-            stats={{
-              totalInvoices: stats?.totalInvoices || 0,
-              totalRevenue: stats?.totalRevenue || 0,
-              netSales: stats?.netSales || 0,
-              closeToEnd: stats?.closeToEnd || 0,
-            }}
-          />
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-lg font-semibold text-[#0F172A] tracking-tight">
+                Recent Transactions
+              </h2>
+              <p className="text-sm text-[#64748B]">
+                Your latest invoice activity
+              </p>
+            </div>
+          </div>
           <TransactionsSection
             isLoading={isLoading}
-            transactions={stats?.recentInvoices || []}
+            transactions={stats?.recentTransactions || []}
           />
         </motion.div>
       </div>

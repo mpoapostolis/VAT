@@ -94,15 +94,15 @@ export function Search() {
   };
 
   return (
-    <div className="relative md:w-96 w-80">
+    <div className="relative w-full">
       <div className="relative">
-        <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <SearchIcon className="w-4 h-4 text-[#64748B] absolute left-3 top-1/2 -translate-y-1/2" />
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search invoices, customers, and more..."
-          className="w-full bg-gray-50 text-gray-900 placeholder-gray-500 pl-10 pr-4 py-2.5 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#0066FF]/10 focus:border-[#0066FF] transition-all rounded text-sm"
+          className="w-full h-10 pl-10 pr-4 text-sm text-[#0F172A] placeholder-[#94A3B8] bg-[#F8FAFC] border border-black/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent transition-all"
         />
       </div>
 
@@ -113,16 +113,16 @@ export function Search() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-full left-0 w-full mt-2 bg-white border border-gray-200 shadow-lg shadow-gray-100/40 rounded divide-y divide-gray-100 overflow-hidden z-50 max-h-[80vh] overflow-y-auto"
+            className="absolute top-full left-0 w-full mt-1 bg-white border border-black/10 rounded-lg shadow-lg overflow-hidden"
           >
             {groupedResults.map((group, groupIndex) => (
               <div key={group.title}>
-                <div className="px-4 py-2 bg-gray-50/50 flex items-center space-x-2">
-                  <group.icon className="h-4 w-4 text-gray-400" />
-                  <div className="text-sm font-medium text-gray-700">
+                <div className="px-4 py-2 bg-[#F8FAFC] flex items-center space-x-2">
+                  <group.icon className="w-4 h-4 text-[#64748B]" />
+                  <div className="text-sm font-medium text-[#0F172A] tracking-tight">
                     {group.title}
                   </div>
-                  <div className="text-xs text-gray-400">
+                  <div className="text-[11px] text-[#64748B] font-medium tracking-wide uppercase">
                     ({group.results.length})
                   </div>
                 </div>
@@ -131,30 +131,22 @@ export function Search() {
                     <motion.button
                       key={result.id}
                       onClick={() => handleResultClick(result.href)}
-                      className="w-full px-4 py-3 flex items-center space-x-3 hover:bg-gray-50 transition-colors text-left group"
+                      className="w-full px-4 py-2 text-left hover:bg-[#F8FAFC] transition-colors"
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05 }}
                     >
-                      <div
-                        className={`p-2 rounded ${
-                          group.title === "Invoices"
-                            ? "bg-blue-50 text-blue-600 group-hover:bg-blue-100"
-                            : group.title === "Customers"
-                            ? "bg-emerald-50 text-emerald-600 group-hover:bg-emerald-100"
-                            : group.title === "Categories"
-                            ? "bg-violet-50 text-violet-600 group-hover:bg-violet-100"
-                            : "bg-amber-50 text-amber-600 group-hover:bg-amber-100"
-                        }`}
-                      >
-                        <group.icon className="h-4 w-4" />
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-gray-900">
-                          {result.title}
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-[#F1F5F9] flex items-center justify-center">
+                          <group.icon className="w-4 h-4 text-[#3B82F6]" />
                         </div>
-                        <div className="text-xs text-gray-500">
-                          {result.subtitle}
+                        <div>
+                          <div className="text-sm font-medium text-[#0F172A]">
+                            {result.title}
+                          </div>
+                          <div className="text-xs text-[#64748B]">
+                            {result.subtitle}
+                          </div>
                         </div>
                       </div>
                     </motion.button>

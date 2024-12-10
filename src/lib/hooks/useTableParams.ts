@@ -1,63 +1,54 @@
 import { useSearchParams } from 'react-router-dom';
-import { useMemo } from 'react';
 
 export interface TableParams {
   page: number;
   perPage: number;
   sort?: string;
-  filter?: Record<string, string>;
 }
 
-export function useTableParams(defaultPerPage = 10): TableParams {
-  const [searchParams] = useSearchParams();
+export function useTableParams(defaultPerPage = 10) {
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  return useMemo(() => {
-    const page = parseInt(searchParams.get('page') || '1', 10);
-    const perPage = parseInt(searchParams.get('perPage') || String(defaultPerPage), 10);
-    const sort = searchParams.get('sort') || undefined;
-    
-    // Parse filter parameters (filter[field]=value)
-    const filter: Record<string, string> = {};
-    for (const [key, value] of searchParams.entries()) {
-      if (key.startsWith('filter[') && key.endsWith(']')) {
-        const field = key.slice(7, -1); // Remove 'filter[' and ']'
-        filter[field] = value;
-      }
+  const page = parseInt(searchParams.get('page') || '1', 10);
+  const perPage = parseInt(searchParams.get('perPage') || String(defaultPerPage), 10);
+  const sort = searchParams.get('sort') || '';
+
+  const setPage = (newPage: number) => {
+    searchParams.set('page', String(newPage));
+    setSearchParams(searchParams);
+  };
+
+  const setPerPage = (newPerPage: number) => {
+    searchParams.set('perPage', String(newPerPage));
+    searchParams.set('page', '1'); // Reset to first page when changing page size
+    setSearchParams(searchParams);
+  };
+
+  const setSort = (newSort: string) => {
+    if (newSort) {
+      searchParams.set('sort', newSort);
+    } else {
+      searchParams.delete('sort');
     }
+    setSearchParams(searchParams);
+  };
 
-    return {
-      page,
-      perPage,
-      sort,
-      filter: Object.keys(filter).length > 0 ? filter : undefined,
-    };
-  }, [searchParams, defaultPerPage]);
+  return {
+    page,
+    perPage,
+    sort,
+    setPage,
+    setPerPage,
+    setSort,
+  };
 }
 
 export function buildPocketBaseParams(params: TableParams) {
-  const { page, perPage, sort, filter } = params;
+  const { page, perPage, sort } = params;
 
-  const pocketBaseParams: Record<string, any> = {
+  return {
     page,
     perPage,
+    sort: sort || undefined,
   };
-
-  if (sort) {
-    // Convert sort parameter (field:desc/asc) to PocketBase format (-field/field)
-    const [field, direction] = sort.split(':');
-    pocketBaseParams.sort = direction === 'desc' ? `-${field}` : field;
-  }
-
-  if (filter) {
-    // Convert filter parameters to PocketBase filter format
-    const filterRules: string[] = [];
-    for (const [field, value] of Object.entries(filter)) {
-      filterRules.push(`${field}~'${value}'`);
-    }
-    if (filterRules.length > 0) {
-      pocketBaseParams.filter = filterRules.join('&&');
-    }
-  }
-
-  return pocketBaseParams;
 }

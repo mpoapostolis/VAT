@@ -35,6 +35,10 @@ export interface Invoice {
   total: number;
   status: 'draft' | 'pending' | 'paid' | 'overdue';
   notes?: string;
+  expand?: {
+    customerId: Customer;
+    categoryId: Category;
+  };
 }
 
 export interface Category {
