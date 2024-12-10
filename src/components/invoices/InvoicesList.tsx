@@ -103,26 +103,26 @@ export function InvoicesList() {
               <TableHead
                 sortable
                 sorted={
-                  tableParams.sort === "expand.customerId.name"
+                  tableParams.sort === "customerId.name"
                     ? "asc"
-                    : tableParams.sort === "-expand.customerId.name"
+                    : tableParams.sort === "-customerId.name"
                     ? "desc"
                     : false
                 }
-                onSort={() => handleSort("expand.customerId.name")}
+                onSort={() => handleSort("customerId.name")}
               >
                 Customer
               </TableHead>
               <TableHead
                 sortable
                 sorted={
-                  tableParams.sort === "expand.categoryId.name"
+                  tableParams.sort === "categoryId.name"
                     ? "asc"
-                    : tableParams.sort === "-expand.categoryId.name"
+                    : tableParams.sort === "-categoryId.name"
                     ? "desc"
                     : false
                 }
-                onSort={() => handleSort("expand.categoryId.name")}
+                onSort={() => handleSort("categoryId.name")}
               >
                 Category
               </TableHead>

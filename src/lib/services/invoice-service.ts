@@ -11,14 +11,19 @@ class InvoiceService extends BaseService<Invoice> {
   async getList(params: TableParams) {
     try {
       console.log('Fetching invoices with params:', params);
+      
+      // Remove 'expand.' prefix from sort field for PocketBase
+      let sortField = params.sort?.replace('expand.', '') || '-created';
+      
       const result = await pb.collection('invoices').getList(
         params.page,
         params.perPage,
         {
           expand: 'customerId,categoryId',
-          sort: params.sort || '-created'
+          sort: sortField
         }
       );
+      
       console.log('Fetched invoices:', result);
       return result;
     } catch (error) {
