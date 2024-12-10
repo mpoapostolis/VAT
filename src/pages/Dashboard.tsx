@@ -57,17 +57,11 @@ export function Dashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white border border-black/10 rounded-lg p-6"
+          className="bg-white border border-black/10 rounded-2xl overflow-hidden"
         >
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-lg font-semibold text-[#0F172A] tracking-tight">
-                Recent Transactions
-              </h2>
-              <p className="text-sm text-[#64748B]">
-                Your latest invoice activity
-              </p>
-            </div>
+          <div className="px-6 py-5 border-b border-black/10">
+            <h2 className="text-lg font-semibold text-[#0F172A]">Recent Transactions</h2>
+            <p className="text-sm text-[#64748B]">Your latest invoice activity</p>
           </div>
           <TransactionsSection
             isLoading={isLoading}

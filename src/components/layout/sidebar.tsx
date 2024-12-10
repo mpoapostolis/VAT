@@ -169,7 +169,7 @@ export function Sidebar() {
       <div className="p-4 border-t border-black/10">
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A] transition-colors mt-2"
+          className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg text-black hover:bg-[#F8FAFC] hover:text-[#0F172A] transition-colors mt-2"
         >
           {isCollapsed ? (
             <ChevronRight className="w-5 h-5" />
@@ -180,7 +180,6 @@ export function Sidebar() {
             </>
           )}
         </button>
-        <UserProfile isCollapsed={isCollapsed} />
       </div>
     </aside>
   );
