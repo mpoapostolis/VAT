@@ -1,6 +1,6 @@
-import React from 'react';
-import { cn } from '@/lib/utils';
-import { ArrowUpDown } from 'lucide-react';
+import React from "react";
+import { cn } from "@/lib/utils";
+import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 
 export const Table = React.forwardRef<
   HTMLTableElement,
@@ -9,7 +9,7 @@ export const Table = React.forwardRef<
   <div className="w-full overflow-auto">
     <table
       ref={ref}
-      className={cn('w-full caption-bottom text-sm', className)}
+      className={cn("w-full caption-bottom text-sm", className)}
       {...props}
     />
   </div>
@@ -19,7 +19,11 @@ export const TableHeader = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
 >(({ className, ...props }, ref) => (
-  <thead ref={ref} className={cn('[&_tr]:border-b', className)} {...props} />
+  <thead
+    ref={ref}
+    className={cn("bg-slate-50/80 sticky top-0", className)}
+    {...props}
+  />
 ));
 
 export const TableBody = React.forwardRef<
@@ -28,7 +32,7 @@ export const TableBody = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tbody
     ref={ref}
-    className={cn('[&_tr:last-child]:border-0', className)}
+    className={cn("[&_tr:last-child]:border-0", className)}
     {...props}
   />
 ));
@@ -40,7 +44,7 @@ export const TableRow = React.forwardRef<
   <tr
     ref={ref}
     className={cn(
-      'border-b transition-colors hover:bg-[#F8FAFC]',
+      "border-b border-slate-200 transition-colors hover:bg-slate-50/50",
       className
     )}
     {...props}
@@ -49,7 +53,7 @@ export const TableRow = React.forwardRef<
 
 interface TableHeadProps extends React.ThHTMLAttributes<HTMLTableCellElement> {
   sortable?: boolean;
-  sorted?: 'asc' | 'desc' | false;
+  sorted?: "asc" | "desc" | false;
   onSort?: () => void;
 }
 
@@ -58,8 +62,8 @@ export const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
     <th
       ref={ref}
       className={cn(
-        'h-12 px-4 text-left align-middle font-medium text-[#64748B]',
-        sortable && 'cursor-pointer select-none',
+        "h-12 px-4 text-left align-middle font-medium text-slate-500 border-b border-slate-200",
+        sortable && "cursor-pointer select-none hover:text-slate-700",
         className
       )}
       onClick={sortable ? onSort : undefined}
@@ -68,14 +72,11 @@ export const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
       {sortable ? (
         <div className="flex items-center gap-2">
           <span>{children}</span>
-          <ArrowUpDown
-            className={cn(
-              'w-4 h-4 transition-colors',
-              sorted
-                ? 'text-[#3B82F6]'
-                : 'text-[#CBD5E1]'
-            )}
-          />
+          {sorted === false ? null : sorted === "asc" ? (
+            <ArrowUp className="w-4 h-4 text-blue-500" />
+          ) : (
+            <ArrowDown className="w-4 h-4 text-blue-500" />
+          )}
         </div>
       ) : (
         children
@@ -90,7 +91,7 @@ export const TableCell = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <td
     ref={ref}
-    className={cn('p-4 align-middle', className)}
+    className={cn("p-4 align-middle text-slate-600", className)}
     {...props}
   />
 ));
@@ -101,7 +102,7 @@ export const TableFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tfoot
     ref={ref}
-    className={cn('border-t bg-[#F8FAFC]', className)}
+    className={cn("bg-slate-50/80 border-t border-slate-200", className)}
     {...props}
   />
 ));
@@ -117,36 +118,47 @@ export const TablePagination = ({
   pageSize: number;
   pageCount: number;
   onPageChange: (page: number) => void;
-  onPageSizeChange: (size: number) => void;
+  onPageSizeChange: (pageSize: number) => void;
 }) => {
+  const startItem = pageIndex * pageSize + 1;
+  const endItem = Math.min((pageIndex + 1) * pageSize, pageCount * pageSize);
+  const totalItems = pageCount * pageSize;
+
   return (
-    <div className="flex items-center justify-between px-6 py-4 border-t border-black/10">
-      <div className="flex items-center gap-2">
-        <select
-          className="h-9 px-3 text-sm bg-white border border-black/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent transition-all"
-          value={pageSize}
-          onChange={(e) => onPageSizeChange(Number(e.target.value))}
-        >
-          {[10, 20, 30, 40, 50].map((size) => (
-            <option key={size} value={size}>
-              {size} rows
-            </option>
-          ))}
-        </select>
-        <span className="text-sm text-[#64748B]">
-          Page {pageIndex + 1} of {pageCount}
-        </span>
+    <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200">
+      <div className="flex items-center gap-6">
+        <div className="flex items-center gap-3">
+          <select
+            className="h-9 min-w-[70px] rounded-md border border-slate-200 bg-white px-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            value={pageSize}
+            onChange={(e) => onPageSizeChange(Number(e.target.value))}
+          >
+            {[5, 10, 20, 30, 40, 50].map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </select>
+          <span className="text-sm font-medium text-slate-600">rows per page</span>
+        </div>
+        <div className="text-sm text-slate-600">
+          <span className="font-medium">{startItem}</span>
+          <span className="mx-1">-</span>
+          <span className="font-medium">{endItem}</span>
+          <span className="mx-1">of</span>
+          <span className="font-medium">{totalItems}</span>
+        </div>
       </div>
       <div className="flex items-center gap-2">
         <button
-          className="h-9 px-4 text-sm font-medium text-[#64748B] hover:text-[#0F172A] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="h-9 px-4 rounded-md border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 transition-colors"
           onClick={() => onPageChange(pageIndex - 1)}
           disabled={pageIndex === 0}
         >
           Previous
         </button>
         <button
-          className="h-9 px-4 text-sm font-medium text-[#64748B] hover:text-[#0F172A] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="h-9 px-4 rounded-md border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 transition-colors"
           onClick={() => onPageChange(pageIndex + 1)}
           disabled={pageIndex === pageCount - 1}
         >

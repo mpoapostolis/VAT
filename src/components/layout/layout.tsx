@@ -1,7 +1,7 @@
-import { Outlet } from 'react-router-dom';
-import { Header } from './header';
-import { Sidebar } from './sidebar';
-import { LayoutProvider } from '../../lib/contexts/layout-context';
+import { Outlet } from "react-router-dom";
+import { Header } from "./header";
+import { Sidebar } from "./sidebar";
+import { LayoutProvider } from "../../lib/contexts/layout-context";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -21,7 +21,7 @@ export function Layout() {
 
           {/* Main Scrollable Area */}
           <main className="flex-1 overflow-y-auto">
-            <div className="h-full p-8">
+            <div className="h-full p-8 mb-8">
               <div className="mx-auto max-w-[1600px]">
                 <Outlet />
               </div>
