@@ -1,6 +1,8 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Select } from "./select";
+import { Dropdown } from "./dropdown";
 
 export const Table = React.forwardRef<
   HTMLTableElement,
@@ -126,39 +128,41 @@ export const TablePagination = ({
 
   return (
     <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200">
-      <div className="flex items-center gap-6">
-        <div className="flex items-center gap-3">
-          <select
-            className="h-9 min-w-[70px] rounded-md border border-slate-200 bg-white px-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            value={pageSize}
-            onChange={(e) => onPageSizeChange(Number(e.target.value))}
-          >
-            {[5, 10, 20, 30, 40, 50].map((size) => (
-              <option key={size} value={size}>
-                {size}
-              </option>
-            ))}
-          </select>
-          <span className="text-sm font-medium text-slate-600">rows per page</span>
+      <div className="flex flex-1 items-center gap-6">
+        <div className="flex items-center space-x-2  px-3 py-1.5 rounded-lg">
+          <span className="text-sm font-medium text-slate-700">Limit:</span>
+          <Dropdown
+            trigger={
+              <button className="inline-flex h-7 min-w-[50px] items-center justify-center rounded bg-white shadow-sm border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all">
+                {pageSize}
+              </button>
+            }
+            direction="up"
+            items={[5, 10, 20, 30, 40, 50].map((size) => ({
+              label: size.toString(),
+              value: size.toString(),
+              onClick: () => onPageSizeChange(size),
+            }))}
+          />
         </div>
-        <div className="text-sm text-slate-600">
+        <div className="text-sm text-slate-600 mx-auto flex items-center space-x-1">
           <span className="font-medium">{startItem}</span>
-          <span className="mx-1">-</span>
+          <span>-</span>
           <span className="font-medium">{endItem}</span>
-          <span className="mx-1">of</span>
+          <span>of</span>
           <span className="font-medium">{totalItems}</span>
         </div>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center space-x-2">
         <button
-          className="h-9 px-4 rounded-md border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 transition-colors"
+          className="h-8 px-3 rounded-md border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 transition-all"
           onClick={() => onPageChange(pageIndex - 1)}
           disabled={pageIndex === 0}
         >
           Previous
         </button>
         <button
-          className="h-9 px-4 rounded-md border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 transition-colors"
+          className="h-8 px-3 rounded-md border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 transition-all"
           onClick={() => onPageChange(pageIndex + 1)}
           disabled={pageIndex === pageCount - 1}
         >
