@@ -1,6 +1,14 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import useSWR from "swr";
+import { motion } from "framer-motion";
+import { AnimatedPage } from "@/components/AnimatedPage";
+import { useToast } from "@/lib/hooks/useToast";
+import type { Category } from "@/lib/pocketbase";
+import { Tag, FileText, ArrowUpDown, Percent } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { categoryService } from "@/lib/services/category-service";
+import { CategoryHeader } from "./category-header";
 import {
   FormField,
   FormItem,
@@ -9,27 +17,27 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { AnimatedPage } from "@/components/AnimatedPage";
-import { useToast } from "@/lib/hooks/useToast";
-import type { Category } from "@/lib/pocketbase";
-import { motion } from "framer-motion";
-import { Tag, FileText, CreditCard } from "lucide-react";
-import { CategoryHeader } from "./category-header";
-import { useForm } from "react-hook-form";
-import { categoryService } from "@/lib/services/category-service";
 import { Select } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 
 const typeOptions = [
   { value: "income", label: "Income" },
   { value: "expense", label: "Expense" },
 ];
 
+const vatOptions = [
+  { value: "0", label: "0%" },
+  { value: "13", label: "13%" },
+  { value: "24", label: "24%" },
+];
+
 export function EditCategory() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToast } = useToast();
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const { data: category } = useSWR<Category>(
+  const { data: category } = useSWR(
     id ? `categories/${id}` : null,
     () => categoryService.getById(id!)
   );
@@ -38,19 +46,39 @@ export function EditCategory() {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      name: "",
+      description: "",
+      type: "expense",
+      vat: "24",
+    },
+  });
+
+  React.useEffect(() => {
+    if (category) {
+      setValue("name", category.name || "");
+      setValue("description", category.description || "");
+      setValue("type", category.type || "expense");
+      setValue("vat", category.vat?.toString() || "24");
+    }
+  }, [category, setValue]);
 
   const onSubmit = async (data: any) => {
     if (!id) return;
+    setIsSubmitting(true);
 
     try {
       await categoryService.update(id, data);
       addToast("Category updated successfully", "success");
-      navigate(`/categories`);
-    } catch (error) {
+      navigate(`/categories/${id}/view`);
+    } catch (error: any) {
       console.error("Failed to update category:", error);
-      addToast("Failed to update category", "error");
+      addToast(error?.message || "Failed to update category", "error");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -64,57 +92,44 @@ export function EditCategory() {
 
   return (
     <AnimatedPage>
-      <div className="space-y-6   mx-auto">
+      <div className="min-h-screen bg-[#F8FAFC]">
         <CategoryHeader mode="edit" />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Basic Information */}
+        <div className="container mx-auto px-4 py-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded overflow-hidden"
+            className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded-lg overflow-hidden"
           >
             <div className="border-b border-gray-200/60 bg-gray-50/50 px-6 py-4">
-              <h2 className="font-medium text-gray-800">Basic Information</h2>
+              <h2 className="font-medium text-gray-800">Category Details</h2>
               <p className="text-sm text-gray-500">
-                Basic information about the category
+                Update the details for this category
               </p>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
               <FormItem>
-                <FormLabel>
+                <FormLabel required>
                   <Tag className="h-4 w-4 inline-block mr-2" />
                   <span>Category Name</span>
                 </FormLabel>
                 <Input
                   {...register("name", {
                     required: "Category name is required",
+                    minLength: {
+                      value: 2,
+                      message: "Category name must be at least 2 characters",
+                    },
+                    maxLength: {
+                      value: 50,
+                      message: "Category name must be at most 50 characters",
+                    },
                   })}
-                  defaultValue={category.name}
                   className="bg-white"
                   placeholder="Enter category name"
                 />
-                {errors.name && (
-                  <FormMessage>{errors.name.message}</FormMessage>
-                )}
-              </FormItem>
-
-              <FormItem>
-                <FormLabel>
-                  <CreditCard className="h-4 w-4 inline-block mr-2" />
-                  <span>Type</span>
-                </FormLabel>
-                <Select
-                  options={typeOptions}
-                  value={category.type}
-                  onChange={(value) => setValue("type", value)}
-                  error={!!errors.type}
-                  className="bg-white"
-                />
-                {errors.type && (
-                  <FormMessage>{errors.type.message}</FormMessage>
-                )}
+                {errors.name && <FormMessage>{errors.name.message}</FormMessage>}
               </FormItem>
 
               <FormItem>
@@ -124,9 +139,8 @@ export function EditCategory() {
                 </FormLabel>
                 <Textarea
                   {...register("description")}
-                  defaultValue={category.description}
-                  className="bg-white resize-none"
-                  placeholder="Enter category description"
+                  className="bg-white"
+                  placeholder="Enter category description (optional)"
                   rows={4}
                 />
                 {errors.description && (
@@ -134,42 +148,49 @@ export function EditCategory() {
                 )}
               </FormItem>
 
-              <div className="flex justify-end space-x-4 pt-4 border-t border-gray-100">
-                <button
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormItem>
+                  <FormLabel required>
+                    <ArrowUpDown className="h-4 w-4 inline-block mr-2" />
+                    <span>Category Type</span>
+                  </FormLabel>
+                  <Select
+                    value={watch("type")}
+                    onValueChange={(value) => setValue("type", value)}
+                    options={typeOptions}
+                    placeholder="Select category type"
+                  />
+                  {errors.type && <FormMessage>{errors.type.message}</FormMessage>}
+                </FormItem>
+
+                <FormItem>
+                  <FormLabel required>
+                    <Percent className="h-4 w-4 inline-block mr-2" />
+                    <span>VAT Rate</span>
+                  </FormLabel>
+                  <Select
+                    value={watch("vat")}
+                    onValueChange={(value) => setValue("vat", value)}
+                    options={vatOptions}
+                    placeholder="Select VAT rate"
+                  />
+                  {errors.vat && <FormMessage>{errors.vat.message}</FormMessage>}
+                </FormItem>
+              </div>
+
+              <div className="flex justify-end space-x-4 pt-4 border-t">
+                <Button
                   type="button"
-                  onClick={() => navigate(`/categories/${id}`)}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  variant="outline"
+                  onClick={() => navigate(`/categories/${id}/view`)}
                 >
                   Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  Save Changes
-                </button>
+                </Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Saving..." : "Save Changes"}
+                </Button>
               </div>
             </form>
-          </motion.div>
-
-          {/* Additional Information */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded overflow-hidden"
-          >
-            <div className="border-b border-gray-200/60 bg-gray-50/50 px-6 py-4">
-              <h2 className="font-medium text-gray-800">Additional Settings</h2>
-              <p className="text-sm text-gray-500">
-                Optional settings and configurations
-              </p>
-            </div>
-
-            <div className="p-6">
-              <p className="text-sm text-gray-500">
-                More settings will be available soon.
-              </p>
-            </div>
           </motion.div>
         </div>
       </div>

@@ -11,10 +11,22 @@ import { Textarea } from "@/components/ui/textarea";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { useToast } from "@/lib/hooks/useToast";
 import { motion } from "framer-motion";
-import { Tag, FileText, Settings, Percent } from "lucide-react";
+import { Tag, FileText, ArrowUpDown, Percent } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { categoryService } from "@/lib/services/category-service";
 import { Select } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+
+const typeOptions = [
+  { value: "income", label: "Income" },
+  { value: "expense", label: "Expense" },
+];
+
+const vatOptions = [
+  { value: "0", label: "0%" },
+  { value: "13", label: "13%" },
+  { value: "24", label: "24%" },
+];
 
 export function CreateCategory() {
   const navigate = useNavigate();
@@ -30,6 +42,8 @@ export function CreateCategory() {
     defaultValues: {
       type: "expense",
       vat: "24",
+      name: "",
+      description: "",
     },
   });
 
@@ -37,159 +51,144 @@ export function CreateCategory() {
     try {
       const category = await categoryService.create(data);
       addToast("Category created successfully", "success");
-      navigate(`/categories/${category.id}`);
-    } catch (error) {
+      navigate(`/categories/${category.id}/view`);
+    } catch (error: any) {
       console.error("Failed to create category:", error);
-      addToast("Failed to create category", "error");
+      addToast(error?.message || "Failed to create category", "error");
     }
   };
 
   return (
     <AnimatedPage>
-      <div className="space-y-6   mx-auto">
+      <div className="space-y-6 mx-auto">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={() => navigate("/categories")}
-              className="inline-flex items-center justify-center h-9 px-3 text-sm font-medium text-gray-700 transition-colors bg-white border rounded-md hover:bg-gray-50 active:bg-gray-100"
-            >
-              <svg
-                className="w-4 h-4 mr-2"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                />
-              </svg>
-              Back to Categories
-            </button>
+          <div>
+            <h1 className="text-2xl font-semibold text-[#0F172A] tracking-tight">
+              Create Category
+            </h1>
+            <p className="text-sm text-[#64748B] mt-1">
+              Add a new category for your invoices
+            </p>
           </div>
+          <Button
+            variant="outline"
+            onClick={() => navigate("/categories")}
+            className="gap-2"
+          >
+            <svg
+              className="w-4 h-4"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
+            </svg>
+            Back to Categories
+          </Button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Basic Information */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded overflow-hidden"
-          >
-            <div className="border-b border-gray-200/60 bg-gray-50/50 px-6 py-4">
-              <h2 className="font-medium text-gray-800">Basic Information</h2>
-              <p className="text-sm text-gray-500">
-                Enter the category's basic details
-              </p>
-            </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded-lg overflow-hidden"
+        >
+          <div className="border-b border-gray-200/60 bg-gray-50/50 px-6 py-4">
+            <h2 className="font-medium text-gray-800">Category Details</h2>
+            <p className="text-sm text-gray-500">
+              Fill in the details for your new category
+            </p>
+          </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
+            <FormItem>
+              <FormLabel required>
+                <Tag className="h-4 w-4 inline-block mr-2" />
+                <span>Category Name</span>
+              </FormLabel>
+              <Input
+                {...register("name", {
+                  required: "Category name is required",
+                  minLength: {
+                    value: 2,
+                    message: "Category name must be at least 2 characters",
+                  },
+                  maxLength: {
+                    value: 50,
+                    message: "Category name must be at most 50 characters",
+                  },
+                })}
+                className="bg-white"
+                placeholder="Enter category name"
+              />
+              {errors.name && <FormMessage>{errors.name.message}</FormMessage>}
+            </FormItem>
+
+            <FormItem>
+              <FormLabel>
+                <FileText className="h-4 w-4 inline-block mr-2" />
+                <span>Description</span>
+              </FormLabel>
+              <Textarea
+                {...register("description")}
+                className="bg-white"
+                placeholder="Enter category description (optional)"
+                rows={4}
+              />
+              {errors.description && (
+                <FormMessage>{errors.description.message}</FormMessage>
+              )}
+            </FormItem>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormItem>
-                <FormLabel>
-                  <Tag className="h-4 w-4 inline-block mr-2" />
-                  <span>Category Name</span>
-                </FormLabel>
-                <Input
-                  {...register("name", {
-                    required: "Category name is required",
-                  })}
-                  className="bg-white"
-                  placeholder="Enter category name"
-                />
-                {errors.name && (
-                  <FormMessage>{errors.name.message}</FormMessage>
-                )}
-              </FormItem>
-
-              <FormItem>
-                <FormLabel>
-                  <FileText className="h-4 w-4 inline-block mr-2" />
-                  <span>Description</span>
-                </FormLabel>
-                <Textarea
-                  {...register("description")}
-                  className="bg-white resize-none"
-                  placeholder="Enter category description"
-                  rows={4}
-                />
-                {errors.description && (
-                  <FormMessage>{errors.description.message}</FormMessage>
-                )}
-              </FormItem>
-
-              <div className="flex justify-end space-x-4 pt-4 border-t border-gray-100">
-                <button
-                  type="button"
-                  onClick={() => navigate("/categories")}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  {isSubmitting ? "Creating..." : "Create Category"}
-                </button>
-              </div>
-            </form>
-          </motion.div>
-
-          {/* Additional Settings */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded overflow-hidden"
-          >
-            <div className="border-b border-gray-200/60 bg-gray-50/50 px-6 py-4">
-              <h2 className="font-medium text-gray-800">Additional Settings</h2>
-              <p className="text-sm text-gray-500">
-                Configure category settings and preferences
-              </p>
-            </div>
-
-            <div className="p-6 space-y-6">
-              <FormItem>
-                <FormLabel>
-                  <Settings className="h-4 w-4 inline-block mr-2" />
+                <FormLabel required>
+                  <ArrowUpDown className="h-4 w-4 inline-block mr-2" />
                   <span>Category Type</span>
                 </FormLabel>
                 <Select
-                  options={[
-                    { value: "expense", label: "Expense" },
-                    { value: "income", label: "Income" },
-                  ]}
                   value={watch("type")}
-                  onChange={(value) => setValue("type", value)}
-                  error={!!errors.type}
-                  className="bg-white"
-                />{" "}
+                  onValueChange={(value) => setValue("type", value)}
+                  options={typeOptions}
+                  placeholder="Select category type"
+                />
+                {errors.type && <FormMessage>{errors.type.message}</FormMessage>}
               </FormItem>
 
               <FormItem>
-                <FormLabel>
+                <FormLabel required>
                   <Percent className="h-4 w-4 inline-block mr-2" />
                   <span>VAT Rate</span>
                 </FormLabel>
                 <Select
-                  options={[
-                    { value: "0", label: "0%" },
-                    { value: "24", label: "24%" },
-                    { value: "10", label: "10%" },
-                  ]}
                   value={watch("vat")}
-                  onChange={(value) => setValue("vat", value)}
-                  error={!!errors.vat}
-                  className="bg-white"
-                />{" "}
+                  onValueChange={(value) => setValue("vat", value)}
+                  options={vatOptions}
+                  placeholder="Select VAT rate"
+                />
+                {errors.vat && <FormMessage>{errors.vat.message}</FormMessage>}
               </FormItem>
             </div>
-          </motion.div>
-        </div>
+
+            <div className="flex justify-end space-x-4 pt-4 border-t">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate("/categories")}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Creating..." : "Create Category"}
+              </Button>
+            </div>
+          </form>
+        </motion.div>
       </div>
     </AnimatedPage>
   );
