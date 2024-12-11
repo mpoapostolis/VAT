@@ -1,34 +1,50 @@
-import { pb } from '../pocketbase';
-import type { Company } from '../../types/company';
+import { BaseService } from './base-service';
+import type { Company } from '@/types/company';
+import { pb } from '@/lib/pocketbase';
+import type { TableParams } from '@/lib/hooks/useTableParams';
 
-const COLLECTION = 'companies';
-
-export const companyService = {
-  async create(data: Omit<Company, 'id' | 'created' | 'updated'>) {
-    return pb.collection(COLLECTION).create(data);
-  },
-
-  async update(id: string, data: Partial<Company>) {
-    return pb.collection(COLLECTION).update(id, data);
-  },
-
-  async getById(id: string) {
-    return pb.collection(COLLECTION).getOne(id);
-  },
-
-  async list(page = 1, perPage = 30) {
-    return pb.collection(COLLECTION).getList(page, perPage, {
-      sort: '-created'
-    });
-  },
-
-  async delete(id: string) {
-    return pb.collection(COLLECTION).delete(id);
-  },
-
-  // Helper function to get companies for SWR
-  async getCompanies(key: string) {
-    const [_, page, perPage] = key.split('/');
-    return companyService.list(Number(page), Number(perPage));
+class CompanyService extends BaseService<Company> {
+  constructor() {
+    super('companies');
   }
-};
+
+  async getList(params: TableParams) {
+    try {
+      console.log('Fetching companies with params:', params);
+      
+      let sortField = params.sort || '-created';
+      
+      const result = await pb.collection('companies').getList(
+        params.page,
+        params.perPage,
+        {
+          sort: sortField
+        }
+      );
+      
+      console.log('Fetched companies:', result);
+      return result;
+    } catch (error) {
+      console.error('Failed to fetch companies:', error);
+      throw error;
+    }
+  }
+
+  async getById(id: string): Promise<Company> {
+    return pb.collection("companies").getOne(id);
+  }
+
+  async create(data: Partial<Company>): Promise<Company> {
+    return pb.collection("companies").create(data);
+  }
+
+  async update(id: string, data: Partial<Company>): Promise<Company> {
+    return pb.collection("companies").update(id, data);
+  }
+
+  async delete(id: string): Promise<boolean> {
+    return pb.collection("companies").delete(id);
+  }
+}
+
+export const companyService = new CompanyService();

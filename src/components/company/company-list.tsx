@@ -1,114 +1,178 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import type { Company } from "../../types/company";
-import { companyService } from "../../lib/services/company";
-import { Button } from "../ui/button";
-import { Pencil, Trash2 } from "lucide-react";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import useSWR from "swr";
+import type { Company } from "@/types/company";
+import { companyService } from "@/lib/services/company";
+import { useMutateData } from "@/lib/hooks/useMutateData";
+import {
+  useTableParams,
+  buildPocketBaseParams,
+} from "@/lib/hooks/useTableParams";
+import { Building2, Plus } from "lucide-react";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+  TablePagination,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 
-interface CompanyListProps {
-  companies: Company[];
-  onRefresh: () => void;
-}
-
-export function CompanyList({ companies, onRefresh }: CompanyListProps) {
+export function CompanyList() {
   const navigate = useNavigate();
+  const tableParams = useTableParams();
+  const { data } = useSWR(
+    ["companies", tableParams.page, tableParams.perPage, tableParams.sort],
+    () => companyService.getList(buildPocketBaseParams(tableParams))
+  );
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this company?")) {
-      return;
-    }
-
-    try {
-      await companyService.delete(id);
-      onRefresh();
-    } catch (error) {
-      console.error("Failed to delete company:", error);
+  const handleSort = (field: string) => {
+    const currentSort = tableParams.sort;
+    if (currentSort === field) {
+      tableParams.setSort(`-${field}`);
+    } else if (currentSort === `-${field}`) {
+      tableParams.setSort("");
+    } else {
+      tableParams.setSort(field);
     }
   };
 
-  if (companies.length === 0) {
-    return (
-      <div className="text-center py-8 text-gray-500">
-        No companies found. Add your first company to get started.
-      </div>
-    );
-  }
-
   return (
-    <div className="bg-white shadow rounded overflow-hidden">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Company Name
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              License Number
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Business Type
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Emirate
-            </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-              VAT Rate
-            </th>
-            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {companies.map((company) => (
-            <tr key={company.id}>
-              <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm font-medium text-gray-900">
-                  {company.companyNameEn}
-                </div>
-                <div className="text-sm text-gray-500">
-                  {company.companyNameAr}
-                </div>
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {company.tradeLicenseNumber}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {company.primaryBusinessType}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {company.emirate}
-                {company.freeZone && (
-                  <div className="text-xs text-gray-400">
-                    {company.freeZone}
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-[#0F172A] tracking-tight">
+            Companies
+          </h1>
+          <p className="text-sm text-[#64748B] mt-1">
+            Manage your companies and their details
+          </p>
+        </div>
+        <Link
+          to="/companies/new"
+          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#3B82F6] hover:bg-[#2563EB] transition-colors rounded-lg"
+        >
+          <Plus className="w-4 h-4" />
+          New Company
+        </Link>
+      </div>
+
+      <div className="bg-white border border-black/10 rounded-lg overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead
+                sortable
+                sorted={
+                  tableParams.sort === "companyNameEn"
+                    ? "asc"
+                    : tableParams.sort === "-companyNameEn"
+                    ? "desc"
+                    : false
+                }
+                onSort={() => handleSort("companyNameEn")}
+              >
+                Company
+              </TableHead>
+              <TableHead
+                sortable
+                sorted={
+                  tableParams.sort === "tradeLicenseNumber"
+                    ? "asc"
+                    : tableParams.sort === "-tradeLicenseNumber"
+                    ? "desc"
+                    : false
+                }
+                onSort={() => handleSort("tradeLicenseNumber")}
+              >
+                License Number
+              </TableHead>
+              <TableHead
+                sortable
+                sorted={
+                  tableParams.sort === "emirate"
+                    ? "asc"
+                    : tableParams.sort === "-emirate"
+                    ? "desc"
+                    : false
+                }
+                onSort={() => handleSort("emirate")}
+              >
+                Emirate
+              </TableHead>
+              <TableHead
+                sortable
+                sorted={
+                  tableParams.sort === "defaultVatRate"
+                    ? "asc"
+                    : tableParams.sort === "-defaultVatRate"
+                    ? "desc"
+                    : false
+                }
+                onSort={() => handleSort("defaultVatRate")}
+              >
+                VAT Rate
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {data?.items.map((company) => (
+              <TableRow key={company.id}>
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                      <Building2 className="w-4 h-4 text-[#3B82F6]" />
+                    </div>
+                    <div>
+                      <Link
+                        to={`/companies/${company.id}`}
+                        className="font-medium text-[#0F172A] hover:text-[#3B82F6] transition-colors"
+                      >
+                        {company.companyNameEn}
+                      </Link>
+                      <div className="text-sm text-[#64748B]">
+                        {company.companyNameAr}
+                      </div>
+                    </div>
                   </div>
-                )}
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {company.defaultVatRate}%
-              </td>
-              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <div className="flex justify-end space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => navigate(`/companies/${company.id}/edit`)}
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => company.id && handleDelete(company.id)}
-                  >
-                    <Trash2 className="w-4 h-4 text-red-500" />
-                  </Button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                </TableCell>
+                <TableCell>
+                  <div className="font-medium text-[#0F172A]">
+                    {company.tradeLicenseNumber}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div>
+                    <div className="font-medium text-[#0F172A]">
+                      {company.emirate}
+                    </div>
+                    {company.freeZone && (
+                      <div className="text-sm text-[#64748B]">
+                        {company.freeZone}
+                      </div>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-[#DCFCE7] text-[#10B981]">
+                    {company.defaultVatRate}%
+                  </span>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+
+        <TablePagination
+          pageIndex={tableParams.page - 1}
+          pageSize={tableParams.perPage}
+          pageCount={data?.totalPages || 1}
+          onPageChange={(page) => tableParams.setPage(page + 1)}
+          onPageSizeChange={(size) => tableParams.setPerPage(size)}
+        />
+      </div>
     </div>
   );
 }

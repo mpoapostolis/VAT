@@ -1,6 +1,19 @@
-import PocketBase from 'pocketbase';
+import PocketBase, { ListResult } from "pocketbase";
+import { useEffect, useState } from "react";
 
-export const pb = new PocketBase('https://api.vxlverse.com');
+export const pb = new PocketBase("https://api.vxlverse.com");
+
+export function useClient() {
+  const [client] = useState(() => new PocketBase("https://api.vxlverse.com"));
+
+  useEffect(() => {
+    // You can add auth state management here if needed
+  }, [client]);
+
+  return client;
+}
+
+export type { ListResult };
 
 export interface Customer {
   id: string;
@@ -33,7 +46,7 @@ export interface Invoice {
   subtotal: number;
   vat: number;
   total: number;
-  status: 'draft' | 'pending' | 'paid' | 'overdue';
+  status: "draft" | "pending" | "paid" | "overdue";
   notes?: string;
   expand?: {
     customerId: Customer;
@@ -44,7 +57,7 @@ export interface Invoice {
 export interface Category {
   id: string;
   name: string;
-  type: 'income' | 'expense';
+  type: "income" | "expense";
   description: string;
   budget?: number;
   transactions?: number;
@@ -59,7 +72,7 @@ export interface VatReturn {
   salesVat: number;
   purchasesVat: number;
   netVat: number;
-  status: 'draft' | 'submitted';
+  status: "draft" | "submitted";
   submittedAt?: string;
   notes?: string;
   dueDate: string;

@@ -35,7 +35,7 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
         accountNumber: "",
         swiftCode: "",
       },
-      ...company, // Spread the company data last to override defaults if editing
+      ...company,
     },
   });
 
@@ -62,7 +62,6 @@ export function CompanyForm({ company, onSuccess }: CompanyFormProps) {
 
   const onSubmit = async (data: Company) => {
     try {
-      // Convert numeric strings to numbers and ensure boolean for reverseChargeMechanism
       const formattedData = {
         ...data,
         defaultPaymentTerms: Number(data.defaultPaymentTerms),
