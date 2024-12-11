@@ -18,25 +18,6 @@ export function CompanyFormPage({ mode = "view" }) {
     navigate("/companies");
   };
 
-  const headerActions = (
-    <div className="flex items-center space-x-3">
-      <Button
-        variant="outline"
-        onClick={() => navigate("/companies")}
-        className="border-gray-200 hover:bg-gray-50"
-      >
-        Cancel
-      </Button>
-      <Button
-        type="submit"
-        form="company-form"
-        className="bg-[#0066FF] hover:bg-blue-600"
-      >
-        Save Changes
-      </Button>
-    </div>
-  );
-
   return (
     <AnimatedPage>
       <div className="space-y-6">
@@ -44,9 +25,7 @@ export function CompanyFormPage({ mode = "view" }) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <div className="p-6">
-            <CompanyForm company={company} onSuccess={handleSuccess} />
-          </div>
+          <CompanyForm company={company} onSuccess={handleSuccess} />
         </motion.div>
       </div>
     </AnimatedPage>

@@ -8,6 +8,7 @@ import {
   Globe,
   FileText,
   Percent,
+  ArrowLeft,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -17,6 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import type { Company } from "@/types/company";
 import { EMIRATES, BUSINESS_TYPES, FREE_ZONES } from "@/types/company";
 import { companyService } from "@/lib/services/company";
+import { useNavigate } from "react-router-dom";
 
 interface CompanyFormProps {
   company?: Company;
@@ -94,14 +96,23 @@ export function CompanyForm({
       console.error("Failed to save company:", error);
     }
   };
+  const navigate = useNavigate();
 
   return (
     <form id="company-form" onSubmit={handleSubmit(onSubmit)}>
       <div className="bg-white rounded 2xl border border-black/10 shadow-sm overflow-hidden">
         {/* Header */}
-        <div className="border-b border-gray-100 bg-gray-50/50 px-8 py-6">
+        <div className="border-b border-gray-200 bg-gray-50/50 px-8 py-6">
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-semibold text-gray-900">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => navigate("/companies")}
+                className="border-gray-200 hover:bg-gray-50"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+              </Button>
               {company?.id ? "Edit Company" : "New Company"}
             </h1>
             <Button
