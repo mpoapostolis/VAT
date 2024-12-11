@@ -2,7 +2,7 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { CompanyList } from "@/components/company/company-list";
-import { CompanyFormPage } from "./CompanyForm";
+import { CompanyFormPage } from "../components/company/CompanyForm";
 
 export function Companies() {
   return (
