@@ -1,56 +1,36 @@
-import React, { useRef } from "react";
+import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import useSWR from "swr";
-import {
-  Building2,
-  Mail,
-  Phone,
-  MapPin,
-  FileText,
-  Calendar,
-  CreditCard,
-} from "lucide-react";
-import { AnimatedPage } from "@/components/AnimatedPage";
-import { customerService } from "@/lib/services/customer-service";
-import { formatDate } from "@/lib/utils";
-import type { Customer } from "@/lib/pocketbase";
 import { motion } from "framer-motion";
-import { CustomerHeader } from "./customer-header";
-import html2pdf from "html2pdf.js";
+import type { Customer } from "@/lib/pocketbase";
 import { useToast } from "@/lib/hooks/useToast";
+import { customerService } from "@/lib/services/customer-service";
+import { 
+  ArrowLeft, 
+  Edit, 
+  Users, 
+  Phone, 
+  Mail, 
+  MapPin, 
+  CalendarDays, 
+  Building2,
+  CreditCard,
+  FileText,
+  Clock
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { AnimatedPage } from "@/components/AnimatedPage";
+import { formatDate } from "@/lib/utils";
 
 export function ViewCustomer() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToast } = useToast();
-  const customerRef = useRef<HTMLDivElement>(null);
 
-  const { data: customer } = useSWR<Customer>(
+  const { data: customer } = useSWR(
     id ? `customers/${id}` : null,
     () => customerService.getById(id!)
   );
-
-  const handleDownload = async () => {
-    if (!customerRef.current || !customer) return;
-
-    const element = customerRef.current;
-    const opt = {
-      margin: [10, 10],
-      filename: `customer-${customer.name}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-    };
-
-    try {
-      addToast("Generating PDF...", "info");
-      await html2pdf().set(opt).from(element).save();
-      addToast("PDF downloaded successfully", "success");
-    } catch (error) {
-      addToast("Failed to generate PDF", "error");
-      console.error("PDF generation error:", error);
-    }
-  };
 
   if (!customer) {
     return (
@@ -62,121 +42,122 @@ export function ViewCustomer() {
 
   return (
     <AnimatedPage>
-      <div className="space-y-6   mx-auto">
-        <CustomerHeader mode="view" onDownload={handleDownload} />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-6"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate("/customers")}
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Customers
+            </Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate(`/customers/${id}/edit`)}
+            >
+              <Edit className="w-4 h-4 mr-2" />
+              Edit Customer
+            </Button>
+          </div>
+        </div>
 
-        <div ref={customerRef}>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-1 lg:grid-cols-2 gap-6"
-          >
-            {/* Basic Information */}
-            <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded overflow-hidden">
-              <div className="border-b border-gray-200/60 bg-gray-50/50 px-6 py-4">
-                <h2 className="font-medium text-gray-800">Basic Information</h2>
-                <p className="text-sm text-gray-500">
-                  Customer details and contact information
-                </p>
+        <div className="bg-white border border-black/10 rounded-lg overflow-hidden">
+          <div className="border-b border-black/10 bg-slate-50/50 px-6 py-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                <Building2 className="w-5 h-5 text-[#3B82F6]" />
               </div>
+              <div>
+                <h2 className="font-medium text-[#0F172A] text-lg">{customer.name}</h2>
+                <div className="flex items-center gap-2 text-sm text-[#64748B]">
+                  <Clock className="w-4 h-4" />
+                  <span>Customer since {formatDate(customer.created)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
 
-              <div className="p-6 space-y-6">
-                <div className="flex items-start space-x-3">
-                  <Building2 className="h-5 w-5 text-gray-400 mt-0.5" />
+          <div className="p-6 space-y-8">
+            {/* Contact Information */}
+            <div>
+              <h3 className="text-sm font-medium text-[#0F172A] mb-4 flex items-center gap-2">
+                <Users className="w-4 h-4 text-[#3B82F6]" />
+                Contact Information
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                    <Mail className="w-4 h-4 text-[#3B82F6]" />
+                  </div>
                   <div>
-                    <div className="font-medium text-gray-900">
-                      {customer.name}
-                    </div>
-                    <div className="text-sm text-gray-500">Company Name</div>
+                    <div className="text-sm font-medium text-[#0F172A]">Email Address</div>
+                    <div className="text-sm text-[#64748B]">{customer.email}</div>
                   </div>
                 </div>
-
-                <div className="flex items-start space-x-3">
-                  <Mail className="h-5 w-5 text-gray-400 mt-0.5" />
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                    <Phone className="w-4 h-4 text-[#3B82F6]" />
+                  </div>
                   <div>
-                    <div className="font-medium text-gray-900">
-                      {customer.email}
-                    </div>
-                    <div className="text-sm text-gray-500">Email Address</div>
+                    <div className="text-sm font-medium text-[#0F172A]">Phone Number</div>
+                    <div className="text-sm text-[#64748B]">{customer.phone}</div>
                   </div>
                 </div>
+              </div>
+            </div>
 
-                <div className="flex items-start space-x-3">
-                  <Phone className="h-5 w-5 text-gray-400 mt-0.5" />
+            {/* Business Information */}
+            <div>
+              <h3 className="text-sm font-medium text-[#0F172A] mb-4 flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-[#3B82F6]" />
+                Business Information
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                    <MapPin className="w-4 h-4 text-[#3B82F6]" />
+                  </div>
                   <div>
-                    <div className="font-medium text-gray-900">
-                      {customer.phone}
-                    </div>
-                    <div className="text-sm text-gray-500">Phone Number</div>
+                    <div className="text-sm font-medium text-[#0F172A]">Business Address</div>
+                    <div className="text-sm text-[#64748B] whitespace-pre-wrap">{customer.address}</div>
                   </div>
                 </div>
-
-                <div className="flex items-start space-x-3">
-                  <CreditCard className="h-5 w-5 text-gray-400 mt-0.5" />
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                    <CreditCard className="w-4 h-4 text-[#3B82F6]" />
+                  </div>
                   <div>
-                    <div className="font-medium text-gray-900">
-                      {customer.trn}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      Tax Registration Number
-                    </div>
+                    <div className="text-sm font-medium text-[#0F172A]">Tax Registration Number</div>
+                    <div className="text-sm text-[#64748B]">{customer.trn}</div>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Additional Information */}
-            <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded overflow-hidden">
-              <div className="border-b border-gray-200/60 bg-gray-50/50 px-6 py-4">
-                <h2 className="font-medium text-gray-800">
-                  Additional Information
-                </h2>
-                <p className="text-sm text-gray-500">
-                  Address and other details
-                </p>
-              </div>
-
-              <div className="p-6 space-y-6">
-                <div className="flex items-start space-x-3">
-                  <MapPin className="h-5 w-5 text-gray-400 mt-0.5" />
-                  <div>
-                    <div className="font-medium text-gray-900 whitespace-pre-wrap">
-                      {customer.address}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      Business Address
-                    </div>
-                  </div>
+            {customer.notes && (
+              <div>
+                <h3 className="text-sm font-medium text-[#0F172A] mb-4 flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-[#3B82F6]" />
+                  Additional Notes
+                </h3>
+                <div className="bg-[#F8FAFC] border border-black/5 rounded-lg p-4">
+                  <div className="text-sm text-[#64748B] whitespace-pre-wrap">{customer.notes}</div>
                 </div>
-
-                <div className="flex items-start space-x-3">
-                  <Calendar className="h-5 w-5 text-gray-400 mt-0.5" />
-                  <div>
-                    <div className="font-medium text-gray-900">
-                      {formatDate(customer.created)}
-                    </div>
-                    <div className="text-sm text-gray-500">Customer Since</div>
-                  </div>
-                </div>
-
-                {customer.notes && (
-                  <div className="flex items-start space-x-3">
-                    <FileText className="h-5 w-5 text-gray-400 mt-0.5" />
-                    <div>
-                      <div className="font-medium text-gray-900 whitespace-pre-wrap">
-                        {customer.notes}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        Additional Notes
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
-            </div>
-          </motion.div>
+            )}
+          </div>
         </div>
-      </div>
+      </motion.div>
     </AnimatedPage>
   );
 }

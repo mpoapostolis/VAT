@@ -18,7 +18,10 @@ import { ConfirmationModal } from "@/components/ui/confirmation-modal";
 import { formatCurrency } from "@/lib/utils";
 import type { Category } from "@/lib/pocketbase";
 import { Button } from "@/components/ui/button";
-import { useTableParams, buildPocketBaseParams } from "@/lib/hooks/useTableParams";
+import {
+  useTableParams,
+  buildPocketBaseParams,
+} from "@/lib/hooks/useTableParams";
 
 export function CategoryList() {
   const navigate = useNavigate();
@@ -111,6 +114,19 @@ export function CategoryList() {
               <TableHead
                 sortable
                 sorted={
+                  tableParams.sort === "vat"
+                    ? "asc"
+                    : tableParams.sort === "-vat"
+                    ? "desc"
+                    : false
+                }
+                onSort={() => handleSort("vat")}
+              >
+                VAT
+              </TableHead>
+              <TableHead
+                sortable
+                sorted={
                   tableParams.sort === "invoiceCount"
                     ? "asc"
                     : tableParams.sort === "-invoiceCount"
@@ -167,6 +183,11 @@ export function CategoryList() {
                   >
                     {category.type}
                   </span>
+                </TableCell>
+                <TableCell>
+                  <div className="font-medium text-[#0F172A]">
+                    {category.vat}%
+                  </div>
                 </TableCell>
                 <TableCell>
                   <div className="font-medium text-[#0F172A]">

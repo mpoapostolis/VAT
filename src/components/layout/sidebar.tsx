@@ -12,6 +12,7 @@ import {
   User,
   LogOut,
   FolderOpen,
+  Receipt,
 } from "lucide-react";
 import { Dropdown } from "../ui/dropdown";
 import { useAuth } from "@/lib/auth";
@@ -24,15 +25,9 @@ const navigation = [
     description: "Analytics & Overview",
   },
   {
-    name: "Companies",
-    href: "/companies",
-    icon: Users,
-    description: "Company Management",
-  },
-  {
     name: "Invoices",
     href: "/invoices",
-    icon: FileText,
+    icon: Receipt,
     description: "Invoice Processing",
   },
   {
@@ -40,6 +35,18 @@ const navigation = [
     href: "/categories",
     icon: FolderOpen,
     description: "Income & Expense Categories",
+  },
+  {
+    name: "Customers",
+    href: "/customers",
+    icon: Users,
+    description: "Customer Management",
+  },
+  {
+    name: "VAT Return",
+    href: "/vat-return",
+    icon: Calculator,
+    description: "VAT Return Processing",
   },
   {
     name: "Settings",
