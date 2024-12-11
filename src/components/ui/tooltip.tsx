@@ -14,7 +14,7 @@ export function Tooltip({
   content, 
   children, 
   side = 'right', 
-  sideOffset = 12,
+  sideOffset = 8,
   className 
 }: TooltipProps) {
   const [show, setShow] = useState(false);
@@ -50,7 +50,7 @@ export function Tooltip({
       }
 
       // Prevent tooltip from going off screen
-      const padding = 12;
+      const padding = 8;
       top = Math.max(padding, Math.min(top, window.innerHeight - tooltipRect.height - padding));
       left = Math.max(padding, Math.min(left, window.innerWidth - tooltipRect.width - padding));
 
@@ -75,13 +75,15 @@ export function Tooltip({
             'fixed z-[9999] p-3',
             'bg-white shadow-lg',
             'rounded-lg border border-black/[0.08]',
-            'animate-in fade-in-0 zoom-in-95 duration-100',
+            'transition-all duration-150',
+            'data-[state=open]:translate-x-0 data-[state=closed]:-translate-x-2 data-[state=closed]:opacity-0',
             className
           )}
           style={{
             top: position.top,
             left: position.left,
           }}
+          data-state={show ? 'open' : 'closed'}
         >
           <div className="relative">
             {side === 'right' && (

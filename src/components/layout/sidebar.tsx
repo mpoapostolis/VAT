@@ -125,14 +125,14 @@ export function Sidebar() {
       )}
     >
       {/* Logo Section */}
-      <div className="h-16 border-b border-black/10 flex items-center px-8">
+      <div className="h-[65px] border-b border-black/10 flex items-center px-8">
         <div
           className={cn(
             "flex items-center gap-3",
             isCollapsed && "justify-center"
           )}
         >
-          <div className="p-2 rounded-lg bg-[#F1F5F9]">
+          <div className=" rounded-lg bg-[#F1F5F9]">
             <Calculator className="w-5 h-5 text-[#3B82F6]" />
           </div>
           {!isCollapsed && (
@@ -164,7 +164,7 @@ export function Sidebar() {
                   )
                 }
               >
-                <item.icon className="w-5 h-5 flex-shrink-0" />
+                <item.icon className="w-5 h-5 text-black/70 flex-shrink-0" />
                 {!isCollapsed && (
                   <div className="flex flex-col">
                     <span className="text-sm font-medium">{item.name}</span>
@@ -202,7 +202,6 @@ export function Sidebar() {
 
       {/* Footer */}
       <div className="p-4 border-t border-black/10">
-        <UserProfile isCollapsed={isCollapsed} />
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="w-full flex items-center gap-2 px-4 py-2.5 rounded-lg text-black hover:bg-[#F8FAFC] hover:text-[#0F172A] transition-colors mt-2"
