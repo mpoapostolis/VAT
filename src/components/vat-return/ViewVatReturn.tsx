@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import useSWR from "swr";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import { Button } from "@/components/ui/button";
-import { VatReturnHeader } from "./vat-return-header";
 import {
   Calculator,
   Edit,
@@ -13,8 +12,14 @@ import {
   ClipboardList,
   Calendar,
   FileText,
+  ArrowLeft,
+  Receipt,
+  CreditCard,
+  Building2,
+  Clock,
+  BadgeEuro,
 } from "lucide-react";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, formatDate } from "@/lib/utils";
 import { vatReturnService } from "@/lib/services/vat-return-service";
 import { useToast } from "@/lib/hooks/useToast";
 import type { VatReturn } from "@/lib/pocketbase";
@@ -28,15 +33,6 @@ export function ViewVatReturn() {
     () => vatReturnService.getById(id!)
   );
 
-  const handleDownload = async () => {
-    try {
-      // Implement download logic here
-      addToast("VAT return downloaded successfully", "success");
-    } catch (error) {
-      addToast("Failed to download VAT return", "error");
-    }
-  };
-
   if (isLoading || !vatReturn) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -47,195 +43,148 @@ export function ViewVatReturn() {
 
   const netVat = (vatReturn.salesVat || 0) - (vatReturn.purchasesVat || 0);
 
-  const headerActions = (
-    <div className="flex items-center space-x-3">
-      <Button
-        size="sm"
-        variant="outline"
-        onClick={() => navigate(`/vat-return/${id}/edit`)}
-      >
-        <Edit className="h-4 w-4 mr-2" />
-        Edit
-      </Button>
-    </div>
-  );
-
   return (
     <AnimatedPage>
-      <div className="space-y-6   mx-auto">
-        <VatReturnHeader mode="view" actions={headerActions} />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-6"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate("/vat-return")}
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to VAT Returns
+            </Button>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate(`/vat-return/${id}/edit`)}
+            >
+              <Edit className="w-4 h-4 mr-2" />
+              Edit VAT Return
+            </Button>
+          </div>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            {/* Period Info */}
-            <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded p-6">
-              <div className="flex w-full items-center justify-between mb-6">
-                <div className="flex w-full items-center space-x-3">
-                  <div className="p-2 bg-blue-50 rounded">
-                    <ClipboardList className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {vatReturn.period}
-                    </h3>
-                    <p className="text-sm text-gray-500">Tax Period</p>
-                  </div>
-                </div>
-                <div
-                  className={`px-3 py-1 text-xs font-medium rounded-full ${
+        <div className="bg-white border border-black/10 rounded-lg overflow-hidden">
+          <div className="border-b border-black/10 bg-slate-50/50 px-6 py-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                <Receipt className="w-5 h-5 text-[#3B82F6]" />
+              </div>
+              <div>
+                <h2 className="font-medium text-[#0F172A] text-lg">VAT Return for {vatReturn.period}</h2>
+                <div className="flex items-center gap-2 text-sm text-[#64748B]">
+                  <Clock className="w-4 h-4" />
+                  <span>Created on {formatDate(vatReturn.created)}</span>
+                  <span className={`ml-2 px-2 py-0.5 text-xs font-medium rounded-full ${
                     vatReturn.status === "draft"
                       ? "bg-yellow-50 text-yellow-800 border border-yellow-200"
                       : "bg-green-50 text-green-800 border border-green-200"
-                  }`}
-                >
-                  {vatReturn.status.charAt(0).toUpperCase() +
-                    vatReturn.status.slice(1)}
+                  }`}>
+                    {vatReturn.status.charAt(0).toUpperCase() + vatReturn.status.slice(1)}
+                  </span>
                 </div>
               </div>
+            </div>
+          </div>
 
-              <div className="space-y-4">
-                <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                  <div className="flex items-center space-x-3">
-                    <Calendar className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm text-gray-600">Start Date</span>
+          <div className="p-6 space-y-8">
+            {/* Sales Information */}
+            <div>
+              <h3 className="text-sm font-medium text-[#0F172A] mb-4 flex items-center gap-2">
+                <ArrowUpRight className="w-4 h-4 text-[#3B82F6]" />
+                Sales Information
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                    <CreditCard className="w-4 h-4 text-[#3B82F6]" />
                   </div>
-                  <span className="text-sm font-medium">
-                    {new Date(vatReturn.startDate).toLocaleDateString()}
-                  </span>
+                  <div>
+                    <div className="text-sm font-medium text-[#0F172A]">Total Sales</div>
+                    <div className="text-sm text-[#64748B]">{formatCurrency(vatReturn.sales || 0)}</div>
+                  </div>
                 </div>
-
-                <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                  <div className="flex items-center space-x-3">
-                    <Calendar className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm text-gray-600">End Date</span>
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                    <BadgeEuro className="w-4 h-4 text-[#3B82F6]" />
                   </div>
-                  <span className="text-sm font-medium">
-                    {new Date(vatReturn.endDate).toLocaleDateString()}
-                  </span>
+                  <div>
+                    <div className="text-sm font-medium text-[#0F172A]">Sales VAT</div>
+                    <div className="text-sm text-[#64748B]">{formatCurrency(vatReturn.salesVat || 0)}</div>
+                  </div>
                 </div>
+              </div>
+            </div>
 
-                <div className="flex items-center justify-between py-3">
-                  <div className="flex items-center space-x-3">
-                    <FileText className="h-4 w-4 text-gray-400" />
-                    <span className="text-sm text-gray-600">Last Updated</span>
+            {/* Purchases Information */}
+            <div>
+              <h3 className="text-sm font-medium text-[#0F172A] mb-4 flex items-center gap-2">
+                <ArrowDownRight className="w-4 h-4 text-[#3B82F6]" />
+                Purchases Information
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                    <CreditCard className="w-4 h-4 text-[#3B82F6]" />
                   </div>
-                  <span className="text-sm font-medium text-gray-900">
-                    {new Date(vatReturn.updated).toLocaleDateString()}
-                  </span>
+                  <div>
+                    <div className="text-sm font-medium text-[#0F172A]">Total Purchases</div>
+                    <div className="text-sm text-[#64748B]">{formatCurrency(vatReturn.purchases || 0)}</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                    <BadgeEuro className="w-4 h-4 text-[#3B82F6]" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-[#0F172A]">Purchases VAT</div>
+                    <div className="text-sm text-[#64748B]">{formatCurrency(vatReturn.purchasesVat || 0)}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Net VAT */}
+            <div>
+              <h3 className="text-sm font-medium text-[#0F172A] mb-4 flex items-center gap-2">
+                <Calculator className="w-4 h-4 text-[#3B82F6]" />
+                Net VAT
+              </h3>
+              <div className="bg-[#F8FAFC] border border-black/5 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-medium text-[#0F172A]">Amount to Pay</div>
+                  <div className={`text-lg font-semibold ${netVat >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+                    {formatCurrency(Math.abs(netVat))}
+                    <span className="text-sm ml-1">{netVat >= 0 ? 'Payable' : 'Refundable'}</span>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Notes */}
             {vatReturn.notes && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="mt-6"
-              >
-                <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded p-6">
-                  <div className="flex items-center space-x-3 mb-6">
-                    <div className="p-2 bg-blue-50 rounded">
-                      <ClipboardList className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <h3 className="font-semibold text-gray-900">Notes</h3>
-                  </div>
-                  <p className="text-gray-600 whitespace-pre-wrap">
-                    {vatReturn.notes}
-                  </p>
+              <div>
+                <h3 className="text-sm font-medium text-[#0F172A] mb-4 flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-[#3B82F6]" />
+                  Additional Notes
+                </h3>
+                <div className="bg-[#F8FAFC] border border-black/5 rounded-lg p-4">
+                  <div className="text-sm text-[#64748B] whitespace-pre-wrap">{vatReturn.notes}</div>
                 </div>
-              </motion.div>
+              </div>
             )}
-          </motion.div>
-
-          {/* VAT Calculations */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            {/* VAT Summary */}
-            <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded p-6">
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="p-2 bg-blue-50 rounded">
-                  <Calculator className="h-5 w-5 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">VAT Summary</h3>
-                  <p className="text-sm text-gray-500">
-                    For period {vatReturn.period}
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-4 mb-6">
-                <div className="p-4 bg-gray-50 rounded">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <ArrowUpRight className="h-5 w-5 text-green-600" />
-                      <span className="text-sm font-medium text-gray-700">
-                        Sales VAT
-                      </span>
-                    </div>
-                    <span className="text-base font-bold text-gray-900">
-                      {formatCurrency(vatReturn.salesVat)}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="p-4 bg-gray-50 rounded">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <ArrowDownRight className="h-5 w-5 text-red-600" />
-                      <span className="text-sm font-medium text-gray-700">
-                        Purchases VAT
-                      </span>
-                    </div>
-                    <span className="text-base font-bold text-gray-900">
-                      {formatCurrency(vatReturn.purchasesVat)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-6 bg-blue-50 rounded border border-blue-100">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <span className="text-sm font-medium text-blue-600">
-                      Net VAT
-                    </span>
-                    <p className="text-sm text-blue-600/70">
-                      {netVat >= 0 ? "Amount to pay" : "Amount to reclaim"}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <span
-                      className={`text-xl font-bold ${
-                        netVat >= 0 ? "text-green-600" : "text-red-600"
-                      }`}
-                    >
-                      {formatCurrency(netVat)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-4 text-xs text-gray-500 flex items-center justify-end">
-                <Calculator className="h-3 w-3 mr-1" />
-                <span>
-                  Calculated from{" "}
-                  {new Date(vatReturn.startDate).toLocaleDateString()} to{" "}
-                  {new Date(vatReturn.endDate).toLocaleDateString()}
-                </span>
-              </div>
-            </div>
-          </motion.div>
+          </div>
         </div>
-      </div>
+      </motion.div>
     </AnimatedPage>
   );
 }
