@@ -60,7 +60,7 @@ class InvoiceService extends BaseService<Invoice> {
 
   async update(id: string, data: Partial<Invoice>) {
     try {
-      console.log('Updating invoice with id:', id, 'and data:', data);
+      console.log('Updating invoice with id:', id, 'data:', data);
       const result = await pb.collection('invoices').update(id, data);
       console.log('Updated invoice:', result);
       return result;
@@ -78,9 +78,8 @@ class InvoiceService extends BaseService<Invoice> {
   async delete(id: string) {
     try {
       console.log('Deleting invoice with id:', id);
-      const result = await pb.collection('invoices').delete(id);
-      console.log('Deleted invoice:', result);
-      return result;
+      await pb.collection('invoices').delete(id);
+      console.log('Deleted invoice:', id);
     } catch (error) {
       console.error('Failed to delete invoice:', error);
       throw error;

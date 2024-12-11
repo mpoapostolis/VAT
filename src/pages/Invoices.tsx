@@ -23,7 +23,7 @@ export function Invoices() {
         }
       />
       <Route path="new" element={<CreateInvoice />} />
-      <Route path=":id" element={<ViewInvoice />} />
+      <Route path=":id/view" element={<ViewInvoice />} />
       <Route path=":id/edit" element={<EditInvoice />} />
     </Routes>
   );

@@ -1,68 +1,40 @@
 import React from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import useSWR from "swr";
-import { AnimatedPage } from "@/components/AnimatedPage";
-import { InvoiceHeader } from "./invoice-header";
+import { useNavigate, useParams } from "react-router-dom";
+import { AnimatedPage } from "../../components/AnimatedPage";
 import { InvoiceForm } from "./create/invoice-form";
-import type { Invoice, Customer } from "@/lib/pocketbase";
-import { useToast } from "@/lib/hooks/useToast";
-import { invoiceService } from "@/lib/services/invoice-service";
-import { customerService } from "@/lib/services/customer-service";
+import { invoiceService } from "../../lib/services/invoice-service";
+import { customerService } from "../../lib/services/customer-service";
+import useSWR from "swr";
 
 export function EditInvoice() {
-  const { id } = useParams();
   const navigate = useNavigate();
-  const { addToast } = useToast();
-
+  const { id } = useParams();
   const { data: invoice } = useSWR(id ? `invoices/${id}` : null, () =>
     invoiceService.getById(id!)
   );
-
-  const { data: customersData } = useSWR<{ items: Customer[] }>(
-    "customers",
-    () => customerService.getAll()
+  const { data: customers } = useSWR("customers", () =>
+    customerService.getAll().then((res) => res.items)
   );
 
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-
-  const handleSubmit = async (data: Partial<Invoice>) => {
-    if (!id) return;
-    setIsSubmitting(true);
-    try {
-      await invoiceService.update(id, data);
-      addToast("Invoice updated successfully", "success");
-      navigate("/invoices");
-    } catch (error) {
-      addToast("Failed to update invoice", "error");
-      setIsSubmitting(false);
-    }
+  const handleSuccess = () => {
+    navigate("/invoices");
   };
 
-  console.log(invoice, customersData);
-
-  if (!invoice || !customersData) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
-      </div>
-    );
+  if (!invoice) {
+    return null;
   }
 
   return (
-    <div className="  mx-auto">
-      <InvoiceHeader mode="edit" />
-
-      <div className="my-6"></div>
-
-      <div className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded p-6">
+    <AnimatedPage>
+      <div className="space-y-6">
         <InvoiceForm
-          customers={customersData}
-          onSubmit={handleSubmit}
-          isSubmitting={isSubmitting}
+          customers={customers || []}
+          onSubmit={(data) => invoiceService.update(id!, data)}
           onCancel={() => navigate("/invoices")}
+          isSubmitting={false}
           defaultValues={invoice}
         />
       </div>
-    </div>
+    </AnimatedPage>
   );
 }

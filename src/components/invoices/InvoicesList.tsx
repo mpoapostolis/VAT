@@ -164,7 +164,7 @@ export function InvoicesList() {
                     </div>
                     <div>
                       <Link
-                        to={`/invoices/${invoice.id}`}
+                        to={`/invoices/${invoice.id}/view`}
                         className="font-medium text-[#0F172A] hover:text-[#3B82F6] transition-colors"
                       >
                         {invoice.number}
