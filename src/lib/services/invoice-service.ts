@@ -8,23 +8,42 @@ class InvoiceService extends BaseService<Invoice> {
     super('invoices');
   }
 
-  async getList(params: TableParams) {
+  async getList(params: TableParams & { 
+    type?: 'receivable' | 'payable';
+    startDate?: Date;
+    endDate?: Date;
+  }) {
     try {
-      console.log('Fetching invoices with params:', params);
-      
       // Remove 'expand.' prefix from sort field for PocketBase
       let sortField = params.sort?.replace('expand.', '') || '-created';
       
+      // Build filter conditions
+      const filterConditions: string[] = [];
+      
+      if (params.type) {
+        filterConditions.push(`type = '${params.type}'`);
+      }
+      
+      if (params.startDate) {
+        filterConditions.push(`date >= '${params.startDate.toISOString().split('T')[0]}'`);
+      }
+      
+      if (params.endDate) {
+        filterConditions.push(`date <= '${params.endDate.toISOString().split('T')[0]}'`);
+      }
+
+      const filter = filterConditions.length > 0 ? filterConditions.join(' && ') : undefined;
+
       const result = await pb.collection('invoices').getList(
         params.page,
         params.perPage,
         {
           expand: 'customerId,categoryId',
-          sort: sortField
+          sort: sortField,
+          filter
         }
       );
       
-      console.log('Fetched invoices:', result);
       return result;
     } catch (error) {
       console.error('Failed to fetch invoices:', error);

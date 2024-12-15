@@ -1,18 +1,81 @@
 import React, { useState, useRef, useEffect } from "react";
-import { format } from "date-fns";
-import { Calendar as CalendarIcon, X } from "lucide-react";
+import { format, subDays, startOfMonth, endOfMonth, startOfYear, endOfYear, startOfQuarter, endOfQuarter } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "./button";
 import { DateRange } from "react-date-range";
+import { cn } from "@/lib/utils";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
+import { useSearchParams } from "react-router-dom";
 
 interface DateRangePickerProps {
   onChange?: (range: { from: Date | undefined; to: Date | undefined }) => void;
   value?: { from: Date | undefined; to: Date | undefined };
+  className?: string;
 }
 
-export function DateRangePicker({ onChange, value }: DateRangePickerProps) {
+const quickRanges = [
+  {
+    label: "Today",
+    getValue: () => ({ from: new Date(), to: new Date() }),
+  },
+  {
+    label: "Yesterday",
+    getValue: () => {
+      const yesterday = subDays(new Date(), 1);
+      return { from: yesterday, to: yesterday };
+    },
+  },
+  {
+    label: "Last 7 days",
+    getValue: () => ({
+      from: subDays(new Date(), 6),
+      to: new Date(),
+    }),
+  },
+  {
+    label: "Last 30 days",
+    getValue: () => ({
+      from: subDays(new Date(), 29),
+      to: new Date(),
+    }),
+  },
+  {
+    label: "This month",
+    getValue: () => ({
+      from: startOfMonth(new Date()),
+      to: endOfMonth(new Date()),
+    }),
+  },
+  {
+    label: "Last month",
+    getValue: () => {
+      const lastMonth = subDays(startOfMonth(new Date()), 1);
+      return {
+        from: startOfMonth(lastMonth),
+        to: endOfMonth(lastMonth),
+      };
+    },
+  },
+  {
+    label: "This quarter",
+    getValue: () => ({
+      from: startOfQuarter(new Date()),
+      to: endOfQuarter(new Date()),
+    }),
+  },
+  {
+    label: "This year",
+    getValue: () => ({
+      from: startOfYear(new Date()),
+      to: endOfYear(new Date()),
+    }),
+  },
+];
+
+export function DateRangePicker({ onChange, value, className }: DateRangePickerProps) {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
   const [range, setRange] = useState<{
     from: Date | undefined;
@@ -52,51 +115,69 @@ export function DateRangePicker({ onChange, value }: DateRangePickerProps) {
     const newRange = { from: undefined, to: undefined };
     setRange(newRange);
     onChange?.(newRange);
+    setIsOpen(false);
   };
 
+  const handleQuickRangeSelect = (quickRange: typeof quickRanges[0]) => {
+    const newRange = quickRange.getValue();
+    setRange(newRange);
+    onChange?.(newRange);
+    setIsOpen(false);
+  };
+
+  useEffect(() => {
+    const from = searchParams.get("from");
+    const to = searchParams.get("to");
+    if (from && to) {
+      setRange({
+        from: new Date(from),
+        to: new Date(to),
+      });
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    const newParams = new URLSearchParams(searchParams);
+    
+    if (range?.from) {
+      newParams.set("from", range.from.toISOString());
+    } else {
+      newParams.delete("from");
+    }
+    
+    if (range?.to) {
+      newParams.set("to", range.to.toISOString());
+    } else {
+      newParams.delete("to");
+    }
+    
+    setSearchParams(newParams);
+  }, [range, searchParams]);
+
   return (
-    <div className="relative" ref={containerRef}>
-      <div className="flex items-center gap-2">
-        <div
-          onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-3 px-4 py-2 bg-white border border-gray-200 rounded cursor-pointer hover:border-gray-300 transition-colors duration-200"
-        >
-          <div className="flex items-center gap-2 text-gray-500">
-            <CalendarIcon className="h-4 w-4" />
-            <span className="text-sm font-medium">Date range</span>
-          </div>
-          {range.from ? (
-            <div className="flex items-center">
-              <span className="text-sm font-medium text-gray-900">
-                {format(range.from, "MMM dd")}
-              </span>
-              {range.to && (
-                <>
-                  <span className="mx-2 text-gray-400">→</span>
-                  <span className="text-sm font-medium text-gray-900">
-                    {format(range.to, "MMM dd")}
-                  </span>
-                </>
-              )}
-            </div>
-          ) : (
-            <span className="text-sm text-gray-400">Select dates</span>
-          )}
-        </div>
-        {(range.from || range.to) && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={(e) => {
-              e.stopPropagation();
-              clearRange();
-            }}
-            className="h-9 w-9 rounded-full hover:bg-gray-100"
-          >
-            <X className="h-4 w-4 text-gray-500" />
-          </Button>
+    <div className={cn("relative inline-block", className)} ref={containerRef}>
+      <Button
+        variant="outline"
+        className={cn(
+          "w-[260px] justify-start text-left text-sm font-medium border-gray-200 bg-white hover:bg-gray-50",
+          !range.from && "text-gray-500"
         )}
-      </div>
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <CalendarIcon className="mr-2 h-4 w-4 text-gray-500" />
+        {range.from ? (
+          range.to ? (
+            <>
+              {format(range.from, "MMM d, yyyy")} -{" "}
+              {format(range.to, "MMM d, yyyy")}
+            </>
+          ) : (
+            format(range.from, "MMM d, yyyy")
+          )
+        ) : (
+          <span>Select date range</span>
+        )}
+      </Button>
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -104,30 +185,67 @@ export function DateRangePicker({ onChange, value }: DateRangePickerProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 z-50 mt-2 origin-top-right bg-white border border-gray-200 rounded shadow-xl"
+            className="absolute right-0 z-50 mt-2 origin-top-right bg-white rounded-lg border shadow-xl"
             style={{
-              boxShadow: "0 4px 24px rgba(0, 0, 0, 0.12)",
+              width: "fit-content",
+              transform: "translateX(calc(200px - 100%))",
             }}
           >
-            <div className="p-3">
-              <DateRange
-                ranges={[
-                  {
-                    startDate: range.from || new Date(),
-                    endDate: range.to || new Date(),
-                    key: "selection",
-                  },
-                ]}
-                onChange={handleSelect}
-                months={2}
-                direction="horizontal"
-                weekStartsOn={1}
-                showMonthAndYearPickers={true}
-                showDateDisplay={false}
-                rangeColors={["#0066FF"]}
-                color="#0066FF"
-                className="[&_.rdrMonthAndYearWrapper]:mb-4 [&_.rdrMonth]:rounded [&_.rdrStartEdge]:!rounded-l-full [&_.rdrEndEdge]:!rounded-r-full [&_.rdrDayStartPreview]:!rounded-l-full [&_.rdrDayEndPreview]:!rounded-r-full [&_.rdrDayToday_.rdrDayNumber]:after:hidden [&_.rdrDayToday]:text-[#0066FF] [&_.rdrDayToday]:font-medium"
-              />
+            <div className="flex">
+              {/* Quick filters on the left */}
+              <div className="w-[160px] p-3 border-r border-gray-100">
+                <div className="space-y-1">
+                  {quickRanges.map((quickRange) => (
+                    <Button
+                      key={quickRange.label}
+                      variant="ghost"
+                      className="w-full justify-start text-sm font-normal h-8 text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                      onClick={() => handleQuickRangeSelect(quickRange)}
+                    >
+                      {quickRange.label}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Calendar on the right */}
+              <div className="p-3">
+                <DateRange
+                  ranges={[
+                    {
+                      startDate: range.from || new Date(),
+                      endDate: range.to || new Date(),
+                      key: "selection",
+                    },
+                  ]}
+                  onChange={handleSelect}
+                  months={2}
+                  direction="horizontal"
+                  weekStartsOn={1}
+                  showMonthAndYearPickers={true}
+                  showDateDisplay={false}
+                  rangeColors={["#0066FF"]}
+                  color="#0066FF"
+                  className="[&_.rdrMonthAndYearWrapper]:mb-4 [&_.rdrMonth]:rounded [&_.rdrStartEdge]:!rounded-l-full [&_.rdrEndEdge]:!rounded-r-full [&_.rdrDayStartPreview]:!rounded-l-full [&_.rdrDayEndPreview]:!rounded-r-full [&_.rdrDayToday_.rdrDayNumber]:after:hidden [&_.rdrDayToday]:text-[#0066FF] [&_.rdrDayToday]:font-medium [&_.rdrSelected]:!bg-primary [&_.rdrInRange]:!bg-primary/10 [&_.rdrStartEdge]:!bg-primary [&_.rdrEndEdge]:!bg-primary"
+                />
+                <div className="flex justify-end mt-3 border-t border-gray-100 pt-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mr-2 text-sm font-medium bg-white hover:bg-gray-50"
+                    onClick={clearRange}
+                  >
+                    Clear
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="text-sm font-medium bg-blue-600 hover:bg-blue-700"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Apply
+                  </Button>
+                </div>
+              </div>
             </div>
           </motion.div>
         )}

@@ -79,6 +79,7 @@ export function InvoiceForm({
       subtotal: 0,
       vat: 0,
       total: 0,
+      type: defaultValues?.type || "receivable",
       ...defaultValues,
       ...(defaultValues?.date && {
         date: formatDateForInput(defaultValues.date),
@@ -262,6 +263,29 @@ export function InvoiceForm({
           {/* Basic Information */}
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-6">
+              <FormItem>
+                <FormLabel className="text-[#0F172A]">Invoice Type</FormLabel>
+                {mode === "view" ? (
+                  <div className="mt-2 text-gray-900 capitalize">
+                    {watch("type")}
+                  </div>
+                ) : (
+                  <Select
+                    options={[
+                      { value: "receivable", label: "Receivable" },
+                      { value: "payable", label: "Payable" },
+                    ]}
+                    onChange={(value) => setValue("type", value)}
+                    value={watch("type")}
+                    placeholder="Select invoice type"
+                    disabled={mode === "view"}
+                  />
+                )}
+                {errors.type && (
+                  <FormMessage>{errors.type.message}</FormMessage>
+                )}
+              </FormItem>
+
               <FormItem>
                 <FormLabel className="text-[#0F172A]">Customer</FormLabel>
                 {mode === "view" ? (

@@ -26,7 +26,7 @@ export function Select({
 }: SelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const selectedOption = options.find((option) => option.value === value);
+  const selectedOption = options?.find((option) => option.value === value);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

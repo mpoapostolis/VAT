@@ -40,6 +40,7 @@ export interface Invoice {
   number: string;
   customerId: string;
   categoryId: string;
+  type: "receivable" | "payable";
   date: string;
   dueDate: string;
   items: InvoiceItem[];

@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { pb } from "@/lib/pocketbase";
 import { useToast } from "@/lib/hooks/useToast";
+import ReactDOM from "react-dom";
+import html2pdf from "html2pdf.js";
+import { InvoicePDF } from "../invoice-pdf";
 
 interface InvoiceActionsProps {
   invoiceId: string;
@@ -15,16 +18,44 @@ export function InvoiceActions({ invoiceId, onDelete }: InvoiceActionsProps) {
   const { addToast } = useToast();
 
   const handlePreview = () => {
-    window.open(`/invoices/${invoiceId}`, "_blank");
+    navigate(`/invoices/${invoiceId}`);
   };
 
   const handleDownload = async () => {
     try {
-      // In a real app, this would call an API endpoint to generate the PDF
-      const response = await pb.collection("invoices").getOne(invoiceId);
+      const response = await pb.collection("invoices").getOne(invoiceId, {
+        expand: 'customerId,categoryId'
+      });
+      
+      // Create a temporary div for the PDF
+      const tempDiv = document.createElement("div");
+      const root = document.createElement("div");
+      tempDiv.appendChild(root);
+      document.body.appendChild(tempDiv);
 
-      // Simulate PDF download
-      addToast("Invoice downloaded successfully", "success");
+      // Render the invoice PDF component
+      ReactDOM.render(
+        <InvoicePDF invoice={response} />,
+        root,
+        async () => {
+          try {
+            const opt = {
+              margin: 1,
+              filename: `invoice-${response.number}.pdf`,
+              image: { type: "jpeg", quality: 0.98 },
+              html2canvas: { scale: 2 },
+              jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+            };
+
+            await html2pdf().set(opt).from(root).save();
+            addToast("Invoice downloaded successfully", "success");
+          } catch (error) {
+            addToast("Failed to generate PDF", "error");
+          } finally {
+            document.body.removeChild(tempDiv);
+          }
+        }
+      );
     } catch (error) {
       addToast("Failed to download invoice", "error");
     }

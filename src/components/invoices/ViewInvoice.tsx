@@ -1,9 +1,9 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { AnimatedPage } from "../../components/AnimatedPage";
-import { invoiceService } from "../../lib/services/invoice-service";
+import { AnimatedPage } from "@/components/AnimatedPage";
+import { invoiceService } from "@/lib/services/invoice-service";
 import useSWR from "swr";
-import { Button } from "../../components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
   Download,
@@ -14,47 +14,19 @@ import {
   Clock,
   Building2,
   Euro,
-  ChevronRight,
-  ChevronLeft,
 } from "lucide-react";
 import { InvoicePDF } from "./invoice-pdf";
 import html2pdf from "html2pdf.js";
 import type { Invoice } from "@/lib/pocketbase";
 import { toast } from "sonner";
 import { formatDate, formatCurrency } from "@/lib/utils";
-import { motion } from "framer-motion";
-
-const containerVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.4,
-      ease: "easeOut",
-      staggerChildren: 0.1,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.3,
-      ease: "easeOut",
-    },
-  },
-};
 
 export function ViewInvoice() {
   const navigate = useNavigate();
   const { id } = useParams();
 
   const { data: invoice, error: invoiceError } = useSWR(
-    id ? ["invoice", id] : null,
+    id ? `invoices/${id}` : null,
     async () => {
       try {
         return await invoiceService.getById(id!);
@@ -99,210 +71,205 @@ export function ViewInvoice() {
   };
 
   const handleDelete = async () => {
-    if (!invoice || !id) return;
+    if (!id) return;
 
-    const confirmed = window.confirm(
-      `Are you sure you want to delete invoice #${invoice.number}? This action cannot be undone.`
-    );
-
-    if (confirmed) {
-      try {
-        await invoiceService.delete(id);
-        toast.success("Invoice deleted successfully");
-        navigate("/invoices");
-      } catch (error) {
-        console.error("Failed to delete invoice:", error);
-        toast.error("Failed to delete invoice");
-      }
+    try {
+      await invoiceService.delete(id);
+      toast.success("Invoice deleted successfully");
+      navigate("/invoices");
+    } catch (error) {
+      console.error("Failed to delete invoice:", error);
+      toast.error("Failed to delete invoice");
     }
   };
 
-  // Show error states
   if (invoiceError) {
     return (
-      <AnimatedPage>
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="max-w-4xl mx-auto p-6"
-        >
-          <motion.div
-            variants={itemVariants}
-            className="flex items-center space-x-4 mb-6"
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold text-gray-900">Invoice not found</h2>
+          <p className="mt-2 text-gray-600">The invoice you're looking for doesn't exist or you don't have access to it.</p>
+          <button
+            onClick={() => navigate("/invoices")}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate("/invoices")}
-              className="hover:bg-slate-50 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Invoices
-            </Button>
-          </motion.div>
-          <motion.div
-            variants={itemVariants}
-            className="bg-white rounded-lg border shadow-sm p-6"
-          >
-            <p className="text-red-500">Failed to load invoice</p>
-          </motion.div>
-        </motion.div>
-      </AnimatedPage>
+            Go back to invoices
+          </button>
+        </div>
+      </div>
     );
   }
 
-  // Show loading state
   if (!invoice) {
     return (
-      <AnimatedPage>
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
-        </div>
-      </AnimatedPage>
-    );
-  }
-
-  const customer = invoice.expand?.customerId;
-
-  if (!customer) {
-    return (
-      <AnimatedPage>
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="max-w-4xl mx-auto p-6"
-        >
-          <motion.div
-            variants={itemVariants}
-            className="flex items-center space-x-4 mb-6"
-          >
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate("/invoices")}
-              className="hover:bg-slate-50 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Invoices
-            </Button>
-          </motion.div>
-          <motion.div
-            variants={itemVariants}
-            className="bg-white rounded-lg border shadow-sm p-6"
-          >
-            <p className="text-red-500">
-              Customer data not found for this invoice. The customer may have
-              been deleted.
-            </p>
-          </motion.div>
-        </motion.div>
-      </AnimatedPage>
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
     );
   }
 
   return (
     <AnimatedPage>
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        {/* Print styles */}
-        <style>
-          {`
-            @media print {
-              body * {
-                visibility: hidden;
-              }
-              #invoice-pdf, #invoice-pdf * {
-                visibility: visible;
-              }
-              #invoice-pdf {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-              }
-              .no-print {
-                display: none !important;
-              }
-            }
-          `}
-        </style>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => navigate("/invoices")}
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <h1 className="text-2xl font-semibold">Invoice #{invoice.number}</h1>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={handlePrint}>
+              <Printer className="h-4 w-4 mr-2" />
+              Print
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleDownloadPDF}>
+              <Download className="h-4 w-4 mr-2" />
+              Download
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate(`/invoices/${id}/edit`)}
+            >
+              <Edit3 className="h-4 w-4 mr-2" />
+              Edit
+            </Button>
+            <Button variant="destructive" size="sm" onClick={handleDelete}>
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete
+            </Button>
+          </div>
+        </div>
 
-        {/* Invoice Header */}
-        <motion.div
-          variants={itemVariants}
-          className="bg-white border border-black/10 rounded overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
-        >
-          <div className="border-b border-black/5 bg-slate-50/50 px-8 py-6 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button onClick={() => navigate("/invoices")}>
-                <ChevronLeft className="w-4 h-4 text-slate-400" />
-              </button>
-
-              <div className="p-3 rounded bg-gradient-to-br from-blue-50 to-blue-100/80">
-                <FileText className="w-6 h-6 text-blue-600" />
-              </div>
+        {/* Invoice Details */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="grid grid-cols-2 gap-8">
+            {/* Left Column */}
+            <div className="space-y-6">
               <div>
-                <h2 className="font-semibold text-slate-900 text-xl mb-1">
-                  Invoice #{invoice.number}
-                </h2>
-                <div className="flex items-center gap-6 text-sm text-slate-600">
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-slate-400" />
-                    <span>Created on {formatDate(invoice.created)}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-slate-400" />
-                    <span>{customer.name}</span>
-                  </div>
+                <div className="flex items-center gap-2 text-gray-500 mb-2">
+                  <FileText className="h-4 w-4" />
+                  <span className="text-sm font-medium">Invoice Details</span>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">
+                    Number: <span className="font-medium">{invoice.number}</span>
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Type:{" "}
+                    <span className="font-medium capitalize">
+                      {invoice.type}
+                    </span>
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Status:{" "}
+                    <span
+                      className={`font-medium ${
+                        invoice.status === "paid"
+                          ? "text-green-600"
+                          : "text-orange-600"
+                      }`}
+                    >
+                      {invoice.status}
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 text-gray-500 mb-2">
+                  <Clock className="h-4 w-4" />
+                  <span className="text-sm font-medium">Dates</span>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">
+                    Issue Date:{" "}
+                    <span className="font-medium">
+                      {formatDate(new Date(invoice.date))}
+                    </span>
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Due Date:{" "}
+                    <span className="font-medium">
+                      {invoice.dueDate
+                        ? formatDate(new Date(invoice.dueDate))
+                        : "N/A"}
+                    </span>
+                  </p>
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handlePrint}
-                className="hover:bg-slate-50 transition-colors w-[140px] rounded-full"
-              >
-                <Printer className="w-4 h-4 mr-2" />
-                Print
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleDownloadPDF}
-                className="hover:bg-slate-50 transition-colors w-[140px] rounded-full"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Download
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate(`/invoices/${id}/edit`)}
-                className="hover:bg-slate-50 transition-colors w-[140px] rounded-full"
-              >
-                <Edit3 className="w-4 h-4 mr-2" />
-                Edit Invoice
-              </Button>
+
+            {/* Right Column */}
+            <div className="space-y-6">
+              <div>
+                <div className="flex items-center gap-2 text-gray-500 mb-2">
+                  <Building2 className="h-4 w-4" />
+                  <span className="text-sm font-medium">Customer</span>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">
+                    Name:{" "}
+                    <span className="font-medium">
+                      {invoice.expand?.customerId?.name}
+                    </span>
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    Email:{" "}
+                    <span className="font-medium">
+                      {invoice.expand?.customerId?.email}
+                    </span>
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    VAT Number:{" "}
+                    <span className="font-medium">
+                      {invoice.expand?.customerId?.vatNumber}
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2 text-gray-500 mb-2">
+                  <Euro className="h-4 w-4" />
+                  <span className="text-sm font-medium">Amount</span>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">
+                    Subtotal:{" "}
+                    <span className="font-medium">
+                      {formatCurrency(invoice.amount)}
+                    </span>
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    VAT:{" "}
+                    <span className="font-medium">
+                      {formatCurrency(invoice.vat)}
+                    </span>
+                  </p>
+                  <p className="text-sm font-semibold">
+                    Total:{" "}
+                    <span className="text-lg">
+                      {formatCurrency(invoice.total)}
+                    </span>
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
+        </div>
 
-          {/* Invoice PDF */}
-          <motion.div
-            variants={itemVariants}
-            id="invoice-pdf"
-            className="p-8 bg-white"
-          >
-            <InvoicePDF invoice={invoice} customer={customer} />
-          </motion.div>
-        </motion.div>
-      </motion.div>
+        {/* PDF Preview */}
+        <div id="invoice-pdf" className="bg-white rounded-lg shadow p-6">
+          <InvoicePDF invoice={invoice} />
+        </div>
+      </div>
     </AnimatedPage>
   );
 }
