@@ -1,9 +1,23 @@
-import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useInvoice } from "@/lib/hooks/use-invoice";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal } from "lucide-react";
 import { AnimatedPage } from "@/components/AnimatedPage";
+import { InvoicePDF } from "./invoice-pdf";
+import html2pdf from "html2pdf.js";
+import type { Invoice } from "@/lib/pocketbase";
+import { toast } from "sonner";
+import { formatDate, formatCurrency } from "@/lib/utils";
+import { createRoot } from "react-dom/client";
+import React from "react";
 import { invoiceService } from "@/lib/services/invoice-service";
 import useSWR from "swr";
-import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
   Download,
@@ -15,11 +29,6 @@ import {
   Building2,
   Euro,
 } from "lucide-react";
-import { InvoicePDF } from "./invoice-pdf";
-import html2pdf from "html2pdf.js";
-import type { Invoice } from "@/lib/pocketbase";
-import { toast } from "sonner";
-import { formatDate, formatCurrency } from "@/lib/utils";
 
 export function ViewInvoice() {
   const navigate = useNavigate();
@@ -39,21 +48,38 @@ export function ViewInvoice() {
 
   const handleDownloadPDF = async () => {
     try {
-      const element = document.getElementById("invoice-pdf");
-      if (!element) {
-        toast.error("Could not find invoice element to download");
+      if (!invoice) {
+        toast.error("No invoice data available");
+        return;
+      }
+
+      // Create container
+      const container = document.getElementById("pdf");
+
+      if (!container) {
+        toast.error("PDF container not found");
         return;
       }
 
       const opt = {
-        margin: [0.5, 0.5],
-        filename: `invoice-${invoice?.number || "download"}.pdf`,
+        margin: 0,
+        filename: `invoice-${invoice.number}.pdf`,
         image: { type: "jpeg", quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          logging: true,
+          letterRendering: true,
+        },
+        jsPDF: {
+          unit: "in",
+          format: "a4",
+          orientation: "portrait",
+        },
       };
 
-      await html2pdf().set(opt).from(element).save();
+      toast.loading("Generating PDF...");
+      await html2pdf().from(container).set(opt).save();
       toast.success("PDF downloaded successfully");
     } catch (error) {
       console.error("Failed to download PDF:", error);
@@ -87,11 +113,16 @@ export function ViewInvoice() {
     return (
       <div className="flex items-center justify-center h-[60vh]">
         <div className="text-center">
-          <h2 className="text-2xl font-semibold text-gray-900">Invoice not found</h2>
-          <p className="mt-2 text-gray-600">The invoice you're looking for doesn't exist or you don't have access to it.</p>
+          <h2 className="text-2xl font-semibold text-gray-900">
+            Invoice not found
+          </h2>
+          <p className="mt-2 text-gray-600">
+            The invoice you're looking for doesn't exist or you don't have
+            access to it.
+          </p>
           <button
             onClick={() => navigate("/invoices")}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="mt-4 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
           >
             Go back to invoices
           </button>
@@ -103,44 +134,68 @@ export function ViewInvoice() {
   if (!invoice) {
     return (
       <div className="flex items-center justify-center h-[60vh]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600"></div>
       </div>
     );
   }
 
   return (
     <AnimatedPage>
-      <div className="space-y-6">
+      <div className="space-y-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-4">
+        <div className="flex justify-between items-center bg-white rounded-2xl shadow-sm border border-gray-100/50 p-8">
+          <div className="flex items-center gap-6">
             <Button
-              variant="outline"
+              variant="ghost"
               size="icon"
               onClick={() => navigate("/invoices")}
+              className="hover:bg-gray-50/50 transition-colors"
             >
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className="h-4 w-4 text-gray-400" />
             </Button>
-            <h1 className="text-2xl font-semibold">Invoice #{invoice.number}</h1>
+            <div>
+              <h1 className="text-3xl font-light tracking-tight text-gray-900">
+                Invoice #{invoice.number}
+              </h1>
+              <p className="text-sm text-gray-400 mt-1 tracking-wide">
+                View and manage invoice details
+              </p>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handlePrint}>
+          <div className="flex gap-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handlePrint}
+              className="text-gray-500 hover:text-gray-600 hover:bg-gray-50/50 transition-all duration-200"
+            >
               <Printer className="h-4 w-4 mr-2" />
               Print
             </Button>
-            <Button variant="outline" size="sm" onClick={handleDownloadPDF}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleDownloadPDF}
+              className="text-gray-500 hover:text-gray-600 hover:bg-gray-50/50 transition-all duration-200"
+            >
               <Download className="h-4 w-4 mr-2" />
               Download
             </Button>
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
               onClick={() => navigate(`/invoices/${id}/edit`)}
+              className="text-gray-500 hover:text-gray-600 hover:bg-gray-50/50 transition-all duration-200"
             >
               <Edit3 className="h-4 w-4 mr-2" />
               Edit
             </Button>
-            <Button variant="destructive" size="sm" onClick={handleDelete}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleDelete}
+              className="text-gray-500 hover:text-gray-600 hover:bg-gray-50/50 transition-all duration-200"
+            >
               <Trash2 className="h-4 w-4 mr-2" />
               Delete
             </Button>
@@ -148,128 +203,132 @@ export function ViewInvoice() {
         </div>
 
         {/* Invoice Details */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="grid grid-cols-2 gap-8">
-            {/* Left Column */}
-            <div className="space-y-6">
-              <div>
-                <div className="flex items-center gap-2 text-gray-500 mb-2">
-                  <FileText className="h-4 w-4" />
-                  <span className="text-sm font-medium">Invoice Details</span>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600">
-                    Number: <span className="font-medium">{invoice.number}</span>
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    Type:{" "}
-                    <span className="font-medium capitalize">
+        <div className="grid grid-cols-3 gap-8">
+          {/* Left Column - Invoice Details */}
+          <div className="col-span-2 space-y-8">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-8">
+              <div className="flex items-center gap-3 text-gray-400 mb-8">
+                <FileText className="h-5 w-5" />
+                <span className="font-medium tracking-wide">Invoice Information</span>
+              </div>
+              <div className="grid grid-cols-2 gap-12">
+                <div className="space-y-8">
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2 tracking-wide">
+                      Invoice Number
+                    </p>
+                    <p className="text-lg text-gray-900 font-light">
+                      {invoice.number}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2 tracking-wide">Type</p>
+                    <p className="text-lg text-gray-900 font-light capitalize">
                       {invoice.type}
-                    </span>
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    Status:{" "}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2 tracking-wide">Status</p>
                     <span
-                      className={`font-medium ${
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-light tracking-wide ${
                         invoice.status === "paid"
-                          ? "text-green-600"
-                          : "text-orange-600"
+                          ? "bg-gray-50 text-gray-600"
+                          : "bg-gray-50 text-gray-600"
                       }`}
                     >
-                      {invoice.status}
+                      {invoice.status.toUpperCase()}
                     </span>
-                  </p>
+                  </div>
                 </div>
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2 text-gray-500 mb-2">
-                  <Clock className="h-4 w-4" />
-                  <span className="text-sm font-medium">Dates</span>
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600">
-                    Issue Date:{" "}
-                    <span className="font-medium">
+                <div className="space-y-8">
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2 tracking-wide">Issue Date</p>
+                    <p className="text-lg text-gray-900 font-light">
                       {formatDate(new Date(invoice.date))}
-                    </span>
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    Due Date:{" "}
-                    <span className="font-medium">
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2 tracking-wide">Due Date</p>
+                    <p className="text-lg text-gray-900 font-light">
                       {invoice.dueDate
                         ? formatDate(new Date(invoice.dueDate))
-                        : "N/A"}
-                    </span>
-                  </p>
+                        : "—"}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Right Column */}
-            <div className="space-y-6">
-              <div>
-                <div className="flex items-center gap-2 text-gray-500 mb-2">
-                  <Building2 className="h-4 w-4" />
-                  <span className="text-sm font-medium">Customer</span>
+            {/* Company Details */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-8">
+              <div className="flex items-center gap-3 text-gray-400 mb-8">
+                <Building2 className="h-5 w-5" />
+                <span className="font-medium tracking-wide">Company Details</span>
+              </div>
+              <div className="grid grid-cols-2 gap-12">
+                <div>
+                  <p className="text-sm text-gray-400 mb-2 tracking-wide">Company Name</p>
+                  <p className="text-lg text-gray-900 font-light">
+                    {invoice.expand?.customerId?.name || "—"}
+                  </p>
+                  <p className="text-sm text-gray-400 mt-2">
+                    {invoice.expand?.customerId?.vatNumber || "—"}
+                  </p>
                 </div>
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600">
-                    Name:{" "}
-                    <span className="font-medium">
-                      {invoice.expand?.customerId?.name}
-                    </span>
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    Email:{" "}
-                    <span className="font-medium">
-                      {invoice.expand?.customerId?.email}
-                    </span>
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    VAT Number:{" "}
-                    <span className="font-medium">
-                      {invoice.expand?.customerId?.vatNumber}
-                    </span>
+                <div>
+                  <p className="text-sm text-gray-400 mb-2 tracking-wide">Address</p>
+                  <p className="text-lg text-gray-900 font-light">
+                    {invoice.expand?.customerId?.address || "—"}
                   </p>
                 </div>
               </div>
+            </div>
+          </div>
 
-              <div>
-                <div className="flex items-center gap-2 text-gray-500 mb-2">
-                  <Euro className="h-4 w-4" />
-                  <span className="text-sm font-medium">Amount</span>
+          {/* Right Column - Financial Summary */}
+          <div>
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-8">
+              <div className="flex items-center gap-3 text-gray-400 mb-8">
+                <Euro className="h-5 w-5" />
+                <span className="font-medium tracking-wide">Financial Summary</span>
+              </div>
+              <div className="space-y-8">
+                <div>
+                  <p className="text-sm text-gray-400 mb-2 tracking-wide">Subtotal</p>
+                  <p className="text-lg text-gray-900 font-light">
+                    {formatCurrency(invoice.total - invoice.vat)}
+                  </p>
                 </div>
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600">
-                    Subtotal:{" "}
-                    <span className="font-medium">
-                      {formatCurrency(invoice.amount)}
-                    </span>
+                <div>
+                  <p className="text-sm text-gray-400 mb-2 tracking-wide">VAT</p>
+                  <p className="text-lg text-gray-900 font-light">
+                    {formatCurrency(invoice.vat)}
                   </p>
-                  <p className="text-sm text-gray-600">
-                    VAT:{" "}
-                    <span className="font-medium">
-                      {formatCurrency(invoice.vat)}
-                    </span>
+                </div>
+                <div className="pt-6 border-t border-gray-100">
+                  <p className="text-sm text-gray-400 mb-2 tracking-wide">Total Amount</p>
+                  <p className="text-2xl text-gray-900 font-light tracking-tight">
+                    {formatCurrency(invoice.total)}
                   </p>
-                  <p className="text-sm font-semibold">
-                    Total:{" "}
-                    <span className="text-lg">
-                      {formatCurrency(invoice.total)}
-                    </span>
+                </div>
+                <div className="pt-6">
+                  <p className="text-sm text-gray-400 mb-2 tracking-wide">Amount Paid</p>
+                  <p className="text-lg text-gray-900 font-light">
+                    {formatCurrency(invoice.paid)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400 mb-2 tracking-wide">Balance Due</p>
+                  <p className="text-lg text-gray-900 font-light">
+                    {formatCurrency(invoice.total - invoice.paid)}
                   </p>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-        {/* PDF Preview */}
-        <div id="invoice-pdf" className="bg-white rounded-lg shadow p-6">
-          <InvoicePDF invoice={invoice} />
-        </div>
       </div>
+      <InvoicePDF invoice={invoice} customer={invoice.expand?.customerId} />
     </AnimatedPage>
   );
 }

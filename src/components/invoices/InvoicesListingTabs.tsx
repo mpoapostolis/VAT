@@ -257,198 +257,219 @@ function InvoiceTable({ type }: { type: "receivable" | "payable" }) {
   return (
     <div className="space-y-4">
       <InvoiceFilters type={type} />
-      <div className="bg-white border border-black/10 rounded overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent border-b border-border">
-              <TableHead
-                sortable
-                sorted={
-                  sort === "customerId.name"
-                    ? "asc"
-                    : sort === "-customerId.name"
-                    ? "desc"
-                    : false
-                }
-                onSort={() => handleSort("customerId.name")}
-                className="w-[200px]"
-              >
-                <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-                  <Building2 className="w-4 h-4" />
-                  {type === "receivable" ? "Client" : "Issuer"}
-                </div>
-              </TableHead>
-              <TableHead
-                sortable
-                sorted={
-                  sort === "number" ? "asc" : sort === "-number" ? "desc" : false
-                }
-                onSort={() => handleSort("number")}
-                className="w-[150px]"
-              >
-                <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-                  <FileText className="w-4 h-4" />
-                  Invoice No.
-                </div>
-              </TableHead>
-              <TableHead
-                sortable
-                sorted={
-                  sort === "date" ? "asc" : sort === "-date" ? "desc" : false
-                }
-                onSort={() => handleSort("date")}
-                className="w-[130px]"
-              >
-                <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-                  <Calendar className="w-4 h-4" />
-                  Issue Date
-                </div>
-              </TableHead>
-              <TableHead
-                sortable
-                sorted={
-                  sort === "dueDate" ? "asc" : sort === "-dueDate" ? "desc" : false
-                }
-                onSort={() => handleSort("dueDate")}
-                className="w-[130px]"
-              >
-                <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-                  <Clock className="w-4 h-4" />
-                  Due Date
-                </div>
-              </TableHead>
-              <TableHead
-                sortable
-                sorted={
-                  sort === "total" ? "asc" : sort === "-total" ? "desc" : false
-                }
-                onSort={() => handleSort("total")}
-                className="w-[120px]"
-              >
-                <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-                  <CreditCard className="w-4 h-4" />
-                  Total
-                </div>
-              </TableHead>
-              <TableHead
-                sortable
-                sorted={
-                  sort === "vat" ? "asc" : sort === "-vat" ? "desc" : false
-                }
-                onSort={() => handleSort("vat")}
-                className="w-[120px]"
-              >
-                <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-                  <Percent className="w-4 h-4" />
-                  VAT
-                </div>
-              </TableHead>
-              <TableHead
-                sortable
-                sorted={
-                  sort === "paid" ? "asc" : sort === "-paid" ? "desc" : false
-                }
-                onSort={() => handleSort("paid")}
-                className="w-[120px]"
-              >
-                <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-                  <Banknote className="w-4 h-4" />
-                  Paid
-                </div>
-              </TableHead>
-              <TableHead
-                sortable
-                sorted={
-                  sort === "status" ? "asc" : sort === "-status" ? "desc" : false
-                }
-                onSort={() => handleSort("status")}
-                className="w-[130px]"
-              >
-                <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-                  <Activity className="w-4 h-4" />
-                  Status
-                </div>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {invoices?.items.map((invoice: Invoice) => (
-              <TableRow
-                key={invoice.id}
-                className="group hover:bg-slate-50 transition-all duration-200"
-              >
-                <TableCell>
-                  <Link
-                    to={`/customers/${invoice.customerId}`}
-                    className="font-medium text-indigo-600 hover:text-indigo-800 transition-colors flex items-center gap-2 group-hover:underline"
-                  >
-                    <Building2 className="w-4 h-4 text-indigo-500" />
-                    {invoice.expand?.customerId?.name}
-                  </Link>
-                </TableCell>
-                <TableCell>
-                  <Link
-                    to={`/invoices/${invoice.id}/view`}
-                    className="font-medium text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-2 group-hover:underline"
-                  >
-                    <FileText className="w-4 h-4 text-blue-500" />
-                    {invoice.number}
-                  </Link>
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  <div className="flex items-center gap-2">
+      <div className="bg-white border border-border/40 rounded-lg shadow-sm">
+        <div className="overflow-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent border-b border-border bg-muted/50">
+                <TableHead
+                  sortable
+                  sorted={
+                    sort === "number"
+                      ? "asc"
+                      : sort === "-number"
+                      ? "desc"
+                      : false
+                  }
+                  onSort={() => handleSort("number")}
+                  className="min-w-[150px]"
+                >
+                  <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                    <FileText className="w-4 h-4" />
+                    Invoice No.
+                  </div>
+                </TableHead>
+                <TableHead
+                  sortable
+                  sorted={
+                    sort === "customerId.name"
+                      ? "asc"
+                      : sort === "-customerId.name"
+                      ? "desc"
+                      : false
+                  }
+                  onSort={() => handleSort("customerId.name")}
+                  className="min-w-[200px]"
+                >
+                  <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                    <Building2 className="w-4 h-4" />
+                    {type === "receivable" ? "Client" : "Issuer"}
+                  </div>
+                </TableHead>
+
+                <TableHead
+                  sortable
+                  sorted={
+                    sort === "date" ? "asc" : sort === "-date" ? "desc" : false
+                  }
+                  onSort={() => handleSort("date")}
+                  className="min-w-[130px] hidden md:table-cell"
+                >
+                  <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
                     <Calendar className="w-4 h-4" />
-                    {new Date(invoice.date).toLocaleDateString()}
+                    Issue Date
                   </div>
-                </TableCell>
-                <TableCell className="text-muted-foreground">
-                  <div className="flex items-center gap-2">
+                </TableHead>
+                <TableHead
+                  sortable
+                  sorted={
+                    sort === "dueDate"
+                      ? "asc"
+                      : sort === "-dueDate"
+                      ? "desc"
+                      : false
+                  }
+                  onSort={() => handleSort("dueDate")}
+                  className="min-w-[130px] hidden lg:table-cell"
+                >
+                  <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
                     <Clock className="w-4 h-4" />
-                    {new Date(invoice.dueDate).toLocaleDateString()}
+                    Due Date
                   </div>
-                </TableCell>
-                <TableCell className="font-medium">
-                  <div className="flex items-center gap-2">
-                    <CreditCard className="w-4 h-4 text-muted-foreground" />
-                    {formatCurrency(invoice.total)}
+                </TableHead>
+                <TableHead
+                  sortable
+                  sorted={
+                    sort === "total"
+                      ? "asc"
+                      : sort === "-total"
+                      ? "desc"
+                      : false
+                  }
+                  onSort={() => handleSort("total")}
+                  className="min-w-[120px]"
+                >
+                  <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                    <CreditCard className="w-4 h-4" />
+                    Total
                   </div>
-                </TableCell>
-                <TableCell className="font-medium">
-                  <div className="flex items-center gap-2">
-                    <Percent className="w-4 h-4 text-muted-foreground" />
-                    {formatCurrency(invoice.vat)}
+                </TableHead>
+                <TableHead
+                  sortable
+                  sorted={
+                    sort === "vat" ? "asc" : sort === "-vat" ? "desc" : false
+                  }
+                  onSort={() => handleSort("vat")}
+                  className="min-w-[120px] hidden lg:table-cell"
+                >
+                  <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                    <Percent className="w-4 h-4" />
+                    VAT
                   </div>
-                </TableCell>
-                <TableCell className="font-medium">
-                  <div className="flex items-center gap-2">
-                    <Banknote className="w-4 h-4 text-muted-foreground" />
-                    {formatCurrency(invoice.paid)}
+                </TableHead>
+                <TableHead
+                  sortable
+                  sorted={
+                    sort === "paid" ? "asc" : sort === "-paid" ? "desc" : false
+                  }
+                  onSort={() => handleSort("paid")}
+                  className="min-w-[120px] hidden md:table-cell"
+                >
+                  <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                    <Banknote className="w-4 h-4" />
+                    Paid
                   </div>
-                </TableCell>
-                <TableCell>
-                  <span
-                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
-                      invoice.status === "paid"
-                        ? "bg-emerald-50 text-emerald-700"
-                        : invoice.status === "pending"
-                        ? "bg-amber-50 text-amber-700"
-                        : "bg-rose-50 text-rose-700"
-                    }`}
-                  >
-                    {invoice.status === "paid" ? (
-                      <CheckCircle className="w-3.5 h-3.5" />
-                    ) : invoice.status === "pending" ? (
-                      <Clock className="w-3.5 h-3.5" />
-                    ) : (
-                      <AlertCircle className="w-3.5 h-3.5" />
-                    )}
-                    {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
-                  </span>
-                </TableCell>
+                </TableHead>
+                <TableHead
+                  sortable
+                  sorted={
+                    sort === "status"
+                      ? "asc"
+                      : sort === "-status"
+                      ? "desc"
+                      : false
+                  }
+                  onSort={() => handleSort("status")}
+                  className="min-w-[130px]"
+                >
+                  <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                    <Activity className="w-4 h-4" />
+                    Status
+                  </div>
+                </TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {invoices?.items.map((invoice: Invoice) => (
+                <TableRow
+                  key={invoice.id}
+                  className="group hover:bg-muted/30 transition-all duration-200"
+                >
+                  <TableCell className="py-3">
+                    <Link
+                      to={`/invoices/${invoice.id}/view`}
+                      className="font-medium text-violet-600 hover:text-violet-700 transition-colors flex items-center gap-2 group-hover:underline"
+                    >
+                      <FileText className="w-4 h-4 text-slate-400" />
+                      {invoice.number}
+                    </Link>
+                  </TableCell>
+                  <TableCell className="py-3">
+                    <Link
+                      to={`/customers/${invoice.customerId}`}
+                      className="font-medium text-blue-600 hover:text-blue-700 transition-colors flex items-center gap-2 group-hover:underline"
+                    >
+                      <Building2 className="w-4 h-4 text-slate-400" />
+                      {invoice.expand?.customerId?.name}
+                    </Link>
+                  </TableCell>
+
+                  <TableCell className="text-slate-600 hidden md:table-cell py-3">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-slate-400" />
+                      {new Date(invoice.date).toLocaleDateString()}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-slate-600 hidden lg:table-cell py-3">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-slate-400" />
+                      {new Date(invoice.dueDate).toLocaleDateString()}
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-medium text-slate-700 py-3">
+                    <div className="flex items-center gap-2">
+                      <CreditCard className="w-4 h-4 text-slate-400" />
+                      {formatCurrency(invoice.total)}
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-medium text-slate-700 hidden lg:table-cell py-3">
+                    <div className="flex items-center gap-2">
+                      <Percent className="w-4 h-4 text-slate-400" />
+                      {formatCurrency(invoice.vat)}
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-medium text-slate-700 hidden md:table-cell py-3">
+                    <div className="flex items-center gap-2">
+                      <Banknote className="w-4 h-4 text-slate-400" />
+                      {formatCurrency(invoice.paid)}
+                    </div>
+                  </TableCell>
+                  <TableCell className="py-3">
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${
+                        invoice.status === "paid"
+                          ? "bg-green-100 text-green-800 ring-1 ring-green-600/20"
+                          : invoice.status === "pending"
+                          ? "bg-yellow-100 text-yellow-800 ring-1 ring-yellow-600/20"
+                          : "bg-destructive/10 text-destructive ring-1 ring-destructive/20"
+                      }`}
+                    >
+                      {invoice.status === "paid" ? (
+                        <CheckCircle className="w-3.5 h-3.5" />
+                      ) : invoice.status === "pending" ? (
+                        <Clock className="w-3.5 h-3.5" />
+                      ) : (
+                        <AlertCircle className="w-3.5 h-3.5" />
+                      )}
+                      {invoice.status.charAt(0).toUpperCase() +
+                        invoice.status.slice(1)}
+                    </span>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
         <TablePagination
           pageIndex={tableParams.page - 1}
           pageSize={tableParams.perPage}
