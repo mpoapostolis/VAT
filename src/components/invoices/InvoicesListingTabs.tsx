@@ -34,7 +34,6 @@ import {
   TableCell,
   TablePagination,
 } from "@/components/ui/table";
-import { invoiceService } from "@/lib/services/invoice-service";
 
 function InvoiceFilters({ type }: { type: "receivable" | "payable" }) {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -60,14 +59,13 @@ function InvoiceFilters({ type }: { type: "receivable" | "payable" }) {
       filters.push(`date <= '${searchParams.get("to")}'`);
     }
 
-    const filter = filters.join(" && ");
-    console.log("Filter:", filter);
-    return filter;
+    return filters.join(" && ");
   };
 
   const { data: customers } = useSWR(["customers", type], () =>
     pb.collection("customers").getList(1, 50, {
       filter: type === "receivable" ? "type = 'client'" : "type = 'vendor'",
+      sort: "name",
     })
   );
 
@@ -211,56 +209,39 @@ function InvoiceTable({ type }: { type: "receivable" | "payable" }) {
       filters.push(`date <= '${searchParams.get("to")}'`);
     }
 
-    const filter = filters.join(" && ");
-    console.log("Filter:", filter);
-    return filter;
+    return filters.join(" && ");
+  };
+
+  const [sort, setSort] = useState("-date");
+
+  const handleSort = (field: string) => {
+    if (sort === field) {
+      setSort(`-${field}`);
+    } else if (sort === `-${field}`) {
+      setSort("date");
+    } else {
+      setSort(field);
+    }
   };
 
   const { data: invoices, mutate } = useSWR(
-    [
-      "invoices",
-      type,
-      searchParams.toString(),
-      tableParams.page,
-      tableParams.perPage,
-      tableParams.sort?.id,
-      tableParams.sort?.desc,
-    ],
+    ["invoices", type, searchParams.toString(), sort],
     () =>
-      invoiceService.getList({
-        type,
-        customerId: searchParams.get("customerId") || undefined,
-        status: searchParams.get("status") || undefined,
-        currency: searchParams.get("currency") || undefined,
-        startDate: searchParams.get("from")
-          ? new Date(searchParams.get("from")!)
-          : undefined,
-        endDate: searchParams.get("to")
-          ? new Date(searchParams.get("to")!)
-          : undefined,
-        ...buildPocketBaseParams(tableParams),
+      pb.collection("invoices").getList(tableParams.page, tableParams.perPage, {
+        filter: buildFilter(),
+        sort,
+        expand: "customerId",
       })
   );
 
   const handleDelete = async () => {
     if (!deleteModal.invoiceId) return;
     try {
-      await invoiceService.delete(deleteModal.invoiceId);
+      await pb.collection("invoices").delete(deleteModal.invoiceId);
       mutate();
       setDeleteModal({ isOpen: false, invoiceId: null });
     } catch (error) {
       console.error("Failed to delete invoice:", error);
-    }
-  };
-
-  const handleSort = (field: string) => {
-    const currentSort = tableParams.sort;
-    if (currentSort === field) {
-      tableParams.setSort(`-${field}`);
-    } else if (currentSort === `-${field}`) {
-      tableParams.setSort(undefined);
-    } else {
-      tableParams.setSort(field);
     }
   };
 
@@ -273,65 +254,35 @@ function InvoiceTable({ type }: { type: "receivable" | "payable" }) {
             <TableRow>
               <TableHead
                 sortable
-                sorted={
-                  tableParams.sort === "number"
-                    ? "asc"
-                    : tableParams.sort === "-number"
-                    ? "desc"
-                    : false
-                }
+                sorted={sort === "number" ? "asc" : sort === "-number" ? "desc" : false}
                 onSort={() => handleSort("number")}
               >
                 Invoice Number
               </TableHead>
               <TableHead
                 sortable
-                sorted={
-                  tableParams.sort === "customerId.name"
-                    ? "asc"
-                    : tableParams.sort === "-customerId.name"
-                    ? "desc"
-                    : false
-                }
+                sorted={sort === "customerId.name" ? "asc" : sort === "-customerId.name" ? "desc" : false}
                 onSort={() => handleSort("customerId.name")}
               >
                 {type === "receivable" ? "Customer" : "Issuer"}
               </TableHead>
               <TableHead
                 sortable
-                sorted={
-                  tableParams.sort === "date"
-                    ? "asc"
-                    : tableParams.sort === "-date"
-                    ? "desc"
-                    : false
-                }
+                sorted={sort === "date" ? "asc" : sort === "-date" ? "desc" : false}
                 onSort={() => handleSort("date")}
               >
                 Issue Date
               </TableHead>
               <TableHead
                 sortable
-                sorted={
-                  tableParams.sort === "total"
-                    ? "asc"
-                    : tableParams.sort === "-total"
-                    ? "desc"
-                    : false
-                }
+                sorted={sort === "total" ? "asc" : sort === "-total" ? "desc" : false}
                 onSort={() => handleSort("total")}
               >
                 Total
               </TableHead>
               <TableHead
                 sortable
-                sorted={
-                  tableParams.sort === "status"
-                    ? "asc"
-                    : tableParams.sort === "-status"
-                    ? "desc"
-                    : false
-                }
+                sorted={sort === "status" ? "asc" : sort === "-status" ? "desc" : false}
                 onSort={() => handleSort("status")}
               >
                 Status
