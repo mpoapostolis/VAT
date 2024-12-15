@@ -19,6 +19,15 @@ import {
   RotateCcw,
   ChevronDown,
   X,
+  Building2,
+  Calendar,
+  CreditCard,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  Activity,
+  Percent,
+  Banknote,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -251,97 +260,190 @@ function InvoiceTable({ type }: { type: "receivable" | "payable" }) {
       <div className="bg-white border border-black/10 rounded overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="hover:bg-transparent border-b border-border">
               <TableHead
                 sortable
-                sorted={sort === "number" ? "asc" : sort === "-number" ? "desc" : false}
-                onSort={() => handleSort("number")}
-              >
-                Invoice Number
-              </TableHead>
-              <TableHead
-                sortable
-                sorted={sort === "customerId.name" ? "asc" : sort === "-customerId.name" ? "desc" : false}
+                sorted={
+                  sort === "customerId.name"
+                    ? "asc"
+                    : sort === "-customerId.name"
+                    ? "desc"
+                    : false
+                }
                 onSort={() => handleSort("customerId.name")}
+                className="w-[200px]"
               >
-                {type === "receivable" ? "Customer" : "Issuer"}
+                <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                  <Building2 className="w-4 h-4" />
+                  {type === "receivable" ? "Client" : "Issuer"}
+                </div>
               </TableHead>
               <TableHead
                 sortable
-                sorted={sort === "date" ? "asc" : sort === "-date" ? "desc" : false}
+                sorted={
+                  sort === "number" ? "asc" : sort === "-number" ? "desc" : false
+                }
+                onSort={() => handleSort("number")}
+                className="w-[150px]"
+              >
+                <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                  <FileText className="w-4 h-4" />
+                  Invoice No.
+                </div>
+              </TableHead>
+              <TableHead
+                sortable
+                sorted={
+                  sort === "date" ? "asc" : sort === "-date" ? "desc" : false
+                }
                 onSort={() => handleSort("date")}
+                className="w-[130px]"
               >
-                Issue Date
+                <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                  <Calendar className="w-4 h-4" />
+                  Issue Date
+                </div>
               </TableHead>
               <TableHead
                 sortable
-                sorted={sort === "total" ? "asc" : sort === "-total" ? "desc" : false}
+                sorted={
+                  sort === "dueDate" ? "asc" : sort === "-dueDate" ? "desc" : false
+                }
+                onSort={() => handleSort("dueDate")}
+                className="w-[130px]"
+              >
+                <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                  <Clock className="w-4 h-4" />
+                  Due Date
+                </div>
+              </TableHead>
+              <TableHead
+                sortable
+                sorted={
+                  sort === "total" ? "asc" : sort === "-total" ? "desc" : false
+                }
                 onSort={() => handleSort("total")}
+                className="w-[120px]"
               >
-                Total
+                <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                  <CreditCard className="w-4 h-4" />
+                  Total
+                </div>
               </TableHead>
               <TableHead
                 sortable
-                sorted={sort === "status" ? "asc" : sort === "-status" ? "desc" : false}
-                onSort={() => handleSort("status")}
+                sorted={
+                  sort === "vat" ? "asc" : sort === "-vat" ? "desc" : false
+                }
+                onSort={() => handleSort("vat")}
+                className="w-[120px]"
               >
-                Status
+                <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                  <Percent className="w-4 h-4" />
+                  VAT
+                </div>
               </TableHead>
-              <TableHead>Actions</TableHead>
+              <TableHead
+                sortable
+                sorted={
+                  sort === "paid" ? "asc" : sort === "-paid" ? "desc" : false
+                }
+                onSort={() => handleSort("paid")}
+                className="w-[120px]"
+              >
+                <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                  <Banknote className="w-4 h-4" />
+                  Paid
+                </div>
+              </TableHead>
+              <TableHead
+                sortable
+                sorted={
+                  sort === "status" ? "asc" : sort === "-status" ? "desc" : false
+                }
+                onSort={() => handleSort("status")}
+                className="w-[130px]"
+              >
+                <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                  <Activity className="w-4 h-4" />
+                  Status
+                </div>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {invoices?.items.map((invoice: Invoice) => (
-              <TableRow key={invoice.id}>
-                <TableCell>{invoice.number}</TableCell>
-                <TableCell>{invoice.expand?.customerId?.name}</TableCell>
+              <TableRow
+                key={invoice.id}
+                className="group hover:bg-slate-50 transition-all duration-200"
+              >
                 <TableCell>
-                  {new Date(invoice.date).toLocaleDateString()}
+                  <Link
+                    to={`/customers/${invoice.customerId}`}
+                    className="font-medium text-indigo-600 hover:text-indigo-800 transition-colors flex items-center gap-2 group-hover:underline"
+                  >
+                    <Building2 className="w-4 h-4 text-indigo-500" />
+                    {invoice.expand?.customerId?.name}
+                  </Link>
                 </TableCell>
-                <TableCell>{formatCurrency(invoice.total)}</TableCell>
+                <TableCell>
+                  <Link
+                    to={`/invoices/${invoice.id}/view`}
+                    className="font-medium text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-2 group-hover:underline"
+                  >
+                    <FileText className="w-4 h-4 text-blue-500" />
+                    {invoice.number}
+                  </Link>
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    {new Date(invoice.date).toLocaleDateString()}
+                  </div>
+                </TableCell>
+                <TableCell className="text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    {new Date(invoice.dueDate).toLocaleDateString()}
+                  </div>
+                </TableCell>
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-2">
+                    <CreditCard className="w-4 h-4 text-muted-foreground" />
+                    {formatCurrency(invoice.total)}
+                  </div>
+                </TableCell>
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-2">
+                    <Percent className="w-4 h-4 text-muted-foreground" />
+                    {formatCurrency(invoice.vat)}
+                  </div>
+                </TableCell>
+                <TableCell className="font-medium">
+                  <div className="flex items-center gap-2">
+                    <Banknote className="w-4 h-4 text-muted-foreground" />
+                    {formatCurrency(invoice.paid)}
+                  </div>
+                </TableCell>
                 <TableCell>
                   <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium ${
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
                       invoice.status === "paid"
-                        ? "bg-[#DCFCE7] text-[#10B981]"
+                        ? "bg-emerald-50 text-emerald-700"
                         : invoice.status === "pending"
-                        ? "bg-[#FEF9C3] text-[#F59E0B]"
-                        : "bg-[#FEE2E2] text-[#EF4444]"
+                        ? "bg-amber-50 text-amber-700"
+                        : "bg-rose-50 text-rose-700"
                     }`}
                   >
-                    {invoice.status.charAt(0).toUpperCase() +
-                      invoice.status.slice(1)}
+                    {invoice.status === "paid" ? (
+                      <CheckCircle className="w-3.5 h-3.5" />
+                    ) : invoice.status === "pending" ? (
+                      <Clock className="w-3.5 h-3.5" />
+                    ) : (
+                      <AlertCircle className="w-3.5 h-3.5" />
+                    )}
+                    {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
                   </span>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => navigate(`/invoices/${invoice.id}`)}
-                      className="p-2 hover:bg-gray-100 rounded"
-                    >
-                      <Eye className="w-4 h-4 text-gray-500" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => navigate(`/invoices/${invoice.id}/edit`)}
-                      className="p-2 hover:bg-gray-100 rounded"
-                    >
-                      <Edit2 className="w-4 h-4 text-gray-500" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() =>
-                        setDeleteModal({ isOpen: true, invoiceId: invoice.id })
-                      }
-                      className="p-2 hover:bg-gray-100 rounded"
-                    >
-                      <Trash2 className="w-4 h-4 text-red-500" />
-                    </Button>
-                  </div>
                 </TableCell>
               </TableRow>
             ))}

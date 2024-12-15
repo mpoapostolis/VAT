@@ -1,5 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
-import { format, subDays, startOfMonth, endOfMonth, startOfYear, endOfYear, startOfQuarter, endOfQuarter } from "date-fns";
+import {
+  format,
+  subDays,
+  startOfMonth,
+  endOfMonth,
+  startOfYear,
+  endOfYear,
+  startOfQuarter,
+  endOfQuarter,
+} from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "./button";
@@ -74,7 +83,11 @@ const quickRanges = [
   },
 ];
 
-export function DateRangePicker({ onChange, value, className }: DateRangePickerProps) {
+export function DateRangePicker({
+  onChange,
+  value,
+  className,
+}: DateRangePickerProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
   const [range, setRange] = useState<{
@@ -118,7 +131,7 @@ export function DateRangePicker({ onChange, value, className }: DateRangePickerP
     setIsOpen(false);
   };
 
-  const handleQuickRangeSelect = (quickRange: typeof quickRanges[0]) => {
+  const handleQuickRangeSelect = (quickRange: (typeof quickRanges)[0]) => {
     const newRange = quickRange.getValue();
     setRange(newRange);
     onChange?.(newRange);
@@ -138,19 +151,19 @@ export function DateRangePicker({ onChange, value, className }: DateRangePickerP
 
   useEffect(() => {
     const newParams = new URLSearchParams(searchParams);
-    
+
     if (range?.from) {
       newParams.set("from", range.from.toISOString());
     } else {
       newParams.delete("from");
     }
-    
+
     if (range?.to) {
       newParams.set("to", range.to.toISOString());
     } else {
       newParams.delete("to");
     }
-    
+
     setSearchParams(newParams);
   }, [range, searchParams]);
 
@@ -159,24 +172,26 @@ export function DateRangePicker({ onChange, value, className }: DateRangePickerP
       <Button
         variant="outline"
         className={cn(
-          "w-[260px] justify-start text-left text-sm font-medium border-gray-200 bg-white hover:bg-gray-50",
+          "w-[260px]  justify-start text-left text-sm font-medium border-gray-200 bg-white hover:bg-gray-50",
           !range.from && "text-gray-500"
         )}
         onClick={() => setIsOpen(!isOpen)}
       >
         <CalendarIcon className="mr-2 h-4 w-4 text-gray-500" />
-        {range.from ? (
-          range.to ? (
-            <>
-              {format(range.from, "MMM d, yyyy")} -{" "}
-              {format(range.to, "MMM d, yyyy")}
-            </>
+        <span className="text-gray-700">
+          {range.from ? (
+            range.to ? (
+              <>
+                {format(range.from, "MMM d, yyyy")} -{" "}
+                {format(range.to, "MMM d, yyyy")}
+              </>
+            ) : (
+              format(range.from, "MMM d, yyyy")
+            )
           ) : (
-            format(range.from, "MMM d, yyyy")
-          )
-        ) : (
-          <span>Select date range</span>
-        )}
+            <span>Select date range</span>
+          )}
+        </span>
       </Button>
       <AnimatePresence>
         {isOpen && (
