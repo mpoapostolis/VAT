@@ -3,10 +3,28 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import useSWR from "swr";
 import { formatCurrency } from "@/lib/utils";
+import { pb } from "@/lib/pocketbase";
 import type { Invoice } from "@/lib/pocketbase";
-import { invoiceService } from "@/lib/services/invoice-service";
-import { useTableParams, buildPocketBaseParams } from "@/lib/hooks/useTableParams";
-import { Plus, Eye, Edit2, Trash2, FileText } from "lucide-react";
+import {
+  useTableParams,
+  buildPocketBaseParams,
+} from "@/lib/hooks/useTableParams";
+import {
+  Plus,
+  Eye,
+  Edit2,
+  Trash2,
+  FileText,
+  Search,
+  RotateCcw,
+  ChevronDown,
+  X,
+} from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
+import { ConfirmationModal } from "@/components/ui/confirmation-modal";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableHeader,
@@ -16,9 +34,138 @@ import {
   TableCell,
   TablePagination,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { DateRangePicker } from "@/components/ui/date-range-picker";
-import { ConfirmationModal } from "@/components/ui/confirmation-modal";
+import { invoiceService } from "@/lib/services/invoice-service";
+
+function InvoiceFilters({ type }: { type: "receivable" | "payable" }) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  // Build filter string for PocketBase
+  const buildFilter = () => {
+    const filters = [`type = '${type}'`];
+
+    if (searchParams.get("customerId")) {
+      filters.push(`customerId = '${searchParams.get("customerId")}'`);
+    }
+    if (searchParams.get("status")) {
+      filters.push(`status = '${searchParams.get("status")}'`);
+    }
+    if (searchParams.get("currency")) {
+      filters.push(`currency = '${searchParams.get("currency")}'`);
+    }
+    if (searchParams.get("from")) {
+      filters.push(`date >= '${searchParams.get("from")}'`);
+    }
+    if (searchParams.get("to")) {
+      filters.push(`date <= '${searchParams.get("to")}'`);
+    }
+
+    const filter = filters.join(" && ");
+    console.log("Filter:", filter);
+    return filter;
+  };
+
+  const { data: customers } = useSWR(["customers", type], () =>
+    pb.collection("customers").getList(1, 50, {
+      filter: type === "receivable" ? "type = 'client'" : "type = 'vendor'",
+    })
+  );
+
+  const updateSearchParam = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    navigate(`?${params.toString()}`, { replace: true });
+  };
+
+  return (
+    <div className="flex wf items-center gap-4">
+      <div className="flex flex-col gap-1.5">
+        <span className="text-xs font-medium text-slate-500">Customer</span>
+        <Select
+          value={searchParams.get("customerId") || ""}
+          onChange={(value) => updateSearchParam("customerId", value)}
+          options={[
+            { label: "All Customers", value: "" },
+            ...(customers?.items.map((customer) => ({
+              label: customer.name,
+              value: customer.id,
+            })) || []),
+          ]}
+          placeholder="All Customers"
+          className="min-w-[200px] rounded"
+        />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <span className="text-xs font-medium text-slate-500">Status</span>
+        <Select
+          value={searchParams.get("status") || ""}
+          onChange={(value) => updateSearchParam("status", value)}
+          options={[
+            { label: "All", value: "" },
+            { label: "Draft", value: "draft" },
+            { label: "Pending", value: "pending" },
+            { label: "Paid", value: "paid" },
+            { label: "Overdue", value: "overdue" },
+          ]}
+          placeholder="All Statuses"
+          className="min-w-[160px] rounded"
+        />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <span className="text-xs font-medium text-slate-500">Currency</span>
+        <Select
+          value={searchParams.get("currency") || ""}
+          onChange={(value) => updateSearchParam("currency", value)}
+          options={[
+            { label: "All", value: "" },
+            { label: "EUR", value: "EUR" },
+            { label: "USD", value: "USD" },
+            { label: "GBP", value: "GBP" },
+          ]}
+          placeholder="All Currencies"
+          className="min-w-[160px] rounded"
+        />
+      </div>
+
+      <div className="flex flex-col gap-1.5 flex-1 items-end">
+        <span className="text-xs font-medium text-slate-500">Date Range</span>
+        <DateRangePicker
+          from={
+            searchParams.get("from")
+              ? new Date(searchParams.get("from")!)
+              : undefined
+          }
+          to={
+            searchParams.get("to")
+              ? new Date(searchParams.get("to")!)
+              : undefined
+          }
+          onSelect={(range) => {
+            const params = new URLSearchParams(searchParams);
+            if (range?.from) {
+              params.set("from", range.from.toISOString());
+            } else {
+              params.delete("from");
+            }
+            if (range?.to) {
+              params.set("to", range.to.toISOString());
+            } else {
+              params.delete("to");
+            }
+            navigate(`?${params.toString()}`, { replace: true });
+          }}
+          className="rounded"
+        />
+      </div>
+    </div>
+  );
+}
 
 function InvoiceTable({ type }: { type: "receivable" | "payable" }) {
   const navigate = useNavigate();
@@ -45,22 +192,53 @@ function InvoiceTable({ type }: { type: "receivable" | "payable" }) {
   const from = parseDateSafely(searchParams.get("from"));
   const to = parseDateSafely(searchParams.get("to"));
 
-  const { data, mutate } = useSWR(
+  const buildFilter = () => {
+    const filters = [`type = '${type}'`];
+
+    if (searchParams.get("customerId")) {
+      filters.push(`customerId = '${searchParams.get("customerId")}'`);
+    }
+    if (searchParams.get("status")) {
+      filters.push(`status = '${searchParams.get("status")}'`);
+    }
+    if (searchParams.get("currency")) {
+      filters.push(`currency = '${searchParams.get("currency")}'`);
+    }
+    if (searchParams.get("from")) {
+      filters.push(`date >= '${searchParams.get("from")}'`);
+    }
+    if (searchParams.get("to")) {
+      filters.push(`date <= '${searchParams.get("to")}'`);
+    }
+
+    const filter = filters.join(" && ");
+    console.log("Filter:", filter);
+    return filter;
+  };
+
+  const { data: invoices, mutate } = useSWR(
     [
       "invoices",
       type,
+      searchParams.toString(),
       tableParams.page,
       tableParams.perPage,
-      tableParams.sort,
-      from,
-      to,
+      tableParams.sort?.id,
+      tableParams.sort?.desc,
     ],
     () =>
       invoiceService.getList({
-        ...buildPocketBaseParams(tableParams),
         type,
-        startDate: from,
-        endDate: to,
+        customerId: searchParams.get("customerId") || undefined,
+        status: searchParams.get("status") || undefined,
+        currency: searchParams.get("currency") || undefined,
+        startDate: searchParams.get("from")
+          ? new Date(searchParams.get("from")!)
+          : undefined,
+        endDate: searchParams.get("to")
+          ? new Date(searchParams.get("to")!)
+          : undefined,
+        ...buildPocketBaseParams(tableParams),
       })
   );
 
@@ -88,7 +266,8 @@ function InvoiceTable({ type }: { type: "receivable" | "payable" }) {
 
   return (
     <div className="space-y-4">
-      <div className="bg-white border border-black/10 rounded-lg overflow-hidden">
+      <InvoiceFilters type={type} />
+      <div className="bg-white border border-black/10 rounded overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
@@ -116,7 +295,7 @@ function InvoiceTable({ type }: { type: "receivable" | "payable" }) {
                 }
                 onSort={() => handleSort("customerId.name")}
               >
-                {type === "receivable" ? "Client" : "Issuer"}
+                {type === "receivable" ? "Customer" : "Issuer"}
               </TableHead>
               <TableHead
                 sortable
@@ -161,7 +340,7 @@ function InvoiceTable({ type }: { type: "receivable" | "payable" }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data?.items.map((invoice: Invoice) => (
+            {invoices?.items.map((invoice: Invoice) => (
               <TableRow key={invoice.id}>
                 <TableCell>{invoice.number}</TableCell>
                 <TableCell>{invoice.expand?.customerId?.name}</TableCell>
@@ -189,7 +368,7 @@ function InvoiceTable({ type }: { type: "receivable" | "payable" }) {
                       variant="ghost"
                       size="sm"
                       onClick={() => navigate(`/invoices/${invoice.id}`)}
-                      className="p-2 hover:bg-gray-100 rounded-lg"
+                      className="p-2 hover:bg-gray-100 rounded"
                     >
                       <Eye className="w-4 h-4 text-gray-500" />
                     </Button>
@@ -197,7 +376,7 @@ function InvoiceTable({ type }: { type: "receivable" | "payable" }) {
                       variant="ghost"
                       size="sm"
                       onClick={() => navigate(`/invoices/${invoice.id}/edit`)}
-                      className="p-2 hover:bg-gray-100 rounded-lg"
+                      className="p-2 hover:bg-gray-100 rounded"
                     >
                       <Edit2 className="w-4 h-4 text-gray-500" />
                     </Button>
@@ -207,7 +386,7 @@ function InvoiceTable({ type }: { type: "receivable" | "payable" }) {
                       onClick={() =>
                         setDeleteModal({ isOpen: true, invoiceId: invoice.id })
                       }
-                      className="p-2 hover:bg-gray-100 rounded-lg"
+                      className="p-2 hover:bg-gray-100 rounded"
                     >
                       <Trash2 className="w-4 h-4 text-red-500" />
                     </Button>
@@ -220,7 +399,7 @@ function InvoiceTable({ type }: { type: "receivable" | "payable" }) {
         <TablePagination
           pageIndex={tableParams.page - 1}
           pageSize={tableParams.perPage}
-          pageCount={data?.totalPages || 1}
+          pageCount={invoices?.totalPages || 1}
           onPageChange={(page) => tableParams.setPage(page + 1)}
           onPageSizeChange={(size) => tableParams.setPerPage(size)}
         />
@@ -252,10 +431,9 @@ export function InvoicesListingTabs() {
           </p>
         </div>
         <div className="flex items-center gap-4">
-          <DateRangePicker />
           <Button
             onClick={() => navigate("/invoices/new")}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#3B82F6] hover:bg-[#2563EB] transition-colors rounded-lg"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#3B82F6] hover:bg-[#2563EB] transition-colors rounded"
           >
             <Plus className="mr-2 h-4 w-4" />
             New Invoice
