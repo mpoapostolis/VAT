@@ -2,12 +2,18 @@ import React, { useState, useRef, useEffect } from "react";
 import {
   format,
   subDays,
+  subWeeks,
+  subMonths,
+  subQuarters,
+  subYears,
   startOfMonth,
   endOfMonth,
   startOfYear,
   endOfYear,
   startOfQuarter,
   endOfQuarter,
+  startOfWeek,
+  endOfWeek,
 } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -37,30 +43,61 @@ const quickRanges = [
     },
   },
   {
-    label: "Last 7 days",
+    label: "Last 7 Days",
     getValue: () => ({
       from: subDays(new Date(), 6),
       to: new Date(),
     }),
   },
   {
-    label: "Last 30 days",
+    label: "Last 14 Days",
+    getValue: () => ({
+      from: subDays(new Date(), 13),
+      to: new Date(),
+    }),
+  },
+  {
+    label: "Last 30 Days",
     getValue: () => ({
       from: subDays(new Date(), 29),
       to: new Date(),
     }),
   },
   {
-    label: "This month",
+    label: "Last 90 Days",
+    getValue: () => ({
+      from: subDays(new Date(), 89),
+      to: new Date(),
+    }),
+  },
+  {
+    label: "This Week",
+    getValue: () => ({
+      from: startOfWeek(new Date(), { weekStartsOn: 1 }),
+      to: endOfWeek(new Date(), { weekStartsOn: 1 }),
+    }),
+  },
+  {
+    label: "Last Week",
+    getValue: () => {
+      const lastWeek = subWeeks(new Date(), 1);
+      return {
+        from: startOfWeek(lastWeek, { weekStartsOn: 1 }),
+        to: endOfWeek(lastWeek, { weekStartsOn: 1 }),
+      };
+    },
+  },
+  {
+    label: "This Month",
     getValue: () => ({
       from: startOfMonth(new Date()),
       to: endOfMonth(new Date()),
     }),
   },
   {
-    label: "Last month",
+    label: "Last Month",
     getValue: () => {
-      const lastMonth = subDays(startOfMonth(new Date()), 1);
+      const lastMonth = subMonths(new Date(), 1);
       return {
         from: startOfMonth(lastMonth),
         to: endOfMonth(lastMonth),
@@ -68,18 +105,38 @@ const quickRanges = [
     },
   },
   {
-    label: "This quarter",
+    label: "This Quarter",
     getValue: () => ({
       from: startOfQuarter(new Date()),
       to: endOfQuarter(new Date()),
     }),
   },
   {
-    label: "This year",
+    label: "Last Quarter",
+    getValue: () => {
+      const lastQuarter = subQuarters(new Date(), 1);
+      return {
+        from: startOfQuarter(lastQuarter),
+        to: endOfQuarter(lastQuarter),
+      };
+    },
+  },
+  {
+    label: "This Year",
     getValue: () => ({
       from: startOfYear(new Date()),
       to: endOfYear(new Date()),
     }),
+  },
+  {
+    label: "Last Year",
+    getValue: () => {
+      const lastYear = subYears(new Date(), 1);
+      return {
+        from: startOfYear(lastYear),
+        to: endOfYear(lastYear),
+      };
+    },
   },
 ];
 
