@@ -34,6 +34,9 @@ import { Select } from "@/components/ui/select";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { ConfirmationModal } from "@/components/ui/confirmation-modal";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Download, Copy, Send } from "lucide-react";
+import { useToast } from "@/lib/hooks/useToast";
 import {
   Table,
   TableHeader,
@@ -178,6 +181,8 @@ function InvoiceTable({ type }: { type: "receivable" | "payable" }) {
   const navigate = useNavigate();
   const tableParams = useTableParams();
   const [searchParams] = useSearchParams();
+  const [selectedInvoices, setSelectedInvoices] = useState<string[]>([]);
+  const { addToast } = useToast();
   const [deleteModal, setDeleteModal] = React.useState<{
     isOpen: boolean;
     invoiceId: string | null;
@@ -254,14 +259,91 @@ function InvoiceTable({ type }: { type: "receivable" | "payable" }) {
     }
   };
 
+  const handleSelectAll = (checked: boolean) => {
+    console.log("Select all:", checked);
+    if (checked) {
+      const newSelected = invoices?.items.map((invoice) => invoice.id) || [];
+      console.log("Selecting all:", newSelected);
+      setSelectedInvoices(newSelected);
+    } else {
+      setSelectedInvoices([]);
+    }
+  };
+
+  const handleSelectInvoice = (checked: boolean, invoiceId: string) => {
+    console.log("Select invoice:", invoiceId, checked);
+    if (checked) {
+      setSelectedInvoices((prev) => {
+        const newSelected = [...prev, invoiceId];
+        console.log("New selected:", newSelected);
+        return newSelected;
+      });
+    } else {
+      setSelectedInvoices((prev) => prev.filter((id) => id !== invoiceId));
+    }
+  };
+
   return (
     <div className="space-y-4">
+      {/* Bulk Actions */}
+      {selectedInvoices.length > 0 && (
+        <div className="flex items-center justify-between p-4 bg-secondary/20 rounded-lg">
+          <span className="text-sm font-medium">
+            {selectedInvoices.length}{" "}
+            {selectedInvoices.length === 1 ? "invoice" : "invoices"} selected
+          </span>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {}}
+              className="flex items-center gap-2"
+            >
+              <Download className="w-4 h-4" />
+              Download
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {}}
+              className="flex items-center gap-2"
+            >
+              <Copy className="w-4 h-4" />
+              Copy
+            </Button>
+            {type === "receivable" && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {}}
+                className="flex items-center gap-2"
+              >
+                <Send className="w-4 h-4" />
+                Issue
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
+
       <InvoiceFilters type={type} />
       <div className="bg-white border border-border/40 rounded-lg shadow-sm">
         <div className="overflow-auto">
           <Table>
             <TableHeader>
               <TableRow className="hover:bg-transparent border-b border-border bg-muted/50">
+                <TableHead className="w-[40px] p-0">
+                  <div className="h-4 w-4 p-4">
+                    <Checkbox
+                      checked={
+                        selectedInvoices.length > 0 &&
+                        selectedInvoices.length === invoices?.items?.length
+                      }
+                      onChange={(e) => handleSelectAll(e.target.checked)}
+                    />
+                  </div>
+                </TableHead>
+
                 {/* Issuer/Client Column */}
                 <TableHead
                   sortable
@@ -414,6 +496,18 @@ function InvoiceTable({ type }: { type: "receivable" | "payable" }) {
                   key={invoice.id}
                   className="group hover:bg-muted/30 transition-all duration-200"
                 >
+                  {/* Checkbox */}
+                  <TableCell className="p-0">
+                    <div className="h-4 w-4 p-4">
+                      <Checkbox
+                        checked={selectedInvoices.includes(invoice.id)}
+                        onChange={(e) =>
+                          handleSelectInvoice(e.target.checked, invoice.id)
+                        }
+                      />
+                    </div>
+                  </TableCell>
+
                   {/* Issuer/Client */}
                   <TableCell className="py-3">
                     <Link

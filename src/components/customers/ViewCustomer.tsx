@@ -2,21 +2,23 @@ import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import useSWR from "swr";
 import { motion } from "framer-motion";
-import type { Customer } from "@/lib/pocketbase";
-import { useToast } from "@/lib/hooks/useToast";
 import { customerService } from "@/lib/services/customer-service";
-import { 
-  ArrowLeft, 
-  Edit, 
-  Users, 
-  Phone, 
-  Mail, 
-  MapPin, 
-  CalendarDays, 
+import {
+  ArrowLeft,
+  Edit,
+  Users,
+  Phone,
+  Mail,
+  MapPin,
   Building2,
   CreditCard,
   FileText,
-  Clock
+  Clock,
+  Globe,
+  MapPinned,
+  Building,
+  Briefcase,
+  UserCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AnimatedPage } from "@/components/AnimatedPage";
@@ -25,11 +27,9 @@ import { formatDate } from "@/lib/utils";
 export function ViewCustomer() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addToast } = useToast();
 
-  const { data: customer } = useSWR(
-    id ? `customers/${id}` : null,
-    () => customerService.getById(id!)
+  const { data: customer } = useSWR(id ? `customers/${id}` : null, () =>
+    customerService.getById(id!)
   );
 
   if (!customer) {
@@ -39,6 +39,15 @@ export function ViewCustomer() {
       </div>
     );
   }
+
+  const getRelationshipLabel = (relationship: string) => {
+    const labels = {
+      client: "Client",
+      supplier: "Supplier",
+      both: "Client & Supplier",
+    };
+    return labels[relationship as keyof typeof labels] || relationship;
+  };
 
   return (
     <AnimatedPage>
@@ -74,10 +83,18 @@ export function ViewCustomer() {
           <div className="border-b border-black/10 bg-slate-50/50 px-6 py-4">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-[#F1F5F9]">
-                <Building2 className="w-5 h-5 text-[#3B82F6]" />
+                {customer.isCompany ? (
+                  <Building2 className="w-5 h-5 text-[#3B82F6]" />
+                ) : (
+                  <UserCircle className="w-5 h-5 text-[#3B82F6]" />
+                )}
               </div>
               <div>
-                <h2 className="font-medium text-[#0F172A] text-lg">{customer.name}</h2>
+                <h2 className="font-medium text-[#0F172A] text-lg">
+                  {customer.isCompany
+                    ? customer.companyName
+                    : `${customer.firstName} ${customer.lastName}`}
+                </h2>
                 <div className="flex items-center gap-2 text-sm text-[#64748B]">
                   <Clock className="w-4 h-4" />
                   <span>Customer since {formatDate(customer.created)}</span>
@@ -96,11 +113,28 @@ export function ViewCustomer() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex items-start gap-3">
                   <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                    <UserCircle className="w-4 h-4 text-[#3B82F6]" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-[#0F172A]">
+                      Contact Person
+                    </div>
+                    <div className="text-sm text-[#64748B]">
+                      {customer.contact?.firstName} {customer.contact?.lastName}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-[#F1F5F9]">
                     <Mail className="w-4 h-4 text-[#3B82F6]" />
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-[#0F172A]">Email Address</div>
-                    <div className="text-sm text-[#64748B]">{customer.email}</div>
+                    <div className="text-sm font-medium text-[#0F172A]">
+                      Email Address
+                    </div>
+                    <div className="text-sm text-[#64748B]">
+                      {customer.contact?.email}
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -108,10 +142,52 @@ export function ViewCustomer() {
                     <Phone className="w-4 h-4 text-[#3B82F6]" />
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-[#0F172A]">Phone Number</div>
-                    <div className="text-sm text-[#64748B]">{customer.phone}</div>
+                    <div className="text-sm font-medium text-[#0F172A]">
+                      Phone Number
+                    </div>
+                    <div className="text-sm text-[#64748B]">
+                      {customer.contact?.phone}
+                    </div>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Address Information */}
+            <div>
+              <h3 className="text-sm font-medium text-[#0F172A] mb-4 flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-[#3B82F6]" />
+                Address Information
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                    <Building className="w-4 h-4 text-[#3B82F6]" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-[#0F172A]">
+                      Billing Address
+                    </div>
+                    <div className="text-sm text-[#64748B] whitespace-pre-wrap">
+                      {customer.billingAddress}
+                    </div>
+                  </div>
+                </div>
+                {customer.shippingAddress && (
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                      <MapPinned className="w-4 h-4 text-[#3B82F6]" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-[#0F172A]">
+                        Shipping Address
+                      </div>
+                      <div className="text-sm text-[#64748B] whitespace-pre-wrap">
+                        {customer.shippingAddress}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -124,20 +200,56 @@ export function ViewCustomer() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex items-start gap-3">
                   <div className="p-2 rounded-lg bg-[#F1F5F9]">
-                    <MapPin className="w-4 h-4 text-[#3B82F6]" />
+                    <CreditCard className="w-4 h-4 text-[#3B82F6]" />
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-[#0F172A]">Business Address</div>
-                    <div className="text-sm text-[#64748B] whitespace-pre-wrap">{customer.address}</div>
+                    <div className="text-sm font-medium text-[#0F172A]">
+                      Tax Registration Number
+                    </div>
+                    <div className="text-sm text-[#64748B]">{customer.trn}</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="p-2 rounded-lg bg-[#F1F5F9]">
-                    <CreditCard className="w-4 h-4 text-[#3B82F6]" />
+                    <Globe className="w-4 h-4 text-[#3B82F6]" />
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-[#0F172A]">Tax Registration Number</div>
-                    <div className="text-sm text-[#64748B]">{customer.trn}</div>
+                    <div className="text-sm font-medium text-[#0F172A]">
+                      Location
+                    </div>
+                    <div className="text-sm text-[#64748B]">
+                      {customer.country}
+                      {customer.emirate && ` - ${customer.emirate}`}
+                      {customer.freeZone && ` (${customer.freeZone})`}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                    <Briefcase className="w-4 h-4 text-[#3B82F6]" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-[#0F172A]">
+                      Business Type
+                    </div>
+                    <div className="text-sm text-[#64748B]">
+                      {customer.businessType}
+                      {customer.businessTypeDescription &&
+                        ` - ${customer.businessTypeDescription}`}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                    <Users className="w-4 h-4 text-[#3B82F6]" />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium text-[#0F172A]">
+                      Relationship
+                    </div>
+                    <div className="text-sm text-[#64748B]">
+                      {getRelationshipLabel(customer.relationship)}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -151,7 +263,9 @@ export function ViewCustomer() {
                   Additional Notes
                 </h3>
                 <div className="bg-[#F8FAFC] border border-black/5 rounded-lg p-4">
-                  <div className="text-sm text-[#64748B] whitespace-pre-wrap">{customer.notes}</div>
+                  <div className="text-sm text-[#64748B] whitespace-pre-wrap">
+                    {customer.notes}
+                  </div>
                 </div>
               </div>
             )}

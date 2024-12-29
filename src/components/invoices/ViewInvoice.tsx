@@ -141,7 +141,7 @@ export function ViewInvoice() {
 
   return (
     <AnimatedPage>
-      <div className="space-y-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="space-y-12  mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex justify-between items-center bg-white rounded-2xl shadow-sm border border-gray-100/50 p-8">
           <div className="flex items-center gap-6">
@@ -209,7 +209,9 @@ export function ViewInvoice() {
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-8">
               <div className="flex items-center gap-3 text-gray-400 mb-8">
                 <FileText className="h-5 w-5" />
-                <span className="font-medium tracking-wide">Invoice Information</span>
+                <span className="font-medium tracking-wide">
+                  Invoice Information
+                </span>
               </div>
               <div className="grid grid-cols-2 gap-12">
                 <div className="space-y-8">
@@ -222,13 +224,17 @@ export function ViewInvoice() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-400 mb-2 tracking-wide">Type</p>
+                    <p className="text-sm text-gray-400 mb-2 tracking-wide">
+                      Type
+                    </p>
                     <p className="text-lg text-gray-900 font-light capitalize">
                       {invoice.type}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-400 mb-2 tracking-wide">Status</p>
+                    <p className="text-sm text-gray-400 mb-2 tracking-wide">
+                      Status
+                    </p>
                     <span
                       className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-light tracking-wide ${
                         invoice.status === "paid"
@@ -242,13 +248,17 @@ export function ViewInvoice() {
                 </div>
                 <div className="space-y-8">
                   <div>
-                    <p className="text-sm text-gray-400 mb-2 tracking-wide">Issue Date</p>
+                    <p className="text-sm text-gray-400 mb-2 tracking-wide">
+                      Issue Date
+                    </p>
                     <p className="text-lg text-gray-900 font-light">
                       {formatDate(new Date(invoice.date))}
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-gray-400 mb-2 tracking-wide">Due Date</p>
+                    <p className="text-sm text-gray-400 mb-2 tracking-wide">
+                      Due Date
+                    </p>
                     <p className="text-lg text-gray-900 font-light">
                       {invoice.dueDate
                         ? formatDate(new Date(invoice.dueDate))
@@ -263,11 +273,15 @@ export function ViewInvoice() {
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-8">
               <div className="flex items-center gap-3 text-gray-400 mb-8">
                 <Building2 className="h-5 w-5" />
-                <span className="font-medium tracking-wide">Company Details</span>
+                <span className="font-medium tracking-wide">
+                  Company Details
+                </span>
               </div>
               <div className="grid grid-cols-2 gap-12">
                 <div>
-                  <p className="text-sm text-gray-400 mb-2 tracking-wide">Company Name</p>
+                  <p className="text-sm text-gray-400 mb-2 tracking-wide">
+                    Company Name
+                  </p>
                   <p className="text-lg text-gray-900 font-light">
                     {invoice.expand?.customerId?.name || "—"}
                   </p>
@@ -276,7 +290,9 @@ export function ViewInvoice() {
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-400 mb-2 tracking-wide">Address</p>
+                  <p className="text-sm text-gray-400 mb-2 tracking-wide">
+                    Address
+                  </p>
                   <p className="text-lg text-gray-900 font-light">
                     {invoice.expand?.customerId?.address || "—"}
                   </p>
@@ -290,35 +306,47 @@ export function ViewInvoice() {
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-8">
               <div className="flex items-center gap-3 text-gray-400 mb-8">
                 <Euro className="h-5 w-5" />
-                <span className="font-medium tracking-wide">Financial Summary</span>
+                <span className="font-medium tracking-wide">
+                  Financial Summary
+                </span>
               </div>
               <div className="space-y-8">
                 <div>
-                  <p className="text-sm text-gray-400 mb-2 tracking-wide">Subtotal</p>
+                  <p className="text-sm text-gray-400 mb-2 tracking-wide">
+                    Subtotal
+                  </p>
                   <p className="text-lg text-gray-900 font-light">
                     {formatCurrency(invoice.total - invoice.vat)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-400 mb-2 tracking-wide">VAT</p>
+                  <p className="text-sm text-gray-400 mb-2 tracking-wide">
+                    VAT
+                  </p>
                   <p className="text-lg text-gray-900 font-light">
                     {formatCurrency(invoice.vat)}
                   </p>
                 </div>
                 <div className="pt-6 border-t border-gray-100">
-                  <p className="text-sm text-gray-400 mb-2 tracking-wide">Total Amount</p>
+                  <p className="text-sm text-gray-400 mb-2 tracking-wide">
+                    Total Amount
+                  </p>
                   <p className="text-2xl text-gray-900 font-light tracking-tight">
                     {formatCurrency(invoice.total)}
                   </p>
                 </div>
                 <div className="pt-6">
-                  <p className="text-sm text-gray-400 mb-2 tracking-wide">Amount Paid</p>
+                  <p className="text-sm text-gray-400 mb-2 tracking-wide">
+                    Amount Paid
+                  </p>
                   <p className="text-lg text-gray-900 font-light">
                     {formatCurrency(invoice.paid)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-400 mb-2 tracking-wide">Balance Due</p>
+                  <p className="text-sm text-gray-400 mb-2 tracking-wide">
+                    Balance Due
+                  </p>
                   <p className="text-lg text-gray-900 font-light">
                     {formatCurrency(invoice.total - invoice.paid)}
                   </p>

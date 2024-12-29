@@ -21,9 +21,11 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           "disabled:opacity-50 disabled:cursor-not-allowed",
           {
             // Variants
-            "bg-primary text-white hover:bg-primary/90": variant === "primary",
-            "bg-gray-100 text-gray-900 hover:bg-gray-200": variant === "secondary",
-            "border border-gray-300 bg-white hover:bg-gray-50": variant === "outline",
+            "[background:var(--primary)] text-white hover:[background:var(--primary-dark)]": variant === "primary",
+            "bg-gray-100 text-gray-900 hover:bg-gray-200":
+              variant === "secondary",
+            "border border-gray-300 bg-white hover:bg-gray-50":
+              variant === "outline",
             "hover:bg-gray-100": variant === "ghost",
             "bg-red-600 text-white hover:bg-red-700": variant === "danger",
             // Sizes
