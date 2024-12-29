@@ -4,85 +4,96 @@ import { AnimatedPage } from "@/components/AnimatedPage";
 import { InvoiceForm } from "./create/invoice-form";
 import { invoiceService } from "@/lib/services/invoice-service";
 import { customerService } from "@/lib/services/customer-service";
-import { toast } from "sonner";
+import { companyService } from "@/lib/services/company";
+import { useToast } from "@/lib/hooks/useToast";
 import useSWR from "swr";
+import { Loader2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { FileText } from "lucide-react";
 
 export function EditInvoice() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { addToast } = useToast();
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
+  // Fetch invoice, companies and customers from PocketBase
   const { data: invoice, error: invoiceError } = useSWR(
     id ? `invoices/${id}` : null,
     () => invoiceService.getById(id!)
   );
 
-  const { data: customers, error: customersError } = useSWR("customers", () =>
-    customerService.getAll()
+  const { data: companiesData, error: companiesError } = useSWR(
+    "companies",
+    () => companyService.getList({ page: 1, perPage: 100, sort: "-created" })
+  );
+
+  const { data: customersData, error: customersError } = useSWR(
+    "customers",
+    () => customerService.getList({ page: 1, perPage: 100, sort: "-created" })
   );
 
   const handleSubmit = async (data: any) => {
     if (!id) return;
-    
+
     try {
-      await invoiceService.update(id, {
-        ...data,
-        type: invoice?.type // Preserve the invoice type
-      });
-      toast.success("Invoice updated successfully");
+      setIsSubmitting(true);
+      await invoiceService.update(id, data);
+      addToast("Invoice updated successfully", "success");
       navigate("/invoices");
     } catch (error) {
       console.error("Failed to update invoice:", error);
-      toast.error("Failed to update invoice");
+      addToast("Failed to update invoice", "error");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  if (invoiceError || customersError) {
+  if (invoiceError || companiesError || customersError) {
     return (
-      <div className="flex items-center justify-center h-[60vh]">
-        <div className="text-center">
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+        <div className="text-center space-y-2">
           <h2 className="text-2xl font-semibold text-gray-900">
-            {invoiceError ? "Invoice not found" : "Failed to load customers"}
+            {invoiceError ? "Invoice Not Found" : "Failed to Load Data"}
           </h2>
-          <p className="mt-2 text-gray-600">
+          <p className="text-gray-600">
             {invoiceError
               ? "The invoice you're trying to edit doesn't exist or you don't have access to it."
-              : "Failed to load customer data. Please try again later."}
+              : companiesError
+              ? "Failed to load companies"
+              : "Failed to load customers"}
           </p>
-          <button
-            onClick={() => navigate("/invoices")}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Go back to invoices
-          </button>
         </div>
+        <button
+          onClick={() => navigate("/invoices")}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+        >
+          Go back to invoices
+        </button>
       </div>
     );
   }
 
-  if (!invoice || !customers) {
+  if (!invoice || !companiesData?.items || !customersData?.items) {
     return (
-      <div className="flex items-center justify-center h-[60vh]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <p className="text-gray-600">Loading data...</p>
       </div>
     );
   }
 
   return (
     <AnimatedPage>
-      <div className="space-y-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-semibold">Edit Invoice #{invoice.number}</h1>
-          <p className="text-gray-600 mt-1">
-            Make changes to the invoice details below
-          </p>
-        </div>
-
+      <div className="min-h-screen bg-gray-50">
         <InvoiceForm
-          customers={customers}
+          companies={companiesData.items}
+          customers={customersData.items}
           onSubmit={handleSubmit}
           onCancel={() => navigate("/invoices")}
-          isSubmitting={false}
+          isSubmitting={isSubmitting}
           defaultValues={invoice}
+          mode="edit"
         />
       </div>
     </AnimatedPage>

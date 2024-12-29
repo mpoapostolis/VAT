@@ -30,6 +30,14 @@ class CompanyService extends BaseService<Company> {
     }
   }
 
+  async getAll() {
+    return this.getList({
+      page: 1,
+      perPage: 100,
+      sort: '-created'
+    });
+  }
+
   async getById(id: string): Promise<Company> {
     return pb.collection("companies").getOne(id);
   }

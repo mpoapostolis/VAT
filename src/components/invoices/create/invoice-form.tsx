@@ -1,59 +1,84 @@
 import React from "react";
 import { useForm, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   Plus,
   Trash2,
   Calendar,
-  User,
-  Tag,
+  Building,
   FileText,
   DollarSign,
-  ArrowLeft,
-  Download,
-  Edit2,
+  ListPlus,
+  Users,
+  Info,
+  Loader2,
 } from "lucide-react";
-import { Input } from "../../../components/ui/input";
-import { Select } from "../../../components/ui/select";
-import { FormItem, FormLabel, FormMessage } from "../../../components/ui/form";
-import { Button } from "../../../components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import {
   generateInvoiceNumber,
   formatCurrency,
   formatDateForInput,
-} from "../../../lib/utils";
-import type { Invoice, InvoiceItem, Category } from "../../../lib/pocketbase";
-import useSWR from "swr";
-import { useNavigate } from "react-router-dom";
-import { useToast } from "../../../lib/hooks/useToast";
-import html2pdf from "html2pdf.js";
-import { InvoicePDF } from "../invoice-pdf";
-import ReactDOM from "react-dom";
-import { FolderOpen } from "lucide-react";
+} from "@/lib/utils";
+import type { Company, Customer } from "@/lib/pocketbase";
+import { useToast } from "@/lib/hooks/useToast";
 
-type InvoiceFormData = Omit<Invoice, "id">;
+const invoiceSchema = z.object({
+  number: z.string().min(1, "Invoice number is required"),
+  type: z.enum(["Tax Invoice", "Simplified Tax Invoice"]),
+  date: z.string().min(1, "Issue date is required"),
+  dueDate: z.string().min(1, "Due date is required"),
+  companyId: z.string().min(1, "Company is required"),
+  customerId: z.string().min(1, "Customer is required"),
+  currency: z.string().min(1, "Currency is required"),
+  exchangeRate: z.number().optional(),
+  paymentTerms: z.string().min(1, "Payment terms are required"),
+  items: z.array(
+    z.object({
+      description: z.string().min(1, "Description is required"),
+      quantity: z.number().min(1, "Quantity must be at least 1"),
+      price: z.number().min(0, "Price must be non-negative"),
+      vat: z.number().min(0, "VAT must be non-negative"),
+      total: z.number(),
+    })
+  ),
+  subtotal: z.number(),
+  vatAmount: z.number(),
+  total: z.number(),
+  adjustments: z.number().default(0),
+  reverseCharge: z.boolean().default(false),
+  purchaseOrderNumber: z.string().optional(),
+  referenceNumber: z.string().optional(),
+  termsAndConditions: z.string().optional(),
+  paymentInformation: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+type InvoiceFormData = z.infer<typeof invoiceSchema>;
 
 interface InvoiceFormProps {
-  customers: any[];
+  companies: Company[];
+  customers: Customer[];
   onSubmit: (data: InvoiceFormData) => Promise<void>;
   isSubmitting: boolean;
   onCancel: () => void;
   defaultValues?: Partial<InvoiceFormData>;
-  mode?: "view" | "edit";
+  mode?: "view" | "edit" | "create";
 }
 
 export function InvoiceForm({
+  companies,
   customers,
   onSubmit,
   isSubmitting,
   onCancel,
   defaultValues,
-  mode = "edit",
+  mode = "create",
 }: InvoiceFormProps) {
-  const { data: categoriesData } = useSWR<{ items: Category[] }>("categories");
-  const incomeCategories =
-    categoriesData?.items.filter((cat) => cat.type === "income") || [];
-  const navigate = useNavigate();
-  const formRef = React.useRef<HTMLFormElement>(null);
   const { addToast } = useToast();
 
   const {
@@ -65,28 +90,22 @@ export function InvoiceForm({
     watch,
     formState: { errors },
   } = useForm<InvoiceFormData>({
+    resolver: zodResolver(invoiceSchema),
     defaultValues: {
       number: generateInvoiceNumber(),
-      status: "draft",
-      date: formatDateForInput(defaultValues?.date || new Date()),
+      type: "Tax Invoice",
+      date: formatDateForInput(new Date()),
+      currency: "AED",
+      paymentTerms: "Net 30",
       dueDate: formatDateForInput(
-        defaultValues?.dueDate ||
-          new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+        new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
       ),
-      items: defaultValues?.items || [
-        { description: "", quantity: 1, price: 0, vat: 24, total: 0 },
-      ],
+      items: [{ description: "", quantity: 1, price: 0, vat: 5, total: 0 }],
       subtotal: 0,
-      vat: 0,
+      vatAmount: 0,
       total: 0,
-      type: defaultValues?.type || "receivable",
+      reverseCharge: false,
       ...defaultValues,
-      ...(defaultValues?.date && {
-        date: formatDateForInput(defaultValues.date),
-      }),
-      ...(defaultValues?.dueDate && {
-        dueDate: formatDateForInput(defaultValues.dueDate),
-      }),
     },
   });
 
@@ -105,7 +124,7 @@ export function InvoiceForm({
     items.forEach((item, index) => {
       const quantity = Number(item.quantity) || 0;
       const price = Number(item.price) || 0;
-      const vatRate = Number(item.vat) || 24;
+      const vatRate = Number(item.vat) || 5;
 
       const itemSubtotal = quantity * price;
       const itemVat = (itemSubtotal * vatRate) / 100;
@@ -117,10 +136,11 @@ export function InvoiceForm({
       setValue(`items.${index}.total`, itemTotal);
     });
 
-    const total = subtotal + totalVat;
+    const adjustments = Number(getValues("adjustments")) || 0;
+    const total = subtotal + totalVat + adjustments;
 
     setValue("subtotal", subtotal);
-    setValue("vat", totalVat);
+    setValue("vatAmount", totalVat);
     setValue("total", total);
   }, [getValues, setValue]);
 
@@ -133,433 +153,573 @@ export function InvoiceForm({
       description: "",
       quantity: 1,
       price: 0,
-      vat: 24,
+      vat: 5,
       total: 0,
     });
   };
 
-  const handleDownload = async () => {
-    if (!formRef.current || !defaultValues) return;
-
-    // Find customer data
-    const customer = customers.find((c) => c.id === defaultValues.customerId);
-    if (!customer) {
-      addToast("Customer not found", "error");
-      return;
-    }
-
-    // Create a temporary div for the PDF
-    const tempDiv = document.createElement("div");
-    document.body.appendChild(tempDiv);
-
-    // Render the PDF component
-    const root = ReactDOM.createRoot(tempDiv);
-    root.render(<InvoicePDF invoice={defaultValues} customer={customer} />);
-
-    // Wait for images to load
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    const opt = {
-      margin: [10, 10],
-      filename: `invoice-${defaultValues.number}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { 
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: "#ffffff",
-      },
-      jsPDF: { 
-        unit: "mm", 
-        format: "a4", 
-        orientation: "portrait",
-        compress: true,
-      },
-    };
-
-    try {
-      addToast("Generating PDF...", "info");
-      await html2pdf().set(opt).from(tempDiv).save();
-      addToast("PDF downloaded successfully", "success");
-    } catch (error) {
-      addToast("Failed to generate PDF", "error");
-      console.error("PDF generation error:", error);
-    } finally {
-      // Clean up
-      document.body.removeChild(tempDiv);
-    }
-  };
+  const selectedCompany = companies.find((c) => c.id === watch("companyId"));
+  const selectedCustomer = customers.find((c) => c.id === watch("customerId"));
 
   return (
-    <form ref={formRef} id="invoice-form" onSubmit={handleSubmit(onSubmit)}>
-      <div className="bg-white rounded -2xl border border-black/10 shadow-sm overflow-hidden">
-        {/* Header */}
-        <div className="border-b border-gray-200 bg-gray-50/50 px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <button
-                type="button"
-                onClick={onCancel}
-                className="inline-flex items-center space-x-2 text-gray-600 hover:text-gray-900"
-              >
-                <ArrowLeft className="h-5 w-5" />
-                <span>Back</span>
-              </button>
-              {mode === "view" && (
-                <div className="ml-8">
-                  <h1 className="text-xl font-semibold text-gray-900">
-                    Invoice #{defaultValues?.number}
-                  </h1>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Created on {new Date(defaultValues?.date || "").toLocaleDateString()}
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+      {/* Basic Information */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 divide-y divide-gray-200">
+        <div className="p-6">
+          <div className="flex items-center space-x-2 mb-6">
+            <FileText className="w-5 h-5 text-blue-600" />
+            <h3 className="text-lg font-semibold text-gray-900">
+              Basic Information
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormItem className="space-y-2">
+              <FormLabel className="text-sm font-medium text-gray-700 flex items-center">
+                Invoice Type
+                <span className="text-red-500 ml-1">*</span>
+              </FormLabel>
+              <Select
+                options={[
+                  { value: "Tax Invoice", label: "Tax Invoice" },
+                  {
+                    value: "Simplified Tax Invoice",
+                    label: "Simplified Tax Invoice",
+                  },
+                ]}
+                value={watch("type")}
+                onChange={(value) => setValue("type", value)}
+                error={!!errors.type}
+                className="w-full"
+              />
+              {errors.type && <FormMessage>{errors.type.message}</FormMessage>}
+            </FormItem>
+
+            <FormItem className="space-y-2">
+              <FormLabel className="text-sm font-medium text-gray-700">
+                Invoice Number
+              </FormLabel>
+              <Input
+                {...register("number")}
+                disabled={true}
+                className="bg-gray-50 font-mono text-gray-600"
+              />
+            </FormItem>
+
+            <FormItem className="space-y-2">
+              <FormLabel className="text-sm font-medium text-gray-700 flex items-center">
+                Issue Date
+                <span className="text-red-500 ml-1">*</span>
+              </FormLabel>
+              <Input
+                type="date"
+                {...register("date")}
+                className={errors.date ? "border-red-500" : ""}
+              />
+              {errors.date && <FormMessage>{errors.date.message}</FormMessage>}
+            </FormItem>
+
+            <FormItem className="space-y-2">
+              <FormLabel className="text-sm font-medium text-gray-700 flex items-center">
+                Due Date
+                <span className="text-red-500 ml-1">*</span>
+              </FormLabel>
+              <Input
+                type="date"
+                {...register("dueDate")}
+                className={errors.dueDate ? "border-red-500" : ""}
+              />
+              {errors.dueDate && (
+                <FormMessage>{errors.dueDate.message}</FormMessage>
+              )}
+            </FormItem>
+          </div>
+        </div>
+
+        {/* Company Information */}
+        <div className="p-6">
+          <div className="flex items-center space-x-2 mb-6">
+            <Building className="w-5 h-5 text-blue-600" />
+            <h3 className="text-lg font-semibold text-gray-900">
+              Company Information
+            </h3>
+          </div>
+
+          <FormItem className="space-y-2 mb-6">
+            <FormLabel className="text-sm font-medium text-gray-700 flex items-center">
+              Select Company
+              <span className="text-red-500 ml-1">*</span>
+            </FormLabel>
+            <Select
+              options={companies.map((c) => ({
+                value: c.id,
+                label: c.businessName,
+              }))}
+              value={watch("companyId")}
+              onChange={(value) => setValue("companyId", value)}
+              error={!!errors.companyId}
+              className="w-full"
+            />
+            {errors.companyId && (
+              <FormMessage>{errors.companyId.message}</FormMessage>
+            )}
+          </FormItem>
+
+          {selectedCompany && (
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-gray-700">
+                    Business Name
+                  </label>
+                  <p className="text-gray-900 font-medium">
+                    {selectedCompany.businessName}
                   </p>
                 </div>
-              )}
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-gray-700">
+                    TRN
+                  </label>
+                  <p className="text-gray-900 font-mono font-medium">
+                    {selectedCompany.trn}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-gray-700">
+                    Address
+                  </label>
+                  <p className="text-gray-900">{selectedCompany.address}</p>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-gray-700">
+                    Contact
+                  </label>
+                  <p className="text-gray-900">{selectedCompany.phone}</p>
+                  <p className="text-gray-900">{selectedCompany.email}</p>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center space-x-4">
-              {mode === "view" ? (
-                <>
-                  <Button
-                    type="button"
-                    onClick={() => navigate(`/invoices/${defaultValues?.id}/edit`)}
-                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl flex items-center space-x-2"
-                  >
-                    <Edit2 className="h-4 w-4" />
-                    <span>Edit</span>
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={handleDownload}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl flex items-center space-x-2"
-                  >
-                    <FileText className="h-4 w-4" />
-                    <span>Export PDF</span>
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  type="submit"
-                  variant="primary"
-                  disabled={isSubmitting}
-                  className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
-                >
-                  {isSubmitting ? (
-                    <div className="flex items-center space-x-2">
-                      <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
-                      <span>Saving...</span>
-                    </div>
-                  ) : defaultValues?.id ? (
-                    "Update Invoice"
-                  ) : (
-                    "Create Invoice"
-                  )}
-                </Button>
+          )}
+        </div>
+
+        {/* Customer Information */}
+        <div className="p-6">
+          <div className="flex items-center space-x-2 mb-6">
+            <Users className="w-5 h-5 text-blue-600" />
+            <h3 className="text-lg font-semibold text-gray-900">
+              Customer Information
+            </h3>
+          </div>
+
+          <FormItem className="space-y-2 mb-6">
+            <FormLabel className="text-sm font-medium text-gray-700 flex items-center">
+              Select Customer
+              <span className="text-red-500 ml-1">*</span>
+            </FormLabel>
+            <Select
+              options={customers.map((c) => ({
+                value: c.id,
+                label: c.businessName || `${c.firstName} ${c.lastName}`,
+              }))}
+              value={watch("customerId")}
+              onChange={(value) => setValue("customerId", value)}
+              error={!!errors.customerId}
+              className="w-full"
+            />
+            {errors.customerId && (
+              <FormMessage>{errors.customerId.message}</FormMessage>
+            )}
+          </FormItem>
+
+          {selectedCustomer && (
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-gray-700">
+                    Business Name
+                  </label>
+                  <p className="text-gray-900 font-medium">
+                    {selectedCustomer.businessName ||
+                      `${selectedCustomer.firstName} ${selectedCustomer.lastName}`}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-gray-700">
+                    TRN
+                  </label>
+                  <p className="text-gray-900 font-mono font-medium">
+                    {selectedCustomer.trn || "N/A"}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-gray-700">
+                    Billing Address
+                  </label>
+                  <p className="text-gray-900">
+                    {selectedCustomer.billingAddress}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-gray-700">
+                    Contact
+                  </label>
+                  <p className="text-gray-900">{selectedCustomer.phone}</p>
+                  <p className="text-gray-900">{selectedCustomer.email}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Financial Information */}
+        <div className="p-6">
+          <div className="flex items-center space-x-2 mb-6">
+            <DollarSign className="w-5 h-5 text-blue-600" />
+            <h3 className="text-lg font-semibold text-gray-900">
+              Financial Information
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormItem className="space-y-2">
+              <FormLabel className="text-sm font-medium text-gray-700 flex items-center">
+                Currency
+                <span className="text-red-500 ml-1">*</span>
+              </FormLabel>
+              <Select
+                options={[
+                  { value: "AED", label: "AED - UAE Dirham" },
+                  { value: "USD", label: "USD - US Dollar" },
+                  { value: "EUR", label: "EUR - Euro" },
+                ]}
+                value={watch("currency")}
+                onChange={(value) => setValue("currency", value)}
+                error={!!errors.currency}
+                className="w-full"
+              />
+              {errors.currency && (
+                <FormMessage>{errors.currency.message}</FormMessage>
               )}
+            </FormItem>
+
+            {watch("currency") !== "AED" && (
+              <FormItem className="space-y-2">
+                <FormLabel className="text-sm font-medium text-gray-700 flex items-center">
+                  Exchange Rate to AED
+                  <span className="text-red-500 ml-1">*</span>
+                </FormLabel>
+                <Input
+                  type="number"
+                  step="0.0001"
+                  {...register("exchangeRate", { valueAsNumber: true })}
+                  className={errors.exchangeRate ? "border-red-500" : ""}
+                />
+                {errors.exchangeRate && (
+                  <FormMessage>{errors.exchangeRate.message}</FormMessage>
+                )}
+              </FormItem>
+            )}
+
+            <FormItem className="space-y-2">
+              <FormLabel className="text-sm font-medium text-gray-700 flex items-center">
+                Payment Terms
+                <span className="text-red-500 ml-1">*</span>
+              </FormLabel>
+              <Select
+                options={[
+                  { value: "Net 30", label: "Net 30 days" },
+                  { value: "Net 60", label: "Net 60 days" },
+                  { value: "Due on Receipt", label: "Due on Receipt" },
+                ]}
+                value={watch("paymentTerms")}
+                onChange={(value) => setValue("paymentTerms", value)}
+                error={!!errors.paymentTerms}
+                className="w-full"
+              />
+              {errors.paymentTerms && (
+                <FormMessage>{errors.paymentTerms.message}</FormMessage>
+              )}
+            </FormItem>
+          </div>
+        </div>
+
+        {/* Invoice Items */}
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-2">
+              <ListPlus className="w-5 h-5 text-blue-600" />
+              <h3 className="text-lg font-semibold text-gray-900">
+                Invoice Items
+              </h3>
+            </div>
+            <Button
+              type="button"
+              onClick={handleAddItem}
+              variant="outline"
+              size="sm"
+              className="flex items-center text-blue-600 hover:text-blue-700 border-blue-200 hover:border-blue-300"
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Add Item
+            </Button>
+          </div>
+
+          <div className="space-y-4">
+            {fields.map((field, index) => (
+              <div
+                key={field.id}
+                className="bg-gray-50 rounded-lg p-4 border border-gray-200"
+              >
+                <div className="grid grid-cols-12 gap-4">
+                  <div className="col-span-12 md:col-span-4">
+                    <FormItem className="space-y-2">
+                      <FormLabel className="text-sm font-medium text-gray-700 flex items-center">
+                        Description
+                        <span className="text-red-500 ml-1">*</span>
+                      </FormLabel>
+                      <Input
+                        {...register(`items.${index}.description`)}
+                        onBlur={handleItemBlur}
+                        className={
+                          errors.items?.[index]?.description
+                            ? "border-red-500"
+                            : ""
+                        }
+                      />
+                      {errors.items?.[index]?.description && (
+                        <FormMessage>
+                          {errors.items[index].description.message}
+                        </FormMessage>
+                      )}
+                    </FormItem>
+                  </div>
+                  <div className="col-span-6 md:col-span-2">
+                    <FormItem className="space-y-2">
+                      <FormLabel className="text-sm font-medium text-gray-700 flex items-center">
+                        Quantity
+                        <span className="text-red-500 ml-1">*</span>
+                      </FormLabel>
+                      <Input
+                        type="number"
+                        {...register(`items.${index}.quantity`, {
+                          valueAsNumber: true,
+                        })}
+                        onBlur={handleItemBlur}
+                        min="1"
+                        className={
+                          errors.items?.[index]?.quantity
+                            ? "border-red-500"
+                            : ""
+                        }
+                      />
+                      {errors.items?.[index]?.quantity && (
+                        <FormMessage>
+                          {errors.items[index].quantity.message}
+                        </FormMessage>
+                      )}
+                    </FormItem>
+                  </div>
+                  <div className="col-span-6 md:col-span-2">
+                    <FormItem className="space-y-2">
+                      <FormLabel className="text-sm font-medium text-gray-700 flex items-center">
+                        Price
+                        <span className="text-red-500 ml-1">*</span>
+                      </FormLabel>
+                      <Input
+                        type="number"
+                        {...register(`items.${index}.price`, {
+                          valueAsNumber: true,
+                        })}
+                        onBlur={handleItemBlur}
+                        step="0.01"
+                        className={
+                          errors.items?.[index]?.price ? "border-red-500" : ""
+                        }
+                      />
+                      {errors.items?.[index]?.price && (
+                        <FormMessage>
+                          {errors.items[index].price.message}
+                        </FormMessage>
+                      )}
+                    </FormItem>
+                  </div>
+                  <div className="col-span-6 md:col-span-2">
+                    <FormItem className="space-y-2">
+                      <FormLabel className="text-sm font-medium text-gray-700">
+                        VAT %
+                      </FormLabel>
+                      <Select
+                        options={[
+                          { value: "0", label: "0%" },
+                          { value: "5", label: "5%" },
+                        ]}
+                        value={watch(`items.${index}.vat`).toString()}
+                        onChange={(value) => {
+                          setValue(`items.${index}.vat`, Number(value));
+                          handleItemBlur();
+                        }}
+                        className="w-full"
+                      />
+                    </FormItem>
+                  </div>
+                  <div className="col-span-4 md:col-span-1">
+                    <FormLabel className="text-sm font-medium text-gray-700">
+                      Total
+                    </FormLabel>
+                    <div className="text-right font-medium pt-2 text-gray-900">
+                      {formatCurrency(watch(`items.${index}.total`))}
+                    </div>
+                  </div>
+                  <div className="col-span-2 md:col-span-1 flex justify-end items-start pt-8">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => remove(index)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Totals */}
+        <div className="p-6 bg-gray-50">
+          <div className="flex justify-end">
+            <div className="w-full md:w-72">
+              <div className="space-y-4">
+                <div className="flex justify-between items-center text-gray-600">
+                  <span>Subtotal:</span>
+                  <span className="font-medium text-gray-900">
+                    {formatCurrency(watch("subtotal"))}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-gray-600">
+                  <span>VAT:</span>
+                  <span className="font-medium text-gray-900">
+                    {formatCurrency(watch("vatAmount"))}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Adjustments:</span>
+                  <Input
+                    type="number"
+                    {...register("adjustments", { valueAsNumber: true })}
+                    onBlur={updateTotals}
+                    className="w-32"
+                  />
+                </div>
+                <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+                  <span className="text-lg font-semibold text-gray-900">
+                    Total:
+                  </span>
+                  <span className="text-lg font-bold text-blue-600">
+                    {formatCurrency(watch("total"))}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="p-8 space-y-8">
-          {/* Basic Information */}
-          <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-6">
-              <FormItem>
-                <FormLabel className="text-[#0F172A]">Invoice Type</FormLabel>
-                {mode === "view" ? (
-                  <div className="mt-2 text-gray-900 capitalize">
-                    {watch("type")}
-                  </div>
-                ) : (
-                  <Select
-                    options={[
-                      { value: "receivable", label: "Receivable" },
-                      { value: "payable", label: "Payable" },
-                    ]}
-                    onChange={(value) => setValue("type", value)}
-                    value={watch("type")}
-                    placeholder="Select invoice type"
-                    disabled={mode === "view"}
-                  />
-                )}
-                {errors.type && (
-                  <FormMessage>{errors.type.message}</FormMessage>
-                )}
-              </FormItem>
-
-              <FormItem>
-                <FormLabel className="text-[#0F172A]">Customer</FormLabel>
-                {mode === "view" ? (
-                  <div className="flex items-center space-x-3 mt-2">
-                    <img
-                      src={`https://ui-avatars.com/api/?name=${customers.find(c => c.id === watch("customerId"))?.name || ""}&background=random`}
-                      alt={customers.find(c => c.id === watch("customerId"))?.name}
-                      className="w-8 h-8 rounded-lg border border-black/10"
-                    />
-                    <div>
-                      <div className="font-medium text-gray-900">
-                        {customers.find(c => c.id === watch("customerId"))?.name}
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        {customers.find(c => c.id === watch("customerId"))?.email}
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <Select
-                    options={customers?.map((c) => ({
-                      value: c.id,
-                      label: c.name,
-                    }))}
-                    onChange={(value) => setValue("customerId", value)}
-                    value={watch("customerId")}
-                    placeholder="Select customer"
-                    disabled={mode === "view"}
-                  />
-                )}
-                {errors.customerId && (
-                  <FormMessage>{errors.customerId.message}</FormMessage>
-                )}
-              </FormItem>
-
-              <FormItem>
-                <FormLabel className="text-[#0F172A]">Category</FormLabel>
-                {mode === "view" ? (
-                  <div className="flex items-center space-x-3 mt-2">
-                    <div className="p-2 rounded-lg bg-[#F1F5F9]">
-                      <FolderOpen className="w-4 h-4 text-[#3B82F6]" />
-                    </div>
-                    <div>
-                      <div className="font-medium text-gray-900">
-                        {incomeCategories.find(c => c.id === watch("categoryId"))?.name}
-                      </div>
-                      <div className="text-sm text-gray-600">Income</div>
-                    </div>
-                  </div>
-                ) : (
-                  <Select
-                    options={incomeCategories?.map((c) => ({
-                      value: c.id,
-                      label: c.name,
-                    }))}
-                    onChange={(value) => setValue("categoryId", value)}
-                    value={watch("categoryId")}
-                    placeholder="Select category"
-                    disabled={mode === "view"}
-                  />
-                )}
-                {errors.categoryId && (
-                  <FormMessage>{errors.categoryId.message}</FormMessage>
-                )}
-              </FormItem>
-
-              <FormItem>
-                <FormLabel className="text-[#0F172A]">Issue Date</FormLabel>
-                {mode === "view" ? (
-                  <div className="mt-2 font-medium text-gray-900">
-                    {new Date(watch("date")).toLocaleDateString()}
-                  </div>
-                ) : (
-                  <Input
-                    type="date"
-                    {...register("date", { required: "Issue date is required" })}
-                    className="bg-white border border-black/10 focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]"
-                  />
-                )}
-                {errors.date && <FormMessage>{errors.date.message}</FormMessage>}
-              </FormItem>
-
-              <FormItem>
-                <FormLabel className="text-[#0F172A]">Due Date</FormLabel>
-                {mode === "view" ? (
-                  <div className="mt-2 font-medium text-gray-900">
-                    {new Date(watch("dueDate")).toLocaleDateString()}
-                  </div>
-                ) : (
-                  <Input
-                    type="date"
-                    {...register("dueDate", { required: "Due date is required" })}
-                    className="bg-white border border-black/10 focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]"
-                  />
-                )}
-                {errors.dueDate && (
-                  <FormMessage>{errors.dueDate.message}</FormMessage>
-                )}
-              </FormItem>
-            </div>
-          </div>
-
-          {/* Invoice Items */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium text-[#0F172A]">
-              Invoice Items
+        {/* Additional Information */}
+        <div className="p-6">
+          <div className="flex items-center space-x-2 mb-6">
+            <Info className="w-5 h-5 text-blue-600" />
+            <h3 className="text-lg font-semibold text-gray-900">
+              Additional Information
             </h3>
-            <div className="space-y-4">
-              {fields.map((field, index) => (
-                <div
-                  key={field.id}
-                  className="grid grid-cols-12 gap-4 items-start p-4 bg-[#F8FAFC] rounded -lg border border-black/10"
-                >
-                  <div className="col-span-4">
-                    <FormLabel className="text-[#0F172A]">
-                      Description
-                    </FormLabel>
-                    {mode === "view" ? (
-                      <div className="mt-2 font-medium text-gray-900">
-                        {watch(`items.${index}.description`)}
-                      </div>
-                    ) : (
-                      <Input
-                        {...register(`items.${index}.description`)}
-                        onBlur={handleItemBlur}
-                        placeholder="Item description"
-                        className="bg-white border border-black/10 focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]"
-                      />
-                    )}
-                  </div>
-                  <div className="col-span-2">
-                    <FormLabel className="text-[#0F172A]">Quantity</FormLabel>
-                    {mode === "view" ? (
-                      <div className="mt-2 font-medium text-gray-900">
-                        {watch(`items.${index}.quantity`)}
-                      </div>
-                    ) : (
-                      <Input
-                        type="number"
-                        {...register(`items.${index}.quantity`)}
-                        onBlur={handleItemBlur}
-                        min="1"
-                        className="bg-white border border-black/10 focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]"
-                      />
-                    )}
-                  </div>
-                  <div className="col-span-2">
-                    <FormLabel className="text-[#0F172A]">Price</FormLabel>
-                    {mode === "view" ? (
-                      <div className="mt-2 font-medium text-gray-900">
-                        {formatCurrency(watch(`items.${index}.price`))}
-                      </div>
-                    ) : (
-                      <Input
-                        type="number"
-                        {...register(`items.${index}.price`)}
-                        onBlur={handleItemBlur}
-                        min="0"
-                        step="0.01"
-                        className="bg-white border border-black/10 focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]"
-                      />
-                    )}
-                  </div>
-                  <div className="col-span-2">
-                    <FormLabel className="text-[#0F172A]">VAT %</FormLabel>
-                    {mode === "view" ? (
-                      <div className="mt-2 font-medium text-gray-900">
-                        {watch(`items.${index}.vat`)}%
-                      </div>
-                    ) : (
-                      <Input
-                        type="number"
-                        {...register(`items.${index}.vat`)}
-                        onBlur={handleItemBlur}
-                        min="0"
-                        max="100"
-                        className="bg-white border border-black/10 focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]"
-                      />
-                    )}
-                  </div>
-                  <div className="col-span-1">
-                    <FormLabel className="text-[#0F172A]">Total</FormLabel>
-                    <div className="text-[#0F172A] font-medium pt-2">
-                      {formatCurrency(watch(`items.${index}.total`))}
-                    </div>
-                  </div>
-                  <div className="col-span-1 pt-8">
-                    {mode !== "view" && (
-                      <button
-                        type="button"
-                        onClick={() => remove(index)}
-                        className="p-2 text-[#64748B] hover:text-[#EF4444] transition-colors rounded -lg hover:bg-[#FEE2E2]"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {mode !== "view" && (
-              <button
-                type="button"
-                onClick={handleAddItem}
-                className="inline-flex items-center gap-2 text-sm font-medium text-[#3B82F6] hover:text-[#2563EB] transition-colors"
-              >
-                <Plus className="h-4 w-4" />
-                Add Item
-              </button>
-            )}
           </div>
 
-          {/* Totals */}
-          <div className="flex flex-col gap-2 items-end">
-            <div className="flex items-center gap-4 text-[#64748B]">
-              <span>Subtotal:</span>
-              <span className="font-medium text-[#0F172A] w-32 text-right">
-                {formatCurrency(watch("subtotal"))}
-              </span>
-            </div>
-            <div className="flex items-center gap-4 text-[#64748B]">
-              <span>VAT:</span>
-              <span className="font-medium text-[#0F172A] w-32 text-right">
-                {formatCurrency(watch("vat"))}
-              </span>
-            </div>
-            <div className="flex items-center gap-4 text-lg font-medium text-[#0F172A]">
-              <span>Total:</span>
-              <span className="w-32 text-right">
-                {formatCurrency(watch("total"))}
-              </span>
-            </div>
-          </div>
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormItem className="space-y-2">
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Purchase Order Number
+                </FormLabel>
+                <Input {...register("purchaseOrderNumber")} />
+              </FormItem>
 
-          {/* Actions */}
-          <div className="flex items-center justify-end gap-4 pt-4 border-t border-black/10">
-            {mode === "view" ? (
-              <Button
-                type="button"
-                onClick={() => navigate(`/invoices/${defaultValues?.id}/edit`)}
-                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl flex items-center space-x-2"
-              >
-                <Edit2 className="h-4 w-4" />
-                <span>Edit</span>
-              </Button>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  onClick={onCancel}
-                  className="px-4 py-2 text-sm font-medium text-[#64748B] hover:text-[#0F172A] transition-colors"
-                >
-                  Cancel
-                </button>
-                <Button
-                  type="submit"
-                  variant="primary"
-                  disabled={isSubmitting}
-                  className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
-                >
-                  {isSubmitting ? (
-                    <div className="flex items-center space-x-2">
-                      <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
-                      <span>Saving...</span>
-                    </div>
-                  ) : defaultValues?.id ? (
-                    "Update Invoice"
-                  ) : (
-                    "Create Invoice"
-                  )}
-                </Button>
-              </>
-            )}
+              <FormItem className="space-y-2">
+                <FormLabel className="text-sm font-medium text-gray-700">
+                  Reference Number
+                </FormLabel>
+                <Input {...register("referenceNumber")} />
+              </FormItem>
+            </div>
+
+            <FormItem className="space-y-2">
+              <FormLabel className="text-sm font-medium text-gray-700">
+                Terms & Conditions
+              </FormLabel>
+              <Textarea
+                {...register("termsAndConditions")}
+                rows={4}
+                placeholder="Enter terms and conditions..."
+                className="resize-none"
+              />
+            </FormItem>
+
+            <FormItem className="space-y-2">
+              <FormLabel className="text-sm font-medium text-gray-700">
+                Payment Information
+              </FormLabel>
+              <Textarea
+                {...register("paymentInformation")}
+                rows={4}
+                placeholder="Enter payment information..."
+                className="resize-none"
+              />
+            </FormItem>
+
+            <FormItem className="space-y-2">
+              <FormLabel className="text-sm font-medium text-gray-700">
+                Notes
+              </FormLabel>
+              <Textarea
+                {...register("notes")}
+                rows={4}
+                placeholder="Enter any additional notes..."
+                className="resize-none"
+              />
+            </FormItem>
+          </div>
+        </div>
+      </div>
+
+      {/* Form Actions */}
+      <div className="sticky border rounded bottom-0 bg-white border-t border-gray-200 shadow-lg p-4 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-end space-x-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+              disabled={isSubmitting}
+              className="w-32"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-fit bg-blue-600 hover:bg-blue-700"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : mode === "edit" ? (
+                "Update Invoice"
+              ) : (
+                "Create Invoice"
+              )}
+            </Button>
           </div>
         </div>
       </div>
