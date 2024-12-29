@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import {
   Building2,
@@ -9,6 +9,7 @@ import {
   FileText,
   Percent,
   ArrowLeft,
+  Upload,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -16,7 +17,7 @@ import { FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Company } from "@/types/company";
-import { EMIRATES, BUSINESS_TYPES, FREE_ZONES } from "@/types/company";
+import { EMIRATES, BUSINESS_TYPES, FREE_ZONES, SERVICE_TYPES } from "@/types/company";
 import { companyService } from "@/lib/services/company";
 import { useNavigate } from "react-router-dom";
 
@@ -37,6 +38,7 @@ export function CompanyForm({
     watch,
     formState: { errors, isSubmitting },
     setValue,
+    trigger,
   } = useForm<Company>({
     defaultValues: {
       baseCurrency: "AED",
@@ -46,20 +48,88 @@ export function CompanyForm({
       billingAddress: {
         country: "United Arab Emirates",
       },
+      shippingAddress: {
+        country: "United Arab Emirates",
+      },
       bankDetails: {
         bankName: "",
         branch: "",
         accountNumber: "",
         swiftCode: "",
+        accountCurrency: "AED",
       },
+      registrationStatus: "pending",
+      isActive: true,
       ...company,
     },
   });
 
   const selectedEmirate = watch("emirate");
   const selectedBusinessType = watch("primaryBusinessType");
+  const useShippingAddress = watch("useShippingAddress") || false;
+
+  useEffect(() => {
+    if (selectedBusinessType === "Other") {
+      trigger("businessTypeDescription");
+    }
+  }, [selectedBusinessType, trigger]);
+
+  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+      if (!validTypes.includes(file.type)) {
+        throw new Error('Please upload a valid image file (JPEG, PNG, or GIF)');
+      }
+
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        throw new Error('File size should not exceed 5MB');
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setValue('logo', reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+    }
+  };
+
+  const onSubmit = async (data: Company) => {
+    try {
+      const formattedData = {
+        ...data,
+        defaultPaymentTerms: Number(data.defaultPaymentTerms),
+        defaultVatRate: Number(data.defaultVatRate),
+        reverseChargeMechanism: data.reverseChargeMechanism === true,
+        ...((!data.useShippingAddress || !data.shippingAddress?.street) && {
+          shippingAddress: undefined,
+        }),
+      };
+
+      if (company?.id) {
+        await companyService.update(company.id, formattedData);
+      } else {
+        await companyService.create(formattedData);
+      }
+      onSuccess();
+    } catch (error) {
+      console.error("Failed to save company:", error);
+    }
+  };
+
+  const navigate = useNavigate();
 
   const businessTypeOptions = BUSINESS_TYPES.map((type) => ({
+    value: type,
+    label: type,
+  }));
+
+  const serviceTypeOptions = SERVICE_TYPES.map((type) => ({
     value: type,
     label: type,
   }));
@@ -76,27 +146,6 @@ export function CompanyForm({
           label: zone,
         }))
       : [];
-
-  const onSubmit = async (data: Company) => {
-    try {
-      const formattedData = {
-        ...data,
-        defaultPaymentTerms: Number(data.defaultPaymentTerms),
-        defaultVatRate: Number(data.defaultVatRate),
-        reverseChargeMechanism: data.reverseChargeMechanism === true,
-      };
-
-      if (company?.id) {
-        await companyService.update(company.id, formattedData);
-      } else {
-        await companyService.create(formattedData);
-      }
-      onSuccess();
-    } catch (error) {
-      console.error("Failed to save company:", error);
-    }
-  };
-  const navigate = useNavigate();
 
   return (
     <form id="company-form" onSubmit={handleSubmit(onSubmit)}>
@@ -148,6 +197,30 @@ export function CompanyForm({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Logo Upload */}
+              <FormItem className="col-span-2">
+                <FormLabel className="text-gray-700 font-medium">
+                  Company Logo
+                </FormLabel>
+                <div className="mt-1 flex items-center space-x-4">
+                  {watch('logo') && (
+                    <img
+                      src={watch('logo')}
+                      alt="Company logo"
+                      className="h-12 w-12 object-contain rounded"
+                    />
+                  )}
+                  <Input
+                    type="file"
+                    accept="image/jpeg,image/png,image/gif"
+                    onChange={handleLogoUpload}
+                    disabled={mode === "view"}
+                    className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  />
+                  <FormMessage>{errors.logo?.message}</FormMessage>
+                </div>
+              </FormItem>
+
               <FormItem>
                 <FormLabel className="text-gray-700 font-medium">
                   Company Name (EN)
@@ -217,11 +290,31 @@ export function CompanyForm({
                   Business Type Description
                 </FormLabel>
                 <Input
-                  {...register("businessTypeDescription")}
+                  {...register("businessTypeDescription", {
+                    required: selectedBusinessType === "Other" 
+                      ? "Business type description is required when 'Other' is selected" 
+                      : false
+                  })}
                   disabled={mode === "view"}
                   placeholder="Enter business type description"
                   className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
+                <FormMessage>{errors.businessTypeDescription?.message}</FormMessage>
+              </FormItem>
+
+              <FormItem>
+                <FormLabel className="text-gray-700 font-medium">
+                  Service Type
+                </FormLabel>
+                <Select
+                  options={serviceTypeOptions}
+                  value={watch("serviceType")}
+                  onChange={(value) => setValue("serviceType", value)}
+                  disabled={mode === "view"}
+                  error={!!errors.serviceType}
+                  className="rounded xl"
+                />
+                <FormMessage>{errors.serviceType?.message}</FormMessage>
               </FormItem>
 
               <FormItem>
@@ -352,6 +445,76 @@ export function CompanyForm({
                 </FormItem>
               </div>
             </div>
+
+            {/* Shipping Address */}
+            <div className="space-y-4 mt-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-medium text-gray-900">
+                  Shipping Address
+                </h3>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    {...register("useShippingAddress")}
+                    disabled={mode === "view"}
+                  />
+                  <span className="text-sm text-gray-500">
+                    Use different shipping address
+                  </span>
+                </div>
+              </div>
+
+              {useShippingAddress && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormItem>
+                    <FormLabel className="text-gray-700 font-medium">
+                      Street
+                    </FormLabel>
+                    <Input
+                      {...register("shippingAddress.street")}
+                      disabled={mode === "view"}
+                      placeholder="Enter street address"
+                      className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </FormItem>
+
+                  <FormItem>
+                    <FormLabel className="text-gray-700 font-medium">
+                      City
+                    </FormLabel>
+                    <Input
+                      {...register("shippingAddress.city")}
+                      disabled={mode === "view"}
+                      placeholder="Enter city"
+                      className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </FormItem>
+
+                  <FormItem>
+                    <FormLabel className="text-gray-700 font-medium">
+                      State
+                    </FormLabel>
+                    <Input
+                      {...register("shippingAddress.state")}
+                      disabled={mode === "view"}
+                      placeholder="Enter state"
+                      className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </FormItem>
+
+                  <FormItem>
+                    <FormLabel className="text-gray-700 font-medium">
+                      Postal Code
+                    </FormLabel>
+                    <Input
+                      {...register("shippingAddress.postalCode")}
+                      disabled={mode === "view"}
+                      placeholder="Enter postal code"
+                      className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </FormItem>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Contact Information */}
@@ -400,6 +563,18 @@ export function CompanyForm({
                 <FormMessage>
                   {errors.contactPerson?.lastName?.message}
                 </FormMessage>
+              </FormItem>
+
+              <FormItem>
+                <FormLabel className="text-gray-700 font-medium">
+                  Contact Person Position
+                </FormLabel>
+                <Input
+                  {...register("contactPerson.position")}
+                  disabled={mode === "view"}
+                  placeholder="Enter position"
+                  className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                />
               </FormItem>
 
               <FormItem>
@@ -577,6 +752,18 @@ export function CompanyForm({
                     {...register("bankDetails.swiftCode")}
                     disabled={mode === "view"}
                     placeholder="Enter SWIFT code"
+                    className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  />
+                </FormItem>
+
+                <FormItem>
+                  <FormLabel className="text-gray-700 font-medium">
+                    Account Currency
+                  </FormLabel>
+                  <Input
+                    {...register("bankDetails.accountCurrency")}
+                    disabled={mode === "view"}
+                    placeholder="Enter account currency"
                     className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </FormItem>
