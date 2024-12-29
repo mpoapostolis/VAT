@@ -17,7 +17,11 @@ export function CreateInvoice() {
   // Fetch companies and customers from PocketBase
   const { data: companiesData, error: companiesError } = useSWR(
     "companies",
-    () => companyService.getList({ page: 1, perPage: 100, sort: "-created" })
+    async () => {
+      const data = await companyService.getList({ page: 1, perPage: 100, sort: "-created" });
+      console.log("Companies data:", data);
+      return data;
+    }
   );
 
   const { data: customersData, error: customersError } = useSWR(
@@ -70,6 +74,8 @@ export function CreateInvoice() {
       </div>
     );
   }
+
+  console.log("Companies items:", companiesData.items);
 
   return (
     <AnimatedPage>
