@@ -52,7 +52,7 @@ export const FREE_ZONES: Record<string, readonly string[]> = {
     "Al Ain International Airport Free Zone",
     "Al Bateen Executive Airport Free Zone",
   ],
-  "Dubai": [
+  Dubai: [
     "Jebel Ali Free Zone (North-South)",
     "Dubai Cars and Automotive Zone (DUCAMZ)",
     "Dubai Textile City",
@@ -61,30 +61,17 @@ export const FREE_ZONES: Record<string, readonly string[]> = {
     "International Humanitarian City (Jebel Ali)",
     "Dubai CommerCity",
   ],
-  "Sharjah": [
-    "Hamriyah Free Zone",
-    "Sharjah Airport International Free Zone",
-  ],
-  "Ajman": [
-    "Ajman Free Zone",
-  ],
-  "Umm Al Quwain": [
-    "Umm Al Quwain Free Trade Zone",
-  ],
-  "Ras Al Khaimah": [
-    "RAK Airport Free Zone",
-    "RAK Maritime City Free Zone",
-  ],
-  "Fujairah": [
-    "Fujairah Free Zone",
-    "Fujairah Oil Industry Zone (FOIZ)",
-  ],
+  Sharjah: ["Hamriyah Free Zone", "Sharjah Airport International Free Zone"],
+  Ajman: ["Ajman Free Zone"],
+  "Umm Al Quwain": ["Umm Al Quwain Free Trade Zone"],
+  "Ras Al Khaimah": ["RAK Airport Free Zone", "RAK Maritime City Free Zone"],
+  Fujairah: ["Fujairah Free Zone", "Fujairah Oil Industry Zone (FOIZ)"],
 } as const;
 
-export type Emirate = typeof EMIRATES[number];
-export type BusinessType = typeof BUSINESS_TYPES[number];
-export type ServiceType = typeof SERVICE_TYPES[number];
-export type FreeZone = typeof FREE_ZONES[keyof typeof FREE_ZONES][number];
+export type Emirate = (typeof EMIRATES)[number];
+export type BusinessType = (typeof BUSINESS_TYPES)[number];
+export type ServiceType = (typeof SERVICE_TYPES)[number];
+export type FreeZone = (typeof FREE_ZONES)[keyof typeof FREE_ZONES][number];
 
 /**
  * Address information for a company
@@ -123,38 +110,43 @@ export interface BankDetails {
  * Main company interface containing all company information
  */
 export interface Company {
-  id?: string;
-  
-  // Basic Information
-  companyNameEn: string;          // Full registered name in English
-  companyNameAr: string;          // Full registered name in Arabic
-  tradeLicenseNumber: string;     // Unique license number
-  primaryBusinessType: BusinessType;
-  serviceType: ServiceType;
-  businessTypeDescription?: string; // Mandatory if primaryBusinessType is "Other"
-  
-  // Location Information
-  emirate: Emirate;               // Mandatory
-  freeZone?: FreeZone;           // Optional - Designated Zone
-  billingAddress: Address;        // Mandatory
-  useShippingAddress?: boolean;
-  shippingAddress?: Address;      // Optional
-  
-  // Contact Information
-  contactPerson: ContactPerson;
-  website?: string;              // Optional
-  logo?: string;                 // Optional
-  
-  // Financial Information
-  baseCurrency: string;          // Fixed as "AED"
-  defaultVatRate: number;        // Default: 5%
-  defaultPaymentTerms: number;   // In calendar days
-  reverseChargeMechanism: boolean;
-  bankDetails?: BankDetails;     // Optional
-  
-  // System Fields
-  createdAt?: string;
-  updatedAt?: string;
-  isActive?: boolean;
-  registrationStatus?: "pending" | "active" | "suspended" | "cancelled";
+  id: string;
+  companyNameEN: string;
+  companyNameAR?: string;
+  tradeLicenseNumber: string;
+  emirate: string;
+  email: string;
+  phoneNumber: string;
+  // Add other fields as necessary
+  primaryBusinessType?: string;
+  businessTypeDescription?: string;
+  serviceType?: string;
+  website?: string;
+  freeZone?: boolean;
+  billingAddress: {
+    street: string;
+    city: string;
+    state: string;
+    postalCode: string;
+  };
+  shippingAddress?: {
+    street: string;
+    city: string;
+    state: string;
+    postalCode: string;
+  };
+  contactPersonFirstName: string;
+  contactPersonLastName: string;
+  contactPersonPosition?: string;
+  baseCurrency: string;
+  defaultVATRate?: number;
+  defaultPaymentTermsDays?: number;
+  reverseChargeMechanism?: boolean;
+  bankName?: string;
+  branch?: string;
+  accountNumber?: string;
+  swiftCode?: string;
+  accountCurrency?: string;
+  created: string;
+  updated: string;
 }

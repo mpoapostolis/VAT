@@ -1,13 +1,11 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Eye, Edit } from "lucide-react";
 import { CompanyForm } from "./company-form";
-import { Button } from "../ui/button";
 import useSWR from "swr";
 import { companyService } from "../../lib/services/company";
 import { AnimatedPage } from "../AnimatedPage";
 import { motion } from "framer-motion";
 
-export function CompanyFormPage({ mode = "view" }) {
+export function CompanyFormPage() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { data: company } = useSWR(id ? `company/${id}` : null, () =>

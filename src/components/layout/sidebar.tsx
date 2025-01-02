@@ -1,31 +1,17 @@
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
 import { cn } from "../../lib/utils";
+import { Tooltip } from "../ui/tooltip";
 import {
   ChevronLeft,
   ChevronRight,
   LayoutDashboard,
   Users,
-  FileText,
   Settings,
   Calculator,
-  User,
-  LogOut,
   FolderOpen,
   Receipt,
-  Building2,
-  ChevronDown,
 } from "lucide-react";
-import { Dropdown } from "../ui/dropdown";
-import { useAuth } from "@/lib/auth";
-import { Tooltip } from "../ui/tooltip";
-import { CompanySelector } from "../company/company-selector";
-
-const companies = [
-  { id: "1", name: "Acme Corp" },
-  { id: "2", name: "Stark Industries" },
-  { id: "3", name: "Wayne Enterprises" },
-];
 
 const navigation = [
   {
@@ -71,52 +57,6 @@ const navigation = [
     description: "System Configuration",
   },
 ];
-
-function UserProfile({ isCollapsed }: { isCollapsed: boolean }) {
-  const { user, logout } = useAuth();
-
-  return (
-    <div className="relative w-full">
-      <Dropdown
-        direction="up"
-        trigger={
-          <button className="w-full p-2 flex items-center gap-3 rounded-lg hover:bg-[#F8FAFC] transition-colors">
-            {!isCollapsed && (
-              <div className="flex flex-col flex-1 text-left">
-                <span className="text-sm font-medium text-[#0F172A]">
-                  {user?.email}
-                </span>
-                <span className="text-xs text-[#64748B]">Administrator</span>
-              </div>
-            )}
-            <div
-              className={cn(
-                "h-10 w-10 rounded-lg bg-[#F1F5F9] flex items-center justify-center",
-                {
-                  "mx-auto": isCollapsed,
-                }
-              )}
-            >
-              <User className="w-5 h-5 text-[#3B82F6]" />
-            </div>
-          </button>
-        }
-        items={[
-          {
-            label: "Profile",
-            onClick: () => {},
-            icon: User,
-          },
-          {
-            label: "Logout",
-            onClick: logout,
-            icon: LogOut,
-          },
-        ]}
-      />
-    </div>
-  );
-}
 
 export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -220,11 +160,6 @@ export function Sidebar() {
           })}
         </ul>
       </nav>
-
-      {/* Footer */}
-      <div className="p-4 border-t border-black/10">
-        <CompanySelector isCollapsed={isCollapsed} />
-      </div>
     </aside>
   );
 }

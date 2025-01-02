@@ -24,7 +24,6 @@ import {
   formatDateForInput,
 } from "@/lib/utils";
 import type { Customer } from "@/lib/pocketbase";
-import { useToast } from "@/lib/hooks/useToast";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import {

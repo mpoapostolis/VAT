@@ -1,13 +1,5 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import useSWR from "swr";
-import type { Company } from "@/types/company";
-import { companyService } from "@/lib/services/company";
-import { useMutateData } from "@/lib/hooks/useMutateData";
-import {
-  useTableParams,
-  buildPocketBaseParams,
-} from "@/lib/hooks/useTableParams";
+import { Link } from "react-router-dom";
+import { useTableParams } from "@/lib/hooks/useTableParams";
 import { Building2, Plus } from "lucide-react";
 import {
   Table,
@@ -18,15 +10,11 @@ import {
   TableCell,
   TablePagination,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
+import { useCompanies } from "@/lib/hooks/useCompanies";
 
 export function CompanyList() {
-  const navigate = useNavigate();
   const tableParams = useTableParams();
-  const { data } = useSWR(
-    ["companies", tableParams.page, tableParams.perPage, tableParams.sort],
-    () => companyService.getList(buildPocketBaseParams(tableParams))
-  );
+  const { companies: data } = useCompanies();
 
   const handleSort = (field: string) => {
     const currentSort = tableParams.sort;
@@ -118,7 +106,7 @@ export function CompanyList() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data?.items.map((company) => (
+            {data?.map((company) => (
               <TableRow key={company.id}>
                 <TableCell>
                   <div className="flex items-center gap-3">
@@ -130,10 +118,10 @@ export function CompanyList() {
                         to={`/companies/${company.id}`}
                         className="font-medium text-[#0F172A] hover:text-[#3B82F6] transition-colors"
                       >
-                        {company.companyNameEn}
+                        {company.companyNameEN}
                       </Link>
                       <div className="text-sm text-[#64748B]">
-                        {company.companyNameAr}
+                        {company.companyNameAR}
                       </div>
                     </div>
                   </div>
@@ -157,7 +145,7 @@ export function CompanyList() {
                 </TableCell>
                 <TableCell>
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-[#DCFCE7] text-[#10B981]">
-                    {company.defaultVatRate}%
+                    {company.defaultVATRate}%
                   </span>
                 </TableCell>
               </TableRow>
@@ -168,7 +156,7 @@ export function CompanyList() {
         <TablePagination
           pageIndex={tableParams.page - 1}
           pageSize={tableParams.perPage}
-          pageCount={data?.totalPages || 1}
+          pageCount={data?.length || 1}
           onPageChange={(page) => tableParams.setPage(page + 1)}
           onPageSizeChange={(size) => tableParams.setPerPage(size)}
         />

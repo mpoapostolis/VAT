@@ -1,28 +1,23 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import {
-  Building2,
-  User,
-  MapPin,
-  CreditCard,
-  Globe,
-  FileText,
-  Percent,
-  ArrowLeft,
-  Upload,
-} from "lucide-react";
+import { Building2, User, MapPin, CreditCard, ArrowLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Company } from "@/types/company";
-import { EMIRATES, BUSINESS_TYPES, FREE_ZONES, SERVICE_TYPES } from "@/types/company";
+import {
+  EMIRATES,
+  BUSINESS_TYPES,
+  FREE_ZONES,
+  SERVICE_TYPES,
+} from "@/types/company";
 import { companyService } from "@/lib/services/company";
 import { useNavigate } from "react-router-dom";
 
 interface CompanyFormProps {
-  company?: Company;
+  company?: Company | null;
   onSuccess: () => void;
   mode?: "view" | "edit";
 }
@@ -74,28 +69,30 @@ export function CompanyForm({
     }
   }, [selectedBusinessType, trigger]);
 
-  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     try {
       const file = event.target.files?.[0];
       if (!file) return;
 
-      const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+      const validTypes = ["image/jpeg", "image/png", "image/gif"];
       if (!validTypes.includes(file.type)) {
-        throw new Error('Please upload a valid image file (JPEG, PNG, or GIF)');
+        throw new Error("Please upload a valid image file (JPEG, PNG, or GIF)");
       }
 
       const maxSize = 5 * 1024 * 1024; // 5MB
       if (file.size > maxSize) {
-        throw new Error('File size should not exceed 5MB');
+        throw new Error("File size should not exceed 5MB");
       }
 
       const reader = new FileReader();
       reader.onloadend = () => {
-        setValue('logo', reader.result as string);
+        setValue("logo", reader.result as string);
       };
       reader.readAsDataURL(file);
     } catch (error) {
-      console.error('Error uploading logo:', error);
+      console.error("Error uploading logo:", error);
     }
   };
 
@@ -151,38 +148,6 @@ export function CompanyForm({
     <form id="company-form" onSubmit={handleSubmit(onSubmit)}>
       <div className="bg-white rounded 2xl border border-black/10 shadow-sm overflow-hidden">
         {/* Header */}
-        <div className="border-b border-gray-200 bg-gray-50/50 px-8 py-6">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold text-gray-900">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => navigate("/companies")}
-                className="border-gray-200 hover:bg-gray-50"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-              </Button>
-              {company?.id ? "Edit Company" : "New Company"}
-            </h1>
-            <Button
-              type="submit"
-              variant="primary"
-              disabled={isSubmitting || mode === "view"}
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded xl"
-            >
-              {isSubmitting ? (
-                <div className="flex items-center space-x-2">
-                  <span className="animate-spin rounded full h-4 w-4 border-b-2 border-white"></span>
-                  <span>Saving...</span>
-                </div>
-              ) : company?.id ? (
-                "Update Company"
-              ) : (
-                "Create Company"
-              )}
-            </Button>
-          </div>
-        </div>
 
         <div className="p-8 space-y-8">
           {/* Basic Information */}
@@ -203,9 +168,9 @@ export function CompanyForm({
                   Company Logo
                 </FormLabel>
                 <div className="mt-1 flex items-center space-x-4">
-                  {watch('logo') && (
+                  {watch("logo") && (
                     <img
-                      src={watch('logo')}
+                      src={watch("logo")}
                       alt="Company logo"
                       className="h-12 w-12 object-contain rounded"
                     />
@@ -226,15 +191,15 @@ export function CompanyForm({
                   Company Name (EN)
                 </FormLabel>
                 <Input
-                  {...register("companyNameEn", {
+                  {...register("companyNameEN", {
                     required: "Company name is required",
                   })}
-                  error={errors.companyNameEn?.message}
+                  error={errors.companyNameEN?.message}
                   disabled={mode === "view"}
                   placeholder="Enter company name in English"
                   className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
-                <FormMessage>{errors.companyNameEn?.message}</FormMessage>
+                <FormMessage>{errors.companyNameEN?.message}</FormMessage>
               </FormItem>
 
               <FormItem>
@@ -242,16 +207,16 @@ export function CompanyForm({
                   Company Name (AR)
                 </FormLabel>
                 <Input
-                  {...register("companyNameAr", {
+                  {...register("companyNameAR", {
                     required: "Arabic name is required",
                   })}
-                  error={errors.companyNameAr?.message}
+                  error={errors.companyNameAR?.message}
                   disabled={mode === "view"}
                   placeholder="Enter company name in Arabic"
                   dir="rtl"
                   className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
-                <FormMessage>{errors.companyNameAr?.message}</FormMessage>
+                <FormMessage>{errors.companyNameAR?.message}</FormMessage>
               </FormItem>
 
               <FormItem>
@@ -291,15 +256,18 @@ export function CompanyForm({
                 </FormLabel>
                 <Input
                   {...register("businessTypeDescription", {
-                    required: selectedBusinessType === "Other" 
-                      ? "Business type description is required when 'Other' is selected" 
-                      : false
+                    required:
+                      selectedBusinessType === "Other"
+                        ? "Business type description is required when 'Other' is selected"
+                        : false,
                   })}
                   disabled={mode === "view"}
                   placeholder="Enter business type description"
                   className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
-                <FormMessage>{errors.businessTypeDescription?.message}</FormMessage>
+                <FormMessage>
+                  {errors.businessTypeDescription?.message}
+                </FormMessage>
               </FormItem>
 
               <FormItem>
