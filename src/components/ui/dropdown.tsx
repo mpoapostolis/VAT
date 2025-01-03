@@ -13,11 +13,11 @@ interface DropdownProps {
   direction?: "up" | "down";
 }
 
-export function Dropdown({ 
-  trigger, 
+export function Dropdown({
+  trigger,
   items,
   width = "auto",
-  direction = "down"
+  direction = "down",
 }: DropdownProps) {
   return (
     <Menu as="div" className="relative w-full">
@@ -36,19 +36,21 @@ export function Dropdown({
         <Menu.Items
           className={cn(
             "absolute z-50",
-            "bg-white rounded-lg shadow-lg",
+            "bg-white rounded shadow-lg",
             "border border-gray-200",
             "focus:outline-none",
             "min-w-[200px]",
-            direction === "up" 
-              ? "bottom-full mb-2" 
-              : "top-full mt-2",
+            direction === "up" ? "bottom-full mb-2" : "top-full mt-2",
             "left-0",
-            width === "trigger" ? "w-full" : width === "auto" ? "" : `w-[${width}px]`
+            width === "trigger"
+              ? "w-full"
+              : width === "auto"
+              ? ""
+              : `w-[${width}px]`
           )}
           style={{
             maxHeight: "calc(100vh - 200px)",
-            overflowY: "auto"
+            overflowY: "auto",
           }}
         >
           <div className="py-1">
@@ -61,13 +63,11 @@ export function Dropdown({
                       "flex w-full items-center px-4 py-2.5",
                       "text-sm transition-colors duration-150",
                       "hover:bg-gray-50/80",
-                      active 
-                        ? "bg-gray-50/80 text-gray-900" 
-                        : "text-gray-700"
+                      active ? "bg-gray-50/80 text-gray-900" : "text-gray-700"
                     )}
                   >
                     {item.icon && (
-                      <item.icon 
+                      <item.icon
                         className={cn(
                           "mr-3 h-5 w-5",
                           active ? "text-primary" : "text-gray-400"

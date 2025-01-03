@@ -122,7 +122,7 @@ export function ViewInvoice() {
           </p>
           <button
             onClick={() => navigate("/invoices")}
-            className="mt-4 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+            className="mt-4 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
           >
             Go back to invoices
           </button>
@@ -143,7 +143,7 @@ export function ViewInvoice() {
     <AnimatedPage>
       <div className="space-y-12  mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="flex justify-between items-center bg-white rounded-2xl shadow-sm border border-gray-100/50 p-8">
+        <div className="flex justify-between items-center bg-white rounded shadow-sm border border-gray-100/50 p-8">
           <div className="flex items-center gap-6">
             <Button
               variant="ghost"
@@ -206,7 +206,7 @@ export function ViewInvoice() {
         <div className="grid grid-cols-3 gap-8">
           {/* Left Column - Invoice Details */}
           <div className="col-span-2 space-y-8">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-8">
+            <div className="bg-white rounded shadow-sm border border-gray-100/50 p-8">
               <div className="flex items-center gap-3 text-gray-400 mb-8">
                 <FileText className="h-5 w-5" />
                 <span className="font-medium tracking-wide">
@@ -270,7 +270,7 @@ export function ViewInvoice() {
             </div>
 
             {/* Company Details */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-8">
+            <div className="bg-white rounded shadow-sm border border-gray-100/50 p-8">
               <div className="flex items-center gap-3 text-gray-400 mb-8">
                 <Building2 className="h-5 w-5" />
                 <span className="font-medium tracking-wide">
@@ -303,7 +303,7 @@ export function ViewInvoice() {
 
           {/* Right Column - Financial Summary */}
           <div>
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100/50 p-8">
+            <div className="bg-white rounded shadow-sm border border-gray-100/50 p-8">
               <div className="flex items-center gap-3 text-gray-400 mb-8">
                 <Euro className="h-5 w-5" />
                 <span className="font-medium tracking-wide">

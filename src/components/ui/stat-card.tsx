@@ -17,7 +17,7 @@ export function StatCard({ icon, label, value, isLoading }: StatCardProps) {
     return (
       <div className="h-[160px] bg-white rounded-[32px] animate-pulse p-6">
         <div className="space-y-6">
-          <div className="w-12 h-12 bg-gray-100 rounded-2xl" />
+          <div className="w-12 h-12 bg-gray-100 rounded" />
           <div className="space-y-2">
             <div className="h-5 w-24 bg-gray-100 rounded" />
             <div className="h-8 w-36 bg-gray-100 rounded" />
@@ -44,12 +44,12 @@ export function StatCard({ icon, label, value, isLoading }: StatCardProps) {
         {/* Icon */}
         <div className="inline-flex">
           <div className="relative">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center">
+            <div className="w-12 h-12 rounded bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center">
               {React.cloneElement(icon as React.ReactElement, {
                 className: "h-6 w-6 text-gray-600",
               })}
             </div>
-            <div className="absolute -inset-px rounded-2xl bg-gradient-to-br from-gray-200/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute -inset-px rounded bg-gradient-to-br from-gray-200/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </div>
         </div>
 

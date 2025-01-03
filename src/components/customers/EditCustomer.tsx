@@ -16,9 +16,8 @@ export function EditCustomer() {
   const { addToast } = useToast();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const { data: customer } = useSWR(
-    id ? `customers/${id}` : null,
-    () => customerService.getById(id!)
+  const { data: customer } = useSWR(id ? `customers/${id}` : null, () =>
+    customerService.getById(id!)
   );
 
   const handleSubmit = async (data: Omit<Customer, "id">) => {
@@ -63,7 +62,7 @@ export function EditCustomer() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white border border-black/10 rounded-lg overflow-hidden"
+            className="bg-white border border-black/10 rounded overflow-hidden"
           >
             <div className="border-b border-black/10 bg-slate-50/50 px-6 py-4">
               <h2 className="font-medium text-[#0F172A]">Edit Customer</h2>

@@ -287,7 +287,7 @@ function InvoiceTable({ type }: { type: "receivable" | "payable" }) {
     <div className="space-y-4">
       {/* Bulk Actions */}
       {selectedInvoices.length > 0 && (
-        <div className="flex items-center justify-between p-4 bg-secondary/20 rounded-lg">
+        <div className="flex items-center justify-between p-4 bg-secondary/20 rounded">
           <span className="text-sm font-medium">
             {selectedInvoices.length}{" "}
             {selectedInvoices.length === 1 ? "invoice" : "invoices"} selected
@@ -327,7 +327,7 @@ function InvoiceTable({ type }: { type: "receivable" | "payable" }) {
       )}
 
       <InvoiceFilters type={type} />
-      <div className="bg-white border border-border/40 rounded-lg shadow-sm">
+      <div className="bg-white border border-border/40 rounded shadow-sm">
         <div className="overflow-auto">
           <Table>
             <TableHeader>

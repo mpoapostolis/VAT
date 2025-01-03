@@ -6,19 +6,19 @@ import { AnimatedPage } from "@/components/AnimatedPage";
 import { categoryService } from "@/lib/services/category-service";
 import type { Category } from "@/lib/pocketbase";
 import { Button } from "@/components/ui/button";
-import { 
-  Tag, 
-  FileText, 
-  BarChart, 
-  CreditCard, 
-  Receipt, 
-  ArrowUpDown, 
+import {
+  Tag,
+  FileText,
+  BarChart,
+  CreditCard,
+  Receipt,
+  ArrowUpDown,
   Percent,
   Edit3,
   Clock,
   Euro,
   ChevronLeft,
-  Trash2
+  Trash2,
 } from "lucide-react";
 import { formatDate, formatCurrency } from "@/lib/utils";
 import { toast } from "sonner";
@@ -51,15 +51,13 @@ const itemVariants = {
 export function ViewCategory() {
   const navigate = useNavigate();
   const { id } = useParams();
-  
-  const { data: category } = useSWR(
-    id ? `categories/${id}` : null,
-    () => categoryService.getById(id!)
+
+  const { data: category } = useSWR(id ? `categories/${id}` : null, () =>
+    categoryService.getById(id!)
   );
 
-  const { data: stats } = useSWR(
-    id ? `categories/${id}/stats` : null,
-    () => categoryService.getStats(id!)
+  const { data: stats } = useSWR(id ? `categories/${id}/stats` : null, () =>
+    categoryService.getStats(id!)
   );
 
   const handleDelete = async () => {
@@ -99,7 +97,7 @@ export function ViewCategory() {
       >
         <motion.div
           variants={itemVariants}
-          className="bg-white border border-black/5 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
+          className="bg-white border border-black/5 rounded overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
         >
           <div className="border-b border-black/5 bg-slate-50/50 px-8 py-6 flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -107,7 +105,7 @@ export function ViewCategory() {
                 <ChevronLeft className="w-4 h-4 text-slate-400" />
               </button>
 
-              <div className="p-3 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100/80">
+              <div className="p-3 rounded bg-gradient-to-br from-blue-50 to-blue-100/80">
                 <Tag className="w-6 h-6 text-blue-600" />
               </div>
               <div>
@@ -165,7 +163,7 @@ export function ViewCategory() {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-slate-50">
+                  <div className="p-2 rounded bg-slate-50">
                     <Receipt className="w-4 h-4 text-blue-600" />
                   </div>
                   <div>
@@ -176,7 +174,7 @@ export function ViewCategory() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-slate-50">
+                  <div className="p-2 rounded bg-slate-50">
                     <Euro className="w-4 h-4 text-blue-600" />
                   </div>
                   <div>
@@ -187,7 +185,7 @@ export function ViewCategory() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-slate-50">
+                  <div className="p-2 rounded bg-slate-50">
                     <CreditCard className="w-4 h-4 text-blue-600" />
                   </div>
                   <div>
@@ -207,7 +205,7 @@ export function ViewCategory() {
                   <FileText className="w-4 h-4 text-blue-600" />
                   Description
                 </h3>
-                <div className="bg-slate-50 rounded-lg p-4">
+                <div className="bg-slate-50 rounded p-4">
                   <div className="text-sm text-slate-600 whitespace-pre-wrap">
                     {category.description}
                   </div>

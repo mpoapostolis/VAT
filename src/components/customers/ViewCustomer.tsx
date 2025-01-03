@@ -79,10 +79,10 @@ export function ViewCustomer() {
           </div>
         </div>
 
-        <div className="bg-white border border-black/10 rounded-lg overflow-hidden">
+        <div className="bg-white border border-black/10 rounded overflow-hidden">
           <div className="border-b border-black/10 bg-slate-50/50 px-6 py-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-[#F1F5F9]">
+              <div className="p-2 rounded bg-[#F1F5F9]">
                 {customer.isCompany ? (
                   <Building2 className="w-5 h-5 text-[#3B82F6]" />
                 ) : (
@@ -112,7 +112,7 @@ export function ViewCustomer() {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                  <div className="p-2 rounded bg-[#F1F5F9]">
                     <UserCircle className="w-4 h-4 text-[#3B82F6]" />
                   </div>
                   <div>
@@ -125,7 +125,7 @@ export function ViewCustomer() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                  <div className="p-2 rounded bg-[#F1F5F9]">
                     <Mail className="w-4 h-4 text-[#3B82F6]" />
                   </div>
                   <div>
@@ -138,7 +138,7 @@ export function ViewCustomer() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                  <div className="p-2 rounded bg-[#F1F5F9]">
                     <Phone className="w-4 h-4 text-[#3B82F6]" />
                   </div>
                   <div>
@@ -161,7 +161,7 @@ export function ViewCustomer() {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                  <div className="p-2 rounded bg-[#F1F5F9]">
                     <Building className="w-4 h-4 text-[#3B82F6]" />
                   </div>
                   <div>
@@ -175,7 +175,7 @@ export function ViewCustomer() {
                 </div>
                 {customer.shippingAddress && (
                   <div className="flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                    <div className="p-2 rounded bg-[#F1F5F9]">
                       <MapPinned className="w-4 h-4 text-[#3B82F6]" />
                     </div>
                     <div>
@@ -199,7 +199,7 @@ export function ViewCustomer() {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                  <div className="p-2 rounded bg-[#F1F5F9]">
                     <CreditCard className="w-4 h-4 text-[#3B82F6]" />
                   </div>
                   <div>
@@ -210,7 +210,7 @@ export function ViewCustomer() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                  <div className="p-2 rounded bg-[#F1F5F9]">
                     <Globe className="w-4 h-4 text-[#3B82F6]" />
                   </div>
                   <div>
@@ -225,7 +225,7 @@ export function ViewCustomer() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                  <div className="p-2 rounded bg-[#F1F5F9]">
                     <Briefcase className="w-4 h-4 text-[#3B82F6]" />
                   </div>
                   <div>
@@ -240,7 +240,7 @@ export function ViewCustomer() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                  <div className="p-2 rounded bg-[#F1F5F9]">
                     <Users className="w-4 h-4 text-[#3B82F6]" />
                   </div>
                   <div>
@@ -262,7 +262,7 @@ export function ViewCustomer() {
                   <FileText className="w-4 h-4 text-[#3B82F6]" />
                   Additional Notes
                 </h3>
-                <div className="bg-[#F8FAFC] border border-black/5 rounded-lg p-4">
+                <div className="bg-[#F8FAFC] border border-black/5 rounded p-4">
                   <div className="text-sm text-[#64748B] whitespace-pre-wrap">
                     {customer.notes}
                   </div>

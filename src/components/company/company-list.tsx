@@ -40,14 +40,14 @@ export function CompanyList() {
         </div>
         <Link
           to="/companies/new"
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#3B82F6] hover:bg-[#2563EB] transition-colors rounded-lg"
+          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#3B82F6] hover:bg-[#2563EB] transition-colors rounded"
         >
           <Plus className="w-4 h-4" />
           New Company
         </Link>
       </div>
 
-      <div className="bg-white border border-black/10 rounded-lg overflow-hidden">
+      <div className="bg-white border border-black/10 rounded overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
@@ -110,7 +110,7 @@ export function CompanyList() {
               <TableRow key={company.id}>
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                    <div className="p-2 rounded bg-[#F1F5F9]">
                       <Building2 className="w-4 h-4 text-[#3B82F6]" />
                     </div>
                     <div>

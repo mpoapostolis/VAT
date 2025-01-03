@@ -129,7 +129,7 @@ export const TablePagination = ({
   return (
     <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200">
       <div className="flex flex-1 items-center gap-6">
-        <div className="flex items-center space-x-2  px-3 py-1.5 rounded-lg">
+        <div className="flex items-center space-x-2  px-3 py-1.5 rounded">
           <span className="text-sm font-medium text-slate-700">Limit:</span>
           <Dropdown
             trigger={

@@ -81,7 +81,7 @@ export function Sidebar() {
             isCollapsed && "justify-center"
           )}
         >
-          <div className="rounded-lg bg-[#F1F5F9]">
+          <div className="rounded bg-[#F1F5F9]">
             <Calculator className="w-5 h-5 text-[#3B82F6]" />
           </div>
           {!isCollapsed && (
@@ -97,7 +97,7 @@ export function Sidebar() {
         </div>
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-2 rounded-lg hover:bg-black/[0.02] text-black/40 hover:text-black/70"
+          className="p-2 rounded hover:bg-black/[0.02] text-black/40 hover:text-black/70"
         >
           {isCollapsed ? (
             <ChevronRight className="w-4 h-4" />
@@ -118,7 +118,7 @@ export function Sidebar() {
                 to={item.href}
                 className={({ isActive }) =>
                   cn(
-                    "flex items-center gap-3 px-4 py-2.5 rounded-lg text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A] transition-colors",
+                    "flex items-center gap-3 px-4 py-2.5 rounded text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0F172A] transition-colors",
                     {
                       "bg-[#F1F5F9] text-[#0F172A]": isActive,
                     }

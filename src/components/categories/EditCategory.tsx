@@ -4,14 +4,14 @@ import useSWR from "swr";
 import { motion } from "framer-motion";
 import { AnimatedPage } from "@/components/AnimatedPage";
 import type { Category } from "@/lib/pocketbase";
-import { 
-  Tag, 
-  FileText, 
-  ArrowUpDown, 
+import {
+  Tag,
+  FileText,
+  ArrowUpDown,
   Percent,
   ChevronLeft,
   Calendar,
-  Save
+  Save,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { categoryService } from "@/lib/services/category-service";
@@ -69,9 +69,8 @@ export function EditCategory() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const { data: category } = useSWR(
-    id ? `categories/${id}` : null,
-    () => categoryService.getById(id!)
+  const { data: category } = useSWR(id ? `categories/${id}` : null, () =>
+    categoryService.getById(id!)
   );
 
   const {
@@ -134,7 +133,7 @@ export function EditCategory() {
       >
         <motion.div
           variants={itemVariants}
-          className="bg-white border border-black/5 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
+          className="bg-white border border-black/5 rounded overflow-hidden shadow-sm hover:shadow-md transition-all duration-200"
         >
           <div className="border-b border-black/5 bg-slate-50/50 px-8 py-6">
             <div className="flex flex-col space-y-6">
@@ -144,7 +143,7 @@ export function EditCategory() {
                     <ChevronLeft className="w-4 h-4 text-slate-400" />
                   </button>
 
-                  <div className="p-3 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100/80">
+                  <div className="p-3 rounded bg-gradient-to-br from-blue-50 to-blue-100/80">
                     <Tag className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
@@ -189,7 +188,9 @@ export function EditCategory() {
                     className="bg-white"
                     placeholder="Enter category name"
                   />
-                  {errors.name && <FormMessage>{errors.name.message}</FormMessage>}
+                  {errors.name && (
+                    <FormMessage>{errors.name.message}</FormMessage>
+                  )}
                 </FormItem>
 
                 <FormItem>
@@ -221,7 +222,9 @@ export function EditCategory() {
                     options={typeOptions}
                     placeholder="Select category type"
                   />
-                  {errors.type && <FormMessage>{errors.type.message}</FormMessage>}
+                  {errors.type && (
+                    <FormMessage>{errors.type.message}</FormMessage>
+                  )}
                 </FormItem>
 
                 <FormItem>
@@ -232,7 +235,9 @@ export function EditCategory() {
                     options={vatOptions}
                     placeholder="Select VAT rate"
                   />
-                  {errors.vat && <FormMessage>{errors.vat.message}</FormMessage>}
+                  {errors.vat && (
+                    <FormMessage>{errors.vat.message}</FormMessage>
+                  )}
                 </FormItem>
               </div>
             </div>

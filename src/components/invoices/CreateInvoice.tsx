@@ -18,7 +18,11 @@ export function CreateInvoice() {
   const { data: companiesData, error: companiesError } = useSWR(
     "companies",
     async () => {
-      const data = await companyService.getList({ page: 1, perPage: 100, sort: "-created" });
+      const data = await companyService.getList({
+        page: 1,
+        perPage: 100,
+        sort: "-created",
+      });
       console.log("Companies data:", data);
       return data;
     }
@@ -58,7 +62,7 @@ export function CreateInvoice() {
         </div>
         <button
           onClick={() => navigate("/invoices")}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
         >
           Go back to invoices
         </button>

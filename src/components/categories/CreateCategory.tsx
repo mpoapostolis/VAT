@@ -96,7 +96,7 @@ export function CreateCategory() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded-lg overflow-hidden"
+          className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded overflow-hidden"
         >
           <div className="border-b border-gray-200/60 bg-gray-50/50 px-6 py-4">
             <h2 className="font-medium text-gray-800">Category Details</h2>
@@ -157,7 +157,9 @@ export function CreateCategory() {
                   options={typeOptions}
                   placeholder="Select category type"
                 />
-                {errors.type && <FormMessage>{errors.type.message}</FormMessage>}
+                {errors.type && (
+                  <FormMessage>{errors.type.message}</FormMessage>
+                )}
               </FormItem>
 
               <FormItem>

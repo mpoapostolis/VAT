@@ -192,12 +192,12 @@ export function InvoiceForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div className="bg-white rounded-lg shadow-lg border border-gray-200 divide-y divide-gray-200">
+      <div className="bg-white rounded shadow-lg border border-gray-200 divide-y divide-gray-200">
         {/* Header */}
         <div className="p-8">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center space-x-4">
-              <div className="bg-blue-50 p-3 rounded-lg">
+              <div className="bg-blue-50 p-3 rounded">
                 <FileText className="w-6 h-6 text-blue-600" />
               </div>
               <div>
@@ -301,7 +301,7 @@ export function InvoiceForm({
           {/* Company Information */}
           <div className="space-y-6">
             <div className="flex items-center gap-3 mb-6">
-              <div className="bg-blue-50 p-2 rounded-lg">
+              <div className="bg-blue-50 p-2 rounded">
                 <Building className="w-5 h-5 text-blue-600" />
               </div>
               <span className="text-lg font-semibold text-gray-900">
@@ -331,7 +331,7 @@ export function InvoiceForm({
             </FormItem>
 
             {selectedCompany && (
-              <div className="rounded-xl border border-gray-200 bg-gray-50 p-6 space-y-5 hover:bg-gray-100 transition-colors">
+              <div className="rounded border border-gray-200 bg-gray-50 p-6 space-y-5 hover:bg-gray-100 transition-colors">
                 <div>
                   <p className="text-sm font-medium text-gray-500 mb-2">TRN</p>
                   <p className="text-base font-semibold font-mono text-gray-900">
@@ -371,7 +371,7 @@ export function InvoiceForm({
           {/* Customer Information */}
           <div className="space-y-6">
             <div className="flex items-center gap-3 mb-6">
-              <div className="bg-blue-50 p-2 rounded-lg">
+              <div className="bg-blue-50 p-2 rounded">
                 <Users className="w-5 h-5 text-blue-600" />
               </div>
               <span className="text-lg font-semibold text-gray-900">
@@ -403,7 +403,7 @@ export function InvoiceForm({
             </FormItem>
 
             {selectedCustomer && (
-              <div className="rounded-xl border border-gray-200 bg-gray-50 p-6 space-y-5 hover:bg-gray-100 transition-colors">
+              <div className="rounded border border-gray-200 bg-gray-50 p-6 space-y-5 hover:bg-gray-100 transition-colors">
                 <div>
                   <p className="text-sm font-medium text-gray-500 mb-2">TRN</p>
                   <p className="text-base font-semibold font-mono text-gray-900">
@@ -437,7 +437,7 @@ export function InvoiceForm({
         </div>
 
         {/* Invoice Details */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 space-y-6">
+        <div className="bg-white rounded shadow-sm border border-gray-100 p-8 space-y-6">
           <div className="flex items-center gap-3 text-gray-400">
             <FileText className="w-5 h-5" />
             <span className="font-medium tracking-wide">Invoice Details</span>
@@ -563,7 +563,7 @@ export function InvoiceForm({
         <div className="p-8">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center space-x-4">
-              <div className="bg-blue-50 p-2 rounded-lg">
+              <div className="bg-blue-50 p-2 rounded">
                 <ListPlus className="w-5 h-5 text-blue-600" />
               </div>
               <h4 className="text-lg font-semibold text-gray-900">
@@ -584,7 +584,7 @@ export function InvoiceForm({
 
           <div className="space-y-6">
             {fields.length === 0 ? (
-              <div className="text-center py-16 border-2 border-dashed border-gray-200 rounded-lg bg-gray-50">
+              <div className="text-center py-16 border-2 border-dashed border-gray-200 rounded bg-gray-50">
                 <div className="space-y-4">
                   <div className="bg-white p-4 rounded-full w-fit mx-auto shadow-sm">
                     <ShoppingCart className="w-8 h-8 text-gray-400" />
@@ -603,7 +603,7 @@ export function InvoiceForm({
                 </div>
               </div>
             ) : (
-              <div className="border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+              <div className="border border-gray-200 rounded overflow-hidden shadow-sm">
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-gray-50">
@@ -735,7 +735,7 @@ export function InvoiceForm({
             {/* Totals */}
             {fields.length > 0 && (
               <div className="flex justify-end mt-8">
-                <div className="w-96 space-y-4 bg-gray-50 p-6 rounded-lg border border-gray-200">
+                <div className="w-96 space-y-4 bg-gray-50 p-6 rounded border border-gray-200">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Subtotal:</span>
                     <span className="font-semibold text-gray-900">
@@ -764,7 +764,7 @@ export function InvoiceForm({
         {/* Additional Information */}
         <div className="p-8">
           <div className="flex items-center space-x-4 mb-8">
-            <div className="bg-blue-50 p-2 rounded-lg">
+            <div className="bg-blue-50 p-2 rounded">
               <Info className="w-5 h-5 text-blue-600" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900">

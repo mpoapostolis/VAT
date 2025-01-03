@@ -73,23 +73,28 @@ export function ViewVatReturn() {
           </div>
         </div>
 
-        <div className="bg-white border border-black/10 rounded-lg overflow-hidden">
+        <div className="bg-white border border-black/10 rounded overflow-hidden">
           <div className="border-b border-black/10 bg-slate-50/50 px-6 py-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-[#F1F5F9]">
+              <div className="p-2 rounded bg-[#F1F5F9]">
                 <Receipt className="w-5 h-5 text-[#3B82F6]" />
               </div>
               <div>
-                <h2 className="font-medium text-[#0F172A] text-lg">VAT Return for {vatReturn.period}</h2>
+                <h2 className="font-medium text-[#0F172A] text-lg">
+                  VAT Return for {vatReturn.period}
+                </h2>
                 <div className="flex items-center gap-2 text-sm text-[#64748B]">
                   <Clock className="w-4 h-4" />
                   <span>Created on {formatDate(vatReturn.created)}</span>
-                  <span className={`ml-2 px-2 py-0.5 text-xs font-medium rounded-full ${
-                    vatReturn.status === "draft"
-                      ? "bg-yellow-50 text-yellow-800 border border-yellow-200"
-                      : "bg-green-50 text-green-800 border border-green-200"
-                  }`}>
-                    {vatReturn.status.charAt(0).toUpperCase() + vatReturn.status.slice(1)}
+                  <span
+                    className={`ml-2 px-2 py-0.5 text-xs font-medium rounded-full ${
+                      vatReturn.status === "draft"
+                        ? "bg-yellow-50 text-yellow-800 border border-yellow-200"
+                        : "bg-green-50 text-green-800 border border-green-200"
+                    }`}
+                  >
+                    {vatReturn.status.charAt(0).toUpperCase() +
+                      vatReturn.status.slice(1)}
                   </span>
                 </div>
               </div>
@@ -105,21 +110,29 @@ export function ViewVatReturn() {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                  <div className="p-2 rounded bg-[#F1F5F9]">
                     <CreditCard className="w-4 h-4 text-[#3B82F6]" />
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-[#0F172A]">Total Sales</div>
-                    <div className="text-sm text-[#64748B]">{formatCurrency(vatReturn.sales || 0)}</div>
+                    <div className="text-sm font-medium text-[#0F172A]">
+                      Total Sales
+                    </div>
+                    <div className="text-sm text-[#64748B]">
+                      {formatCurrency(vatReturn.sales || 0)}
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                  <div className="p-2 rounded bg-[#F1F5F9]">
                     <BadgeEuro className="w-4 h-4 text-[#3B82F6]" />
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-[#0F172A]">Sales VAT</div>
-                    <div className="text-sm text-[#64748B]">{formatCurrency(vatReturn.salesVat || 0)}</div>
+                    <div className="text-sm font-medium text-[#0F172A]">
+                      Sales VAT
+                    </div>
+                    <div className="text-sm text-[#64748B]">
+                      {formatCurrency(vatReturn.salesVat || 0)}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -133,21 +146,29 @@ export function ViewVatReturn() {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                  <div className="p-2 rounded bg-[#F1F5F9]">
                     <CreditCard className="w-4 h-4 text-[#3B82F6]" />
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-[#0F172A]">Total Purchases</div>
-                    <div className="text-sm text-[#64748B]">{formatCurrency(vatReturn.purchases || 0)}</div>
+                    <div className="text-sm font-medium text-[#0F172A]">
+                      Total Purchases
+                    </div>
+                    <div className="text-sm text-[#64748B]">
+                      {formatCurrency(vatReturn.purchases || 0)}
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                  <div className="p-2 rounded bg-[#F1F5F9]">
                     <BadgeEuro className="w-4 h-4 text-[#3B82F6]" />
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-[#0F172A]">Purchases VAT</div>
-                    <div className="text-sm text-[#64748B]">{formatCurrency(vatReturn.purchasesVat || 0)}</div>
+                    <div className="text-sm font-medium text-[#0F172A]">
+                      Purchases VAT
+                    </div>
+                    <div className="text-sm text-[#64748B]">
+                      {formatCurrency(vatReturn.purchasesVat || 0)}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -159,12 +180,20 @@ export function ViewVatReturn() {
                 <Calculator className="w-4 h-4 text-[#3B82F6]" />
                 Net VAT
               </h3>
-              <div className="bg-[#F8FAFC] border border-black/5 rounded-lg p-4">
+              <div className="bg-[#F8FAFC] border border-black/5 rounded p-4">
                 <div className="flex items-center justify-between">
-                  <div className="text-sm font-medium text-[#0F172A]">Amount to Pay</div>
-                  <div className={`text-lg font-semibold ${netVat >= 0 ? 'text-red-600' : 'text-green-600'}`}>
+                  <div className="text-sm font-medium text-[#0F172A]">
+                    Amount to Pay
+                  </div>
+                  <div
+                    className={`text-lg font-semibold ${
+                      netVat >= 0 ? "text-red-600" : "text-green-600"
+                    }`}
+                  >
                     {formatCurrency(Math.abs(netVat))}
-                    <span className="text-sm ml-1">{netVat >= 0 ? 'Payable' : 'Refundable'}</span>
+                    <span className="text-sm ml-1">
+                      {netVat >= 0 ? "Payable" : "Refundable"}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -177,8 +206,10 @@ export function ViewVatReturn() {
                   <FileText className="w-4 h-4 text-[#3B82F6]" />
                   Additional Notes
                 </h3>
-                <div className="bg-[#F8FAFC] border border-black/5 rounded-lg p-4">
-                  <div className="text-sm text-[#64748B] whitespace-pre-wrap">{vatReturn.notes}</div>
+                <div className="bg-[#F8FAFC] border border-black/5 rounded p-4">
+                  <div className="text-sm text-[#64748B] whitespace-pre-wrap">
+                    {vatReturn.notes}
+                  </div>
                 </div>
               </div>
             )}
