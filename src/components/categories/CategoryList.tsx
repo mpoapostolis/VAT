@@ -81,7 +81,7 @@ export function CategoryList() {
         </Button>
       </div>
 
-      <div className="bg-white border border-black/10 rounded-lg overflow-hidden">
+      <div className="bg-white border border-black/10 rounded overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
@@ -157,7 +157,7 @@ export function CategoryList() {
               <TableRow key={category.id}>
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-[#F1F5F9]">
+                    <div className="p-2 rounded bg-[#F1F5F9]">
                       <FolderOpen className="w-5 h-5 text-[#3B82F6]" />
                     </div>
                     <div>

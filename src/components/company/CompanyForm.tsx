@@ -23,7 +23,7 @@ export function CompanyFormPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <CompanyForm company={company} onSuccess={handleSuccess} />
+          <CompanyForm onSuccess={handleSuccess} />
         </motion.div>
       </div>
     </AnimatedPage>

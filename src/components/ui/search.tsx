@@ -102,7 +102,7 @@ export function Search() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search invoices, customers, and more..."
-          className="w-full h-10 pl-10 pr-4 text-sm text-[#0F172A] placeholder-[#94A3B8] bg-[#F8FAFC] border border-black/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent transition-all"
+          className="w-full h-10 pl-10 pr-4 text-sm text-[#0F172A] placeholder-[#94A3B8] bg-[#F8FAFC] border border-black/10 rounded focus:outline-none focus:ring-2 focus:ring-[#3B82F6] focus:border-transparent transition-all"
         />
       </div>
 
@@ -113,7 +113,7 @@ export function Search() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-full left-0 w-full mt-1 bg-white border border-black/10 rounded-lg shadow-lg overflow-hidden"
+            className="absolute top-full left-0 w-full mt-1 bg-white border border-black/10 rounded shadow-lg overflow-hidden"
           >
             {groupedResults.map((group, groupIndex) => (
               <div key={group.title}>
@@ -137,7 +137,7 @@ export function Search() {
                       transition={{ delay: index * 0.05 }}
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-[#F1F5F9] flex items-center justify-center">
+                        <div className="w-8 h-8 rounded bg-[#F1F5F9] flex items-center justify-center">
                           <group.icon className="w-4 h-4 text-[#3B82F6]" />
                         </div>
                         <div>

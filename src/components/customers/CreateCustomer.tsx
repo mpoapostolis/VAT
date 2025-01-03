@@ -47,10 +47,12 @@ export function CreateCustomer() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white border border-black/10 rounded-lg overflow-hidden"
+            className="bg-white border border-black/10 rounded overflow-hidden"
           >
             <div className="border-b border-black/10 bg-slate-50/50 px-6 py-4">
-              <h2 className="font-medium text-[#0F172A]">Customer Information</h2>
+              <h2 className="font-medium text-[#0F172A]">
+                Customer Information
+              </h2>
               <p className="text-sm text-[#64748B]">
                 Create a new customer with contact and tax details
               </p>

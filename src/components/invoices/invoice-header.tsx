@@ -109,7 +109,7 @@ export function InvoiceHeader({
             <div className="relative">
               <button
                 onClick={() => setShowStatusMenu(!showStatusMenu)}
-                className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-[#64748B] hover:text-[#0F172A] transition-colors rounded-lg border border-black/10 hover:border-[#3B82F6]"
+                className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-[#64748B] hover:text-[#0F172A] transition-colors rounded border border-black/10 hover:border-[#3B82F6]"
               >
                 <CircleDot className="w-4 h-4" />
                 Update Status
@@ -117,7 +117,7 @@ export function InvoiceHeader({
               </button>
 
               {showStatusMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-black/10 py-1 z-10">
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded shadow-lg border border-black/10 py-1 z-10">
                   {["paid", "pending", "overdue"].map((status) => (
                     <button
                       key={status}
@@ -147,7 +147,7 @@ export function InvoiceHeader({
                   mode === "view" ? `/invoices/${id}/edit` : `/invoices/${id}`
                 )
               }
-              className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-[#64748B] hover:text-[#0F172A] transition-colors rounded-lg border border-black/10 hover:border-[#3B82F6]"
+              className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-[#64748B] hover:text-[#0F172A] transition-colors rounded border border-black/10 hover:border-[#3B82F6]"
             >
               {mode === "view" ? (
                 <>
@@ -164,7 +164,7 @@ export function InvoiceHeader({
 
             <button
               onClick={handleDownload}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-[#3B82F6] hover:bg-[#2563EB] transition-colors rounded-lg"
+              className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-[#3B82F6] hover:bg-[#2563EB] transition-colors rounded"
             >
               <Download className="w-4 h-4" />
               Download PDF
@@ -176,7 +176,7 @@ export function InvoiceHeader({
           <img
             src={`https://ui-avatars.com/api/?name=${customer.name}&background=random`}
             alt={customer.name}
-            className="w-10 h-10 rounded-lg border border-black/10"
+            className="w-10 h-10 rounded border border-black/10"
           />
           <div>
             <Link

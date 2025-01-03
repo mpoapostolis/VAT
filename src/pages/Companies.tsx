@@ -19,8 +19,8 @@ export function Companies() {
       />
       <Route path="new" element={<CompanyFormPage />} />
 
-      <Route path=":id" element={<CompanyFormPage mode="view" />} />
-      <Route path=":id/edit" element={<CompanyFormPage mode="edit" />} />
+      <Route path=":id" element={<CompanyFormPage />} />
+      <Route path=":id/edit" element={<CompanyFormPage />} />
     </Routes>
   );
 }

@@ -25,7 +25,7 @@ function UserDropdown() {
   return (
     <Dropdown
       trigger={
-        <button className="flex items-center gap-3 hover:bg-[#F8FAFC] px-3 py-2 rounded-lg transition-colors">
+        <button className="flex items-center gap-3 hover:bg-[#F8FAFC] px-3 py-2 rounded transition-colors">
           <div className="flex flex-col items-end">
             <span className="text-sm font-medium text-[#0F172A] tracking-tight">
               {user?.email || "John Doe"}
@@ -35,7 +35,7 @@ function UserDropdown() {
             </span>
           </div>
 
-          <div className="h-9 w-9 rounded-lg bg-[#F1F5F9] flex items-center justify-center">
+          <div className="h-9 w-9 rounded bg-[#F1F5F9] flex items-center justify-center">
             <User className="w-5 h-5 text-[#3B82F6]" />
           </div>
         </button>
@@ -63,7 +63,7 @@ export function Header() {
         <div className="mx-auto max-w-[1600px] h-full flex items-center justify-between gap-8">
           {/* Left section with menu and search */}
           <div className="flex items-center gap-4 flex-1">
-            <div className="w-full max-w-lg">
+            <div className="w-full hidden sm:flex max-w-lg">
               <Search />
             </div>
           </div>

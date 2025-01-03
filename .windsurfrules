@@ -1,0 +1,200 @@
+# VAT Application Code Guidelines
+
+# DIRECTORY STRUCTURE
+
+# src/
+
+# ├── components/
+
+# ├── dashboard/ # Dashboard-specific components
+
+# ├── invoices/ # Invoice management components
+
+# ├── customers/ # Customer management components
+
+# ├── categories/ # Category management components
+
+# ├── ui/ # Shared UI components
+
+# └── vat-return/ # VAT return specific components
+
+# ├── pages/ # Route components
+
+# ├── lib/ # Utilities and services
+
+# ├── types/ # TypeScript type definitions
+
+# ├── assets/ # Static assets
+
+# └── styles/ # Global styles
+
+# COMPONENT GUIDELINES
+
+1. UI Components:
+
+   - Location: [src/components/ui/](cci:7://file:///Users/apostolismpostanis/Desktop/projects/personal/VAT/src/components/ui:0:0-0:0)
+   - Purpose: Reusable, atomic UI components
+   - Naming: PascalCase (e.g., Button.tsx, Select.tsx)
+   - Implementation:
+     ```tsx
+     export function ComponentName({ prop1, prop2 }: ComponentProps) {
+       return (
+         <div className={cn("base-styles", "conditional-styles", className)}>
+           {/* Component content */}
+         </div>
+       );
+     }
+     ```
+
+2. Feature Components:
+
+   - Location: `src/components/{feature}/`
+   - Purpose: Feature-specific components
+   - Structure: Group related components in feature-specific directories
+   - Example: `dashboard/stats-section.tsx`, `invoices/invoice-form.tsx`
+
+3. Page Components:
+   - Location: [src/pages/](cci:7://file:///Users/apostolismpostanis/Desktop/projects/personal/VAT/src/pages:0:0-0:0)
+   - Naming: PascalCase, matching route name
+   - Example: [Dashboard.tsx](cci:7://file:///Users/apostolismpostanis/Desktop/projects/personal/VAT/src/pages/Dashboard.tsx:0:0-0:0), [Invoices.tsx](cci:7://file:///Users/apostolismpostanis/Desktop/projects/personal/VAT/src/pages/Invoices.tsx:0:0-0:0)
+
+# STYLING GUIDELINES
+
+1. Tailwind Usage:
+
+   - Use utility classes for styling
+   - Group classes by purpose:
+     ```tsx
+     className={cn(
+       // Layout
+       "flex flex-col gap-4",
+       // Typography
+       "text-sm font-medium text-gray-900",
+       // Visual
+       "bg-white rounded-lg shadow-sm",
+       // States
+       "hover:bg-gray-50 focus:ring-2"
+     )}
+     ```
+
+2. Color System:
+
+   - Primary: indigo-600 (#6366f1)
+   - Gray Scale: gray-50 to gray-900
+   - Status Colors:
+     - Success: emerald-500
+     - Error: rose-500
+     - Warning: amber-500
+     - Info: blue-500
+
+3. Spacing System:
+   - Use Tailwind's spacing scale
+   - Consistent gaps: gap-2, gap-3, gap-4
+   - Padding: p-3, p-4 for containers
+   - Margins: Prefer gap over margins when possible
+
+# STATE MANAGEMENT
+
+1. Component State:
+
+   - Use hooks for complex state logic
+   - Keep state as close to where it's used as possible
+   - Example:
+     ```tsx
+     const [isOpen, setIsOpen] = useState(false);
+     const handleToggle = useCallback(() => setIsOpen((prev) => !prev), []);
+     ```
+
+2. Form Handling:
+   - Use controlled components for forms
+   - Implement proper validation and error handling
+   - Example:
+     ```tsx
+     const [value, setValue] = useState("");
+     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+       setValue(e.target.value);
+     };
+     ```
+
+# TYPESCRIPT GUIDELINES
+
+1. Type Definitions:
+
+   - Location: [src/types/](cci:7://file:///Users/apostolismpostanis/Desktop/projects/personal/VAT/src/types:0:0-0:0) or alongside components
+   - Use interfaces for object types
+   - Example:
+     ```tsx
+     interface ComponentProps {
+       value: string;
+       onChange: (value: string) => void;
+       isLoading?: boolean;
+     }
+     ```
+
+2. Type Exports:
+   - Export types and interfaces when shared
+   - Keep internal types local to components
+
+# PERFORMANCE GUIDELINES
+
+1. Component Optimization:
+
+   - Use React.memo for expensive renders
+   - Implement proper dependency arrays in useEffect
+   - Example:
+     ```tsx
+     useEffect(() => {
+       // Effect logic
+     }, [dependency1, dependency2]);
+     ```
+
+2. Loading States:
+   - Implement skeleton loaders for better UX
+   - Use suspense boundaries when appropriate
+   - Example: Use TableSkeleton during data fetch
+
+# ACCESSIBILITY GUIDELINES
+
+1. Form Elements:
+
+   - Use proper ARIA labels
+   - Implement keyboard navigation
+   - Example:
+     ```tsx
+     <button
+       aria-label="Close modal"
+       onClick={onClose}
+     >
+     ```
+
+2. Interactive Elements:
+   - Ensure proper focus management
+   - Use appropriate HTML semantics
+   - Implement proper color contrast
+
+# TESTING GUIDELINES
+
+1. Component Testing:
+
+   - Test user interactions
+   - Test component rendering
+   - Test error states and loading states
+
+2. Integration Testing:
+   - Test feature workflows
+   - Test data fetching
+   - Test form submissions
+
+# COMMIT MESSAGE GUIDELINES
+
+1. Format:
+   type(scope): description
+   [optional body]
+
+2. Types:
+
+- feat: New feature
+- fix: Bug fix
+- refactor: Code change that neither fixes a bug nor adds a feature
+- style: Changes that do not affect the meaning of the code
+- docs: Documentation only changes

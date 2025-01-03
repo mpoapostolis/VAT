@@ -63,15 +63,19 @@ export function CreateVatReturn() {
           </div>
         </div>
 
-        <div className="bg-white border border-black/10 rounded-lg overflow-hidden">
+        <div className="bg-white border border-black/10 rounded overflow-hidden">
           <div className="border-b border-black/10 bg-slate-50/50 px-6 py-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-[#F1F5F9]">
+              <div className="p-2 rounded bg-[#F1F5F9]">
                 <Receipt className="w-5 h-5 text-[#3B82F6]" />
               </div>
               <div>
-                <h2 className="font-medium text-[#0F172A] text-lg">Create New VAT Return</h2>
-                <p className="text-sm text-[#64748B]">Fill in the VAT return details below</p>
+                <h2 className="font-medium text-[#0F172A] text-lg">
+                  Create New VAT Return
+                </h2>
+                <p className="text-sm text-[#64748B]">
+                  Fill in the VAT return details below
+                </p>
               </div>
             </div>
           </div>
@@ -100,7 +104,9 @@ export function CreateVatReturn() {
                   </label>
                   <Input
                     type="date"
-                    {...register("startDate", { required: "Start date is required" })}
+                    {...register("startDate", {
+                      required: "Start date is required",
+                    })}
                     error={errors.startDate?.message}
                   />
                 </div>
@@ -110,7 +116,9 @@ export function CreateVatReturn() {
                   </label>
                   <Input
                     type="date"
-                    {...register("endDate", { required: "End date is required" })}
+                    {...register("endDate", {
+                      required: "End date is required",
+                    })}
                     error={errors.endDate?.message}
                   />
                 </div>
@@ -148,7 +156,10 @@ export function CreateVatReturn() {
                     step="0.01"
                     {...register("salesVat", {
                       required: "Sales VAT is required",
-                      min: { value: 0, message: "Sales VAT cannot be negative" },
+                      min: {
+                        value: 0,
+                        message: "Sales VAT cannot be negative",
+                      },
                     })}
                     placeholder="0.00"
                     error={errors.salesVat?.message}
@@ -173,7 +184,10 @@ export function CreateVatReturn() {
                     step="0.01"
                     {...register("purchases", {
                       required: "Purchases amount is required",
-                      min: { value: 0, message: "Purchases cannot be negative" },
+                      min: {
+                        value: 0,
+                        message: "Purchases cannot be negative",
+                      },
                     })}
                     placeholder="0.00"
                     error={errors.purchases?.message}
@@ -188,7 +202,10 @@ export function CreateVatReturn() {
                     step="0.01"
                     {...register("purchasesVat", {
                       required: "Purchases VAT is required",
-                      min: { value: 0, message: "Purchases VAT cannot be negative" },
+                      min: {
+                        value: 0,
+                        message: "Purchases VAT cannot be negative",
+                      },
                     })}
                     placeholder="0.00"
                     error={errors.purchasesVat?.message}

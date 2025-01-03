@@ -1,6 +1,6 @@
-import { pb } from '../pocketbase';
-import type { Invoice } from '../pocketbase';
-import { addDays, isWithinInterval, startOfDay } from 'date-fns';
+import { pb } from "../pocketbase";
+import type { Invoice } from "../pocketbase";
+import { addDays, isWithinInterval, startOfDay } from "date-fns";
 
 interface DashboardStats {
   totalInvoices: number;
@@ -10,18 +10,32 @@ interface DashboardStats {
   recentTransactions: Invoice[];
 }
 
+interface DashboardFilters {
+  from?: string;
+  to?: string;
+  companyId?: string;
+}
+
 class DashboardService {
-  async getStats(dateRange?: { from: string; to: string }): Promise<DashboardStats> {
+  async getStats(filters?: DashboardFilters): Promise<DashboardStats> {
     try {
-      const filter = dateRange 
-        ? `date >= '${dateRange.from}' && date <= '${dateRange.to}'`
-        : '';
+      let filterConditions = [];
+      
+      if (filters?.from && filters?.to) {
+        filterConditions.push(`date >= '${filters.from}' && date <= '${filters.to}'`);
+      }
+      
+      if (filters?.companyId) {
+        filterConditions.push(`companyId = '${filters.companyId}'`);
+      }
+
+      const filter = filterConditions.join(" && ");
 
       // Get recent invoices with expanded customer and category data
-      const invoices = await pb.collection('invoices').getList(1, 500, {
+      const invoices = await pb.collection("invoices").getList(1, 500, {
         filter,
-        sort: '-date',
-        expand: 'customerId,categoryId',
+        sort: "-date",
+        expand: "customerId,categoryId",
       });
 
       // Calculate total revenue (sum of all invoice totals)
@@ -41,8 +55,10 @@ class DashboardService {
         const dueDate = new Date(invoice.dueDate);
         return isWithinInterval(dueDate, {
           start: today,
-          end: addDays(today, 7)
-        }) ? count + 1 : count;
+          end: addDays(today, 7),
+        })
+          ? count + 1
+          : count;
       }, 0);
 
       // Update overdue invoices
@@ -68,32 +84,32 @@ class DashboardService {
         recentTransactions,
       };
     } catch (error) {
-      console.error('Failed to fetch dashboard stats:', error);
+      console.error("Failed to fetch dashboard stats:", error);
       throw new Error(`Failed to fetch dashboard stats: ${error.message}`);
     }
   }
 
   private async updateOverdueInvoices(invoices: Invoice[]) {
     const today = startOfDay(new Date());
-    const overdueInvoices = invoices.filter(invoice => {
+    const overdueInvoices = invoices.filter((invoice) => {
       return (
-        invoice.status === 'pending' &&
+        invoice.status === "pending" &&
         invoice.dueDate &&
         new Date(invoice.dueDate) < today
       );
     });
 
     // Update status to overdue for relevant invoices
-    const updatePromises = overdueInvoices.map(invoice =>
-      pb.collection('invoices').update(invoice.id, {
-        status: 'overdue',
+    const updatePromises = overdueInvoices.map((invoice) =>
+      pb.collection("invoices").update(invoice.id, {
+        status: "overdue",
       })
     );
 
     try {
       await Promise.all(updatePromises);
     } catch (error) {
-      console.error('Failed to update overdue invoices:', error);
+      console.error("Failed to update overdue invoices:", error);
       throw new Error(`Failed to update overdue invoices: ${error.message}`);
     }
   }

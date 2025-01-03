@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Building2, User, MapPin, CreditCard, ArrowLeft } from "lucide-react";
+import { Building2, User, MapPin, CreditCard } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -14,19 +14,19 @@ import {
   SERVICE_TYPES,
 } from "@/types/company";
 import { companyService } from "@/lib/services/company";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useCompanies } from "@/lib/hooks/useCompanies";
+import { pb } from "@/lib/pocketbase";
 
 interface CompanyFormProps {
-  company?: Company | null;
   onSuccess: () => void;
   mode?: "view" | "edit";
 }
 
-export function CompanyForm({
-  company,
-  onSuccess,
-  mode = "edit",
-}: CompanyFormProps) {
+export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
+  const { companies } = useCompanies();
+  const id = useParams().id;
+  const company = companies?.find((c) => c.id === id);
   const {
     register,
     handleSubmit,
@@ -34,27 +34,23 @@ export function CompanyForm({
     formState: { errors, isSubmitting },
     setValue,
     trigger,
+    reset,
   } = useForm<Company>({
     defaultValues: {
       baseCurrency: "AED",
       defaultVatRate: 5,
       reverseChargeMechanism: false,
-      defaultPaymentTerms: 30,
+      defaultPaymentTermsDays: 30,
       billingAddress: {
         country: "United Arab Emirates",
       },
       shippingAddress: {
         country: "United Arab Emirates",
       },
-      bankDetails: {
-        bankName: "",
-        branch: "",
-        accountNumber: "",
-        swiftCode: "",
-        accountCurrency: "AED",
-      },
+      freeZone: false,
       registrationStatus: "pending",
       isActive: true,
+      logo: pb.getFileUrl(company ?? {}, company?.logo as string),
       ...company,
     },
   });
@@ -68,6 +64,20 @@ export function CompanyForm({
       trigger("businessTypeDescription");
     }
   }, [selectedBusinessType, trigger]);
+
+  useEffect(() => {
+    if (company) {
+      reset(company);
+    }
+  }, [company, reset]);
+
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (company?.logo && typeof company.logo === "string") {
+      setLogoPreview(pb.getFileUrl(company, company.logo));
+    }
+  }, [company]);
 
   const handleLogoUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
@@ -86,33 +96,71 @@ export function CompanyForm({
         throw new Error("File size should not exceed 5MB");
       }
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setValue("logo", reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      setValue("logo", file);
+
+      if (logoPreview) {
+        URL.revokeObjectURL(logoPreview);
+      }
+      const newPreviewUrl = URL.createObjectURL(file);
+      setLogoPreview(newPreviewUrl);
     } catch (error) {
       console.error("Error uploading logo:", error);
     }
   };
 
+  useEffect(() => {
+    return () => {
+      if (logoPreview && !company?.logo) {
+        URL.revokeObjectURL(logoPreview);
+      }
+    };
+  }, [logoPreview, company]);
+
+  const handleRemoveLogo = () => {
+    setValue("logo", undefined);
+    if (logoPreview) {
+      URL.revokeObjectURL(logoPreview);
+      setLogoPreview(null);
+    }
+  };
+
+  const { mutate: mutateCompanies } = useCompanies();
+
   const onSubmit = async (data: Company) => {
     try {
-      const formattedData = {
-        ...data,
-        defaultPaymentTerms: Number(data.defaultPaymentTerms),
-        defaultVatRate: Number(data.defaultVatRate),
-        reverseChargeMechanism: data.reverseChargeMechanism === true,
-        ...((!data.useShippingAddress || !data.shippingAddress?.street) && {
-          shippingAddress: undefined,
-        }),
-      };
+      const formData = new FormData();
+
+      Object.entries(data).forEach(([key, value]) => {
+        if (key === "logo" && value instanceof File) {
+          formData.append("logo", value);
+        } else if (key === "billingAddress" || key === "shippingAddress") {
+          formData.append(key, JSON.stringify(value));
+        } else if (value !== undefined && value !== null) {
+          formData.append(key, String(value));
+        }
+      });
 
       if (company?.id) {
-        await companyService.update(company.id, formattedData);
+        await companyService.update(company.id, formData);
       } else {
-        await companyService.create(formattedData);
+        await companyService.create(formData);
+        reset({
+          baseCurrency: "AED",
+          defaultVatRate: 5,
+          reverseChargeMechanism: false,
+          defaultPaymentTermsDays: 30,
+          billingAddress: {
+            country: "United Arab Emirates",
+          },
+          shippingAddress: {
+            country: "United Arab Emirates",
+          },
+          freeZone: false,
+          registrationStatus: "pending",
+          isActive: true,
+        });
       }
+      await mutateCompanies();
       onSuccess();
     } catch (error) {
       console.error("Failed to save company:", error);
@@ -136,16 +184,23 @@ export function CompanyForm({
     label: emirate,
   }));
 
-  const freeZoneOptions =
-    selectedEmirate && FREE_ZONES[selectedEmirate as keyof typeof FREE_ZONES]
+  const freeZoneOptions = [
+    { value: "", label: "Select Free Zone" },
+    ...(selectedEmirate &&
+    FREE_ZONES[selectedEmirate as keyof typeof FREE_ZONES]
       ? FREE_ZONES[selectedEmirate as keyof typeof FREE_ZONES].map((zone) => ({
           value: zone,
           label: zone,
         }))
-      : [];
+      : []),
+  ];
 
   return (
-    <form id="company-form" onSubmit={handleSubmit(onSubmit)}>
+    <form
+      id="company-form"
+      onSubmit={handleSubmit(onSubmit)}
+      encType="multipart/form-data"
+    >
       <div className="bg-white rounded 2xl border border-black/10 shadow-sm overflow-hidden">
         {/* Header */}
 
@@ -167,22 +222,69 @@ export function CompanyForm({
                 <FormLabel className="text-gray-700 font-medium">
                   Company Logo
                 </FormLabel>
-                <div className="mt-1 flex items-center space-x-4">
-                  {watch("logo") && (
-                    <img
-                      src={watch("logo")}
-                      alt="Company logo"
-                      className="h-12 w-12 object-contain rounded"
+                <div className="mt-2 flex items-start space-x-6">
+                  <div className="flex-shrink-0">
+                    {logoPreview ? (
+                      <div className="relative h-24 w-24">
+                        <img
+                          src={logoPreview}
+                          alt="Company logo"
+                          className="h-24 w-24 rounded-lg object-cover border border-gray-200"
+                        />
+                        {!mode || mode === "edit" ? (
+                          <button
+                            type="button"
+                            onClick={handleRemoveLogo}
+                            className="absolute -top-2 -right-2 rounded-full bg-white p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                          >
+                            <span className="sr-only">Remove logo</span>
+                            <svg
+                              className="h-4 w-4"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              strokeWidth="1.5"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M6 18L18 6M6 6l12 12"
+                              />
+                            </svg>
+                          </button>
+                        ) : null}
+                      </div>
+                    ) : (
+                      <div className="h-24 w-24 rounded-lg border-2 border-dashed border-gray-300 bg-white p-2 flex items-center justify-center">
+                        <svg
+                          className="h-8 w-8 text-gray-400"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth="1.5"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                          />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/gif"
+                      onChange={handleLogoUpload}
+                      disabled={mode === "view"}
+                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                     />
-                  )}
-                  <Input
-                    type="file"
-                    accept="image/jpeg,image/png,image/gif"
-                    onChange={handleLogoUpload}
-                    disabled={mode === "view"}
-                    className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                  />
-                  <FormMessage>{errors.logo?.message}</FormMessage>
+                    <p className="mt-2 text-sm text-gray-500">
+                      Upload a company logo (JPEG, PNG, or GIF, max 5MB)
+                    </p>
+                    <FormMessage>{errors.logo?.message}</FormMessage>
+                  </div>
                 </div>
               </FormItem>
 
@@ -302,7 +404,7 @@ export function CompanyForm({
           {/* Location Information */}
           <div className="space-y-6 pt-6 border-t border-gray-100">
             <div className="flex items-center space-x-3 mb-6">
-              <div className="p-2 bg-green-50 rounded lg">
+              <div className="p-2 bg-green-50 rounded-lg">
                 <MapPin className="h-5 w-5 text-green-500" />
               </div>
               <h2 className="text-lg font-medium text-gray-900">
@@ -310,44 +412,77 @@ export function CompanyForm({
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormItem>
-                <FormLabel className="text-gray-700 font-medium">
-                  Emirate
-                </FormLabel>
-                <Select
-                  options={emirateOptions}
-                  value={selectedEmirate}
-                  onChange={(value) => {
-                    setValue("emirate", value);
-                    setValue("freeZone", "");
-                  }}
-                  disabled={mode === "view"}
-                  error={!!errors.emirate}
-                  className="rounded xl"
-                />
-                <FormMessage>{errors.emirate?.message}</FormMessage>
-              </FormItem>
-
-              {selectedEmirate && freeZoneOptions.length > 0 && (
-                <FormItem>
-                  <FormLabel className="text-gray-700 font-medium">
-                    Free Zone
+            <div className="space-y-6">
+              {/* Emirate Selection */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormItem className="space-y-1.5">
+                  <FormLabel className="text-gray-700 font-medium block">
+                    Emirate
                   </FormLabel>
                   <Select
-                    options={freeZoneOptions}
-                    value={watch("freeZone")}
-                    onChange={(value) => setValue("freeZone", value)}
+                    options={emirateOptions}
+                    value={selectedEmirate}
+                    onChange={(value) => {
+                      setValue("emirate", value);
+                      setValue("Designated_Zone", undefined);
+                    }}
                     disabled={mode === "view"}
-                    error={!!errors.freeZone}
-                    className="rounded xl"
+                    error={!!errors.emirate}
+                    placeholder="Select Emirate"
+                    className="rounded-lg"
                   />
-                  <FormMessage>{errors.freeZone?.message}</FormMessage>
+                  <FormMessage>{errors.emirate?.message}</FormMessage>
                 </FormItem>
-              )}
+              </div>
+
+              {/* Free Zone Section */}
+              <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="freeZone"
+                      {...register("freeZone")}
+                      disabled={mode === "view"}
+                      className="rounded"
+                    />
+                    <label
+                      htmlFor="freeZone"
+                      className="text-sm font-medium text-gray-700 cursor-pointer select-none"
+                    >
+                      This company operates in a Free Zone
+                    </label>
+                  </div>
+                </div>
+
+                {watch("freeZone") &&
+                  selectedEmirate &&
+                  freeZoneOptions.length > 1 && (
+                    <div className="pl-6">
+                      <FormItem className="space-y-1.5">
+                        <FormLabel className="text-gray-600 text-sm block">
+                          Select Free Zone
+                        </FormLabel>
+                        <Select
+                          options={freeZoneOptions}
+                          value={watch("Designated_Zone") || ""}
+                          onChange={(value) =>
+                            setValue("Designated_Zone", value)
+                          }
+                          error={!!errors.Designated_Zone}
+                          placeholder="Select Free Zone"
+                          className="rounded-lg"
+                        />
+                        <FormMessage>
+                          {errors.Designated_Zone?.message}
+                        </FormMessage>
+                      </FormItem>
+                    </div>
+                  )}
+              </div>
             </div>
 
-            <div className="space-y-4">
+            {/* Billing Address */}
+            <div className="space-y-4 mt-6">
               <h3 className="text-base font-medium text-gray-900">
                 Billing Address
               </h3>
@@ -502,16 +637,16 @@ export function CompanyForm({
                   Contact Person First Name
                 </FormLabel>
                 <Input
-                  {...register("contactPerson.firstName", {
+                  {...register("contactPersonFirstName", {
                     required: "First name is required",
                   })}
-                  error={errors.contactPerson?.firstName?.message}
+                  error={errors.contactPersonFirstName?.message}
                   disabled={mode === "view"}
                   placeholder="Enter first name"
                   className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
                 <FormMessage>
-                  {errors.contactPerson?.firstName?.message}
+                  {errors.contactPersonFirstName?.message}
                 </FormMessage>
               </FormItem>
 
@@ -520,16 +655,16 @@ export function CompanyForm({
                   Contact Person Last Name
                 </FormLabel>
                 <Input
-                  {...register("contactPerson.lastName", {
+                  {...register("contactPersonLastName", {
                     required: "Last name is required",
                   })}
-                  error={errors.contactPerson?.lastName?.message}
+                  error={errors.contactPersonLastName?.message}
                   disabled={mode === "view"}
                   placeholder="Enter last name"
                   className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
                 <FormMessage>
-                  {errors.contactPerson?.lastName?.message}
+                  {errors.contactPersonLastName?.message}
                 </FormMessage>
               </FormItem>
 
@@ -538,7 +673,7 @@ export function CompanyForm({
                   Contact Person Position
                 </FormLabel>
                 <Input
-                  {...register("contactPerson.position")}
+                  {...register("contactPersonPosition")}
                   disabled={mode === "view"}
                   placeholder="Enter position"
                   className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
@@ -550,21 +685,19 @@ export function CompanyForm({
                   Email
                 </FormLabel>
                 <Input
-                  {...register("contactPerson.email", {
+                  {...register("email", {
                     required: "Email is required",
                     pattern: {
                       value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                       message: "Invalid email address",
                     },
                   })}
-                  error={errors.contactPerson?.email?.message}
+                  error={errors.email?.message}
                   disabled={mode === "view"}
                   placeholder="Enter email address"
                   className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
-                <FormMessage>
-                  {errors.contactPerson?.email?.message}
-                </FormMessage>
+                <FormMessage>{errors.email?.message}</FormMessage>
               </FormItem>
 
               <FormItem>
@@ -572,17 +705,15 @@ export function CompanyForm({
                   Phone Number
                 </FormLabel>
                 <Input
-                  {...register("contactPerson.phoneNumber", {
+                  {...register("phoneNumber", {
                     required: "Phone number is required",
                   })}
-                  error={errors.contactPerson?.phoneNumber?.message}
+                  error={errors.phoneNumber?.message}
                   disabled={mode === "view"}
                   placeholder="Enter phone number"
                   className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
-                <FormMessage>
-                  {errors.contactPerson?.phoneNumber?.message}
-                </FormMessage>
+                <FormMessage>{errors.phoneNumber?.message}</FormMessage>
               </FormItem>
             </div>
           </div>
@@ -641,18 +772,20 @@ export function CompanyForm({
                 </FormLabel>
                 <Input
                   type="number"
-                  {...register("defaultPaymentTerms", {
+                  {...register("defaultPaymentTermsDays", {
                     required: "Payment terms are required",
                     min: {
                       value: 0,
                       message: "Payment terms cannot be negative",
                     },
                   })}
-                  error={errors.defaultPaymentTerms?.message}
+                  error={errors.defaultPaymentTermsDays?.message}
                   disabled={mode === "view"}
                   className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
-                <FormMessage>{errors.defaultPaymentTerms?.message}</FormMessage>
+                <FormMessage>
+                  {errors.defaultPaymentTermsDays?.message}
+                </FormMessage>
               </FormItem>
 
               <FormItem>
@@ -681,11 +814,14 @@ export function CompanyForm({
                     Bank Name
                   </FormLabel>
                   <Input
-                    {...register("bankDetails.bankName")}
+                    {...register("bankName", {
+                      required: "Bank name is required",
+                    })}
                     disabled={mode === "view"}
                     placeholder="Enter bank name"
                     className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                   />
+                  <FormMessage>{errors.bankName?.message}</FormMessage>
                 </FormItem>
 
                 <FormItem>
@@ -693,11 +829,14 @@ export function CompanyForm({
                     Branch
                   </FormLabel>
                   <Input
-                    {...register("bankDetails.branch")}
+                    {...register("branch", {
+                      required: "Branch name is required",
+                    })}
                     disabled={mode === "view"}
                     placeholder="Enter branch name"
                     className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                   />
+                  <FormMessage>{errors.branch?.message}</FormMessage>
                 </FormItem>
 
                 <FormItem>
@@ -705,11 +844,14 @@ export function CompanyForm({
                     Account Number
                   </FormLabel>
                   <Input
-                    {...register("bankDetails.accountNumber")}
+                    {...register("accountNumber", {
+                      required: "Account number is required",
+                    })}
                     disabled={mode === "view"}
                     placeholder="Enter account number"
                     className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                   />
+                  <FormMessage>{errors.accountNumber?.message}</FormMessage>
                 </FormItem>
 
                 <FormItem>
@@ -717,11 +859,14 @@ export function CompanyForm({
                     SWIFT Code
                   </FormLabel>
                   <Input
-                    {...register("bankDetails.swiftCode")}
+                    {...register("swiftCode", {
+                      required: "SWIFT code is required",
+                    })}
                     disabled={mode === "view"}
                     placeholder="Enter SWIFT code"
                     className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                   />
+                  <FormMessage>{errors.swiftCode?.message}</FormMessage>
                 </FormItem>
 
                 <FormItem>
@@ -729,14 +874,39 @@ export function CompanyForm({
                     Account Currency
                   </FormLabel>
                   <Input
-                    {...register("bankDetails.accountCurrency")}
+                    {...register("accountCurrency", {
+                      required: "Account currency is required",
+                    })}
                     disabled={mode === "view"}
                     placeholder="Enter account currency"
                     className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                   />
+                  <FormMessage>{errors.accountCurrency?.message}</FormMessage>
                 </FormItem>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Form Actions */}
+        <div className="border-t border-gray-200 bg-gray-50 px-8 py-5">
+          <div className="flex justify-end gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate(-1)}
+              className="px-4 py-2"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={isSubmitting || mode === "view"}
+              className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600"
+            >
+              {isSubmitting ? "Saving..." : "Save Changes"}
+            </Button>
           </div>
         </div>
       </div>

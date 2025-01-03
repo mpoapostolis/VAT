@@ -73,9 +73,6 @@ export type BusinessType = (typeof BUSINESS_TYPES)[number];
 export type ServiceType = (typeof SERVICE_TYPES)[number];
 export type FreeZone = (typeof FREE_ZONES)[keyof typeof FREE_ZONES][number];
 
-/**
- * Address information for a company
- */
 export interface Address {
   street: string;
   city: string;
@@ -85,68 +82,42 @@ export interface Address {
 }
 
 /**
- * Contact person information
- */
-export interface ContactPerson {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  position?: string;
-}
-
-/**
- * Bank account details
- */
-export interface BankDetails {
-  bankName: string;
-  branch: string;
-  accountNumber: string; // IBAN for UAE accounts
-  swiftCode: string; // BIC/SWIFT code for international transactions
-  accountCurrency?: string;
-}
-
-/**
  * Main company interface containing all company information
  */
 export interface Company {
-  id: string;
+  id?: string;
+  logo?: string | File;
   companyNameEN: string;
   companyNameAR?: string;
   tradeLicenseNumber: string;
-  emirate: string;
-  email: string;
-  phoneNumber: string;
-  // Add other fields as necessary
-  primaryBusinessType?: string;
+  primaryBusinessType: string;
   businessTypeDescription?: string;
   serviceType?: string;
-  website?: string;
+  emirate: string;
   freeZone?: boolean;
-  billingAddress: {
-    street: string;
-    city: string;
-    state: string;
-    postalCode: string;
-  };
-  shippingAddress?: {
-    street: string;
-    city: string;
-    state: string;
-    postalCode: string;
-  };
+  Designated_Zone?: string;
+  billingAddress: Address;
+  shippingAddress?: Address;
+  useShippingAddress?: boolean;
   contactPersonFirstName: string;
   contactPersonLastName: string;
   contactPersonPosition?: string;
+  email: string;
+  phoneNumber: string;
+  website?: string;
   baseCurrency: string;
-  defaultVATRate?: number;
-  defaultPaymentTermsDays?: number;
+  defaultVatRate: number;
+  defaultPaymentTermsDays: number;
   reverseChargeMechanism?: boolean;
-  bankName?: string;
-  branch?: string;
-  accountNumber?: string;
-  swiftCode?: string;
-  accountCurrency?: string;
-  created: string;
-  updated: string;
+  bankName: string;
+  branch: string;
+  accountNumber: string;
+  swiftCode: string;
+  accountCurrency: string;
+  created?: string;
+  updated?: string;
+  registrationStatus?: "pending" | "approved" | "rejected";
+  isActive?: boolean;
 }
+
+export type CompanyFormData = Omit<Company, "id" | "created" | "updated">;

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { ChevronDown } from "lucide-react";
 import { createPortal } from "react-dom";
 import { cn } from "../../lib/utils";
@@ -21,7 +21,7 @@ export const Select = (props: SelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const { options, value, onChange, placeholder, className, error } = props;
-  const selectedOption = options.find((option) => option.value === value);
+  const selectedOption = options?.find((option) => option.value === value);
 
   const handleSelect = (option: SelectOption) => {
     onChange(option.value);
