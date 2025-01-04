@@ -1,4 +1,4 @@
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams } from "react-router-dom";
 
 export interface TableParams {
   page: number;
@@ -6,29 +6,32 @@ export interface TableParams {
   sort?: string;
 }
 
-export function useTableParams(defaultPerPage = 10) {
+export function useTableParams(defaultPerPage = 5) {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const page = parseInt(searchParams.get('page') || '1', 10);
-  const perPage = parseInt(searchParams.get('perPage') || String(defaultPerPage), 10);
-  const sort = searchParams.get('sort') || '';
+  const page = parseInt(searchParams.get("page") || "1", 5);
+  const perPage = parseInt(
+    searchParams.get("perPage") || String(defaultPerPage),
+    10
+  );
+  const sort = searchParams.get("sort") || "";
 
   const setPage = (newPage: number) => {
-    searchParams.set('page', String(newPage));
+    searchParams.set("page", String(newPage));
     setSearchParams(searchParams);
   };
 
   const setPerPage = (newPerPage: number) => {
-    searchParams.set('perPage', String(newPerPage));
-    searchParams.set('page', '1'); // Reset to first page when changing page size
+    searchParams.set("perPage", String(newPerPage));
+    searchParams.set("page", "1"); // Reset to first page when changing page size
     setSearchParams(searchParams);
   };
 
   const setSort = (newSort: string) => {
     if (newSort) {
-      searchParams.set('sort', newSort);
+      searchParams.set("sort", newSort);
     } else {
-      searchParams.delete('sort');
+      searchParams.delete("sort");
     }
     setSearchParams(searchParams);
   };

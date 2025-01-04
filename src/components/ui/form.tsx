@@ -1,5 +1,5 @@
-import React from 'react';
-import { cn } from '../../lib/utils';
+import React from "react";
+import { cn } from "../../lib/utils";
 
 export function FormLabel({
   className,
@@ -9,7 +9,7 @@ export function FormLabel({
   return (
     <label
       className={cn(
-        'text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+        "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
         className
       )}
       {...props}
@@ -25,7 +25,7 @@ export function FormItem({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn('space-y-2', className)} {...props}>
+    <div className={cn("space-y-2", className)} {...props}>
       {children}
     </div>
   );
@@ -37,10 +37,7 @@ export function FormMessage({
   ...props
 }: React.HTMLAttributes<HTMLParagraphElement>) {
   return (
-    <p
-      className={cn('text-sm font-medium text-red-500', className)}
-      {...props}
-    >
+    <p className={cn("text-sm font-medium text-red-500", className)} {...props}>
       {children}
     </p>
   );

@@ -201,13 +201,13 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
       onSubmit={handleSubmit(onSubmit)}
       encType="multipart/form-data"
     >
-      <div className="bg-white rounded 2xl border border-black/10 shadow-sm overflow-hidden">
+      <div className="bg-white rounded border border-black/10 shadow-sm overflow-hidden">
         {/* Header */}
 
-        <div className="p-8 space-y-8">
+        <div className="p-4 md:p-8 space-y-6 md:space-y-8">
           {/* Basic Information */}
-          <div className="space-y-6">
-            <div className="flex items-center space-x-3 mb-6">
+          <div className="space-y-4 md:space-y-6">
+            <div className="flex items-center space-x-3 mb-4 md:mb-6">
               <div className="p-2 bg-blue-50 rounded lg">
                 <Building2 className="h-5 w-5 text-blue-500" />
               </div>
@@ -216,20 +216,20 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
               {/* Logo Upload */}
-              <FormItem className="col-span-2">
+              <FormItem className="col-span-1 lg:col-span-2">
                 <FormLabel className="text-gray-700 font-medium">
                   Company Logo
                 </FormLabel>
                 <div className="mt-2 flex items-start space-x-6">
                   <div className="flex-shrink-0">
                     {logoPreview ? (
-                      <div className="relative h-24 w-24">
+                      <div className="relative h-20 w-20 md:h-24 md:w-24">
                         <img
                           src={logoPreview}
                           alt="Company logo"
-                          className="h-24 w-24 rounded-lg object-cover border border-gray-200"
+                          className="h-20 w-20 md:h-24 md:w-24 rounded object-cover border border-gray-200"
                         />
                         {!mode || mode === "edit" ? (
                           <button
@@ -255,7 +255,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                         ) : null}
                       </div>
                     ) : (
-                      <div className="h-24 w-24 rounded-lg border-2 border-dashed border-gray-300 bg-white p-2 flex items-center justify-center">
+                      <div className="h-20 w-20 md:h-24 md:w-24 rounded border-2 border-dashed border-gray-300 bg-white p-2 flex items-center justify-center">
                         <svg
                           className="h-8 w-8 text-gray-400"
                           fill="none"
@@ -278,7 +278,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                       accept="image/jpeg,image/png,image/gif"
                       onChange={handleLogoUpload}
                       disabled={mode === "view"}
-                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                     />
                     <p className="mt-2 text-sm text-gray-500">
                       Upload a company logo (JPEG, PNG, or GIF, max 5MB)
@@ -402,9 +402,9 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
           </div>
 
           {/* Location Information */}
-          <div className="space-y-6 pt-6 border-t border-gray-100">
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="p-2 bg-green-50 rounded-lg">
+          <div className="space-y-4 md:space-y-6 pt-4 md:pt-6 border-t border-gray-100">
+            <div className="flex items-center space-x-3 mb-4 md:mb-6">
+              <div className="p-2 bg-green-50 rounded">
                 <MapPin className="h-5 w-5 text-green-500" />
               </div>
               <h2 className="text-lg font-medium text-gray-900">
@@ -412,9 +412,9 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
               </h2>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-4 md:space-y-6">
               {/* Emirate Selection */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-4 md:gap-6">
                 <FormItem className="space-y-1.5">
                   <FormLabel className="text-gray-700 font-medium block">
                     Emirate
@@ -429,14 +429,14 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                     disabled={mode === "view"}
                     error={!!errors.emirate}
                     placeholder="Select Emirate"
-                    className="rounded-lg"
+                    className="rounded"
                   />
                   <FormMessage>{errors.emirate?.message}</FormMessage>
                 </FormItem>
               </div>
 
               {/* Free Zone Section */}
-              <div className="space-y-4 bg-gray-50 p-4 rounded-lg">
+              <div className="space-y-4 bg-gray-50 p-3 md:p-4 rounded">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Checkbox
@@ -470,7 +470,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                           }
                           error={!!errors.Designated_Zone}
                           placeholder="Select Free Zone"
-                          className="rounded-lg"
+                          className="rounded"
                         />
                         <FormMessage>
                           {errors.Designated_Zone?.message}
@@ -486,7 +486,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
               <h3 className="text-base font-medium text-gray-900">
                 Billing Address
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                 <FormItem>
                   <FormLabel className="text-gray-700 font-medium">
                     Street
@@ -567,7 +567,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
               </div>
 
               {useShippingAddress && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                   <FormItem>
                     <FormLabel className="text-gray-700 font-medium">
                       Street
@@ -621,9 +621,9 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
           </div>
 
           {/* Contact Information */}
-          <div className="space-y-6 pt-6 border-t border-gray-100">
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="p-2 bg-purple-50 rounded lg">
+          <div className="space-y-4 md:space-y-6 pt-4 md:pt-6 border-t border-gray-100">
+            <div className="flex items-center space-x-3 mb-4 md:mb-6">
+              <div className="p-2 bg-purple-50 rounded">
                 <User className="h-5 w-5 text-purple-500" />
               </div>
               <h2 className="text-lg font-medium text-gray-900">
@@ -631,7 +631,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
               <FormItem>
                 <FormLabel className="text-gray-700 font-medium">
                   Contact Person First Name
@@ -719,9 +719,9 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
           </div>
 
           {/* Financial Information */}
-          <div className="space-y-6 pt-6 border-t border-gray-100">
-            <div className="flex items-center space-x-3 mb-6">
-              <div className="p-2 bg-orange-50 rounded lg">
+          <div className="space-y-4 md:space-y-6 pt-4 md:pt-6 border-t border-gray-100">
+            <div className="flex items-center space-x-3 mb-4 md:mb-6">
+              <div className="p-2 bg-orange-50 rounded">
                 <CreditCard className="h-5 w-5 text-orange-500" />
               </div>
               <h2 className="text-lg font-medium text-gray-900">
@@ -729,7 +729,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
               <FormItem>
                 <FormLabel className="text-gray-700 font-medium">
                   Base Currency
@@ -808,7 +808,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
               <h3 className="text-base font-medium text-gray-900">
                 Bank Details
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                 <FormItem>
                   <FormLabel className="text-gray-700 font-medium">
                     Bank Name

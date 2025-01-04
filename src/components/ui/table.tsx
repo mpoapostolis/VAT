@@ -1,7 +1,6 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
-import { Select } from "./select";
+import { ArrowUp, ArrowDown } from "lucide-react";
 import { Dropdown } from "./dropdown";
 
 export const Table = React.forwardRef<
@@ -115,16 +114,17 @@ export const TablePagination = ({
   pageCount,
   onPageChange,
   onPageSizeChange,
+  totalItems,
 }: {
   pageIndex: number;
   pageSize: number;
   pageCount: number;
   onPageChange: (page: number) => void;
   onPageSizeChange: (pageSize: number) => void;
+  totalItems: number;
 }) => {
   const startItem = pageIndex * pageSize + 1;
   const endItem = Math.min((pageIndex + 1) * pageSize, pageCount * pageSize);
-  const totalItems = pageCount * pageSize;
 
   return (
     <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200">
@@ -148,21 +148,25 @@ export const TablePagination = ({
         <div className="text-sm text-slate-600 mx-auto flex items-center space-x-1">
           <span className="font-medium">{startItem}</span>
           <span>-</span>
-          <span className="font-medium">{endItem}</span>
+          <span className="font-medium">
+            {Math.min(endItem, totalItems) === totalItems
+              ? totalItems
+              : endItem}
+          </span>
           <span>of</span>
           <span className="font-medium">{totalItems}</span>
         </div>
       </div>
       <div className="flex items-center space-x-2">
         <button
-          className="h-8 px-3 rounded-md border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 transition-all"
+          className="h-8 px-3 rounded border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 transition-all"
           onClick={() => onPageChange(pageIndex - 1)}
           disabled={pageIndex === 0}
         >
           Previous
         </button>
         <button
-          className="h-8 px-3 rounded-md border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 transition-all"
+          className="h-8 px-3 rounded border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 transition-all"
           onClick={() => onPageChange(pageIndex + 1)}
           disabled={pageIndex === pageCount - 1}
         >

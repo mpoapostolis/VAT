@@ -1,6 +1,4 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import useSWR from "swr";
+import { Link } from "react-router-dom";
 import {
   Table,
   TableHeader,
@@ -10,48 +8,16 @@ import {
   TableCell,
   TablePagination,
 } from "@/components/ui/table";
-import { ActionDropdown } from "@/components/ui/action-dropdown";
 import { FolderOpen, Plus } from "lucide-react";
-import { categoryService } from "@/lib/services/category-service";
-import { useMutateData } from "@/lib/hooks/useMutateData";
-import { ConfirmationModal } from "@/components/ui/confirmation-modal";
-import { formatCurrency } from "@/lib/utils";
-import type { Category } from "@/lib/pocketbase";
-import { Button } from "@/components/ui/button";
-import {
-  useTableParams,
-  buildPocketBaseParams,
-} from "@/lib/hooks/useTableParams";
+import { useTableParams } from "@/lib/hooks/useTableParams";
+import { Trash2, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useCategories } from "@/lib/hooks/useCategories";
 
 export function CategoryList() {
-  const navigate = useNavigate();
+  const { categories: data, isLoading, ...rest } = useCategories();
+
   const tableParams = useTableParams();
-  const { data, mutate, isLoading } = useSWR(
-    ["categories", tableParams.page, tableParams.perPage, tableParams.sort],
-    () => categoryService.getListWithStats(buildPocketBaseParams(tableParams))
-  );
-  const { mutateData } = useMutateData();
-  const [deleteModal, setDeleteModal] = useState<{
-    isOpen: boolean;
-    categoryId: string | null;
-  }>({
-    isOpen: false,
-    categoryId: null,
-  });
-
-  const handleDelete = async () => {
-    if (!deleteModal.categoryId) return;
-
-    await mutateData(
-      mutate,
-      () => categoryService.delete(deleteModal.categoryId!),
-      {
-        successMessage: "Category deleted successfully",
-        errorMessage: "Failed to delete category",
-      }
-    );
-    setDeleteModal({ isOpen: false, categoryId: null });
-  };
 
   const handleSort = (field: string) => {
     const currentSort = tableParams.sort;
@@ -65,26 +31,39 @@ export function CategoryList() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 md:space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
         <div>
-          <h1 className="text-2xl font-semibold text-[#0F172A] tracking-tight">
+          <h1 className="text-xl md:text-2xl font-semibold text-gray-900 tracking-tight">
             Categories
           </h1>
-          <p className="text-sm text-[#64748B] mt-1">
+          <p className="text-sm text-gray-500 mt-1">
             Manage your invoice categories
           </p>
         </div>
-        <Button onClick={() => navigate("/categories/new")} className="gap-2">
+        <Link
+          to="/categories/new"
+          className={cn(
+            "inline-flex items-center justify-center gap-2",
+            "px-4 py-2.5 w-full sm:w-auto",
+            "text-sm font-medium text-white",
+            "bg-indigo-600 hover:bg-indigo-700",
+            "shadow-sm",
+            "transition-all duration-200",
+            "rounded",
+            "focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
+          )}
+        >
           <Plus className="w-4 h-4" />
           New Category
-        </Button>
+        </Link>
       </div>
 
-      <div className="bg-white border border-black/10 rounded overflow-hidden">
+      {/* Desktop View */}
+      <div className="hidden md:block overflow-hidden bg-white rounded border border-gray-200 shadow-sm">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="bg-gray-50/50">
               <TableHead
                 sortable
                 sorted={
@@ -95,6 +74,7 @@ export function CategoryList() {
                     : false
                 }
                 onSort={() => handleSort("name")}
+                className="font-medium text-gray-700"
               >
                 Category
               </TableHead>
@@ -108,119 +88,194 @@ export function CategoryList() {
                     : false
                 }
                 onSort={() => handleSort("type")}
+                className="font-medium text-gray-700"
               >
                 Type
               </TableHead>
-              <TableHead
-                sortable
-                sorted={
-                  tableParams.sort === "vat"
-                    ? "asc"
-                    : tableParams.sort === "-vat"
-                    ? "desc"
-                    : false
-                }
-                onSort={() => handleSort("vat")}
-              >
-                VAT
-              </TableHead>
-              <TableHead
-                sortable
-                sorted={
-                  tableParams.sort === "invoiceCount"
-                    ? "asc"
-                    : tableParams.sort === "-invoiceCount"
-                    ? "desc"
-                    : false
-                }
-                onSort={() => handleSort("invoiceCount")}
-              >
-                Invoices
-              </TableHead>
-              <TableHead
-                sortable
-                sorted={
-                  tableParams.sort === "totalAmount"
-                    ? "asc"
-                    : tableParams.sort === "-totalAmount"
-                    ? "desc"
-                    : false
-                }
-                onSort={() => handleSort("totalAmount")}
-              >
-                Total Amount
+
+              <TableHead className="font-medium text-gray-700">
+                Actions
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data?.items?.map((category) => (
-              <TableRow key={category.id}>
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded bg-[#F1F5F9]">
-                      <FolderOpen className="w-5 h-5 text-[#3B82F6]" />
-                    </div>
-                    <div>
-                      <Link
-                        to={`/categories/${category.id}/view`}
-                        className="font-medium text-[#0F172A] hover:text-[#3B82F6] transition-colors"
-                      >
-                        {category.name}
-                      </Link>
-                      <div className="text-sm text-[#64748B]">
-                        {category.description || "No description"}
-                      </div>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium ${
-                      category.type === "income"
-                        ? "bg-[#DCFCE7] text-[#10B981]"
-                        : "bg-[#FEE2E2] text-[#EF4444]"
-                    }`}
-                  >
-                    {category.type}
-                  </span>
-                </TableCell>
-                <TableCell>
-                  <div className="font-medium text-[#0F172A]">
-                    {category.vat}%
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="font-medium text-[#0F172A]">
-                    {category.invoiceCount}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="font-medium text-[#0F172A]">
-                    {formatCurrency(category.totalAmount)}
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={6} className="h-24 text-center">
+                  <div className="flex items-center justify-center text-sm text-gray-500">
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Loading categories...
                   </div>
                 </TableCell>
               </TableRow>
-            ))}
+            ) : data?.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="h-24 text-center">
+                  <div className="text-sm text-gray-500">
+                    No categories found
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : (
+              data?.map((category) => (
+                <TableRow
+                  key={category.id}
+                  className="hover:bg-gray-50/50 transition-colors duration-200"
+                >
+                  <TableCell className="py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-indigo-600/5 blur-sm rounded"></div>
+                        <div className="relative p-2 rounded bg-gradient-to-br from-gray-50 to-white shadow-sm">
+                          <FolderOpen className="w-4 h-4 text-indigo-600" />
+                        </div>
+                      </div>
+                      <div>
+                        <Link
+                          to={`/categories/${category.id}/edit`}
+                          className="font-medium text-xs text-gray-900 hover:text-indigo-600 transition-colors"
+                        >
+                          {category.name}
+                        </Link>
+                        <div className="text-sm text-gray-500">
+                          {category.description || "-"}
+                        </div>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="py-3">
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium ${
+                        category.type === "income"
+                          ? "bg-[#DCFCE7] text-[#10B981]"
+                          : "bg-[#FEE2E2] text-[#EF4444]"
+                      }`}
+                    >
+                      {category.type}
+                    </span>
+                  </TableCell>
+
+                  <TableCell className="py-3">
+                    <div className="flex items-center gap-2">
+                      <button
+                        aria-label={`Delete ${category.name}`}
+                        className={cn(
+                          // Layout
+                          "p-2",
+                          "relative",
+                          // Visual
+                          "rounded",
+                          // Typography
+                          "text-gray-500",
+                          // States
+                          "hover:text-rose-600 hover:bg-gray-50",
+                          "focus:outline-none focus:ring-2 focus:ring-rose-600/20",
+                          "disabled:opacity-50 disabled:cursor-not-allowed",
+                          "transition-all duration-200"
+                        )}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
+
         <TablePagination
-          pageIndex={data?.page ? data.page - 1 : 0}
+          pageIndex={Number(tableParams.page) - 1}
           pageSize={tableParams.perPage}
-          pageCount={data?.totalPages || 1}
+          totalItems={rest?.totalItems}
+          pageCount={rest?.totalPages}
           onPageChange={(page) => tableParams.setPage(page + 1)}
-          onPageSizeChange={tableParams.setPerPage}
+          onPageSizeChange={(size) => tableParams.setPerPage(size)}
         />
       </div>
 
-      <ConfirmationModal
-        isOpen={deleteModal.isOpen}
-        onClose={() => setDeleteModal({ isOpen: false, categoryId: null })}
-        onConfirm={handleDelete}
-        title="Delete Category"
-        description="Are you sure you want to delete this category? This action cannot be undone."
-        confirmText="Delete"
-        cancelText="Cancel"
-      />
+      {/* Mobile View */}
+      <div className="md:hidden space-y-4">
+        {isLoading ? (
+          <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="flex items-center justify-center text-xs text-gray-500">
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Loading categories...
+            </div>
+          </div>
+        ) : data?.length === 0 ? (
+          <div className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="text-xs text-gray-500 text-center">
+              No categories found
+            </div>
+          </div>
+        ) : (
+          data?.map((category) => (
+            <div
+              key={category.id}
+              className="bg-white border border-gray-200 rounded-lg p-4 space-y-4"
+            >
+              <div className="flex items-start gap-3">
+                <div className="p-2 rounded-md bg-gray-50/50 flex-shrink-0">
+                  <FolderOpen className="w-5 h-5 text-indigo-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <Link
+                    to={`/categories/${category.id}/edit`}
+                    className="block text-xs font-medium text-gray-900 hover:text-indigo-600 transition-colors truncate"
+                  >
+                    {category.name}
+                  </Link>
+                  <div className="text-xs text-gray-500 truncate mt-0.5">
+                    {category.description || "-"}
+                  </div>
+                </div>
+                <span
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    category.type === "income"
+                      ? "bg-[#DCFCE7] text-[#10B981]"
+                      : "bg-[#FEE2E2] text-[#EF4444]"
+                  }`}
+                >
+                  {category.type}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-200">
+                <button
+                  aria-label={`Delete ${category.name}`}
+                  className={cn(
+                    // Layout
+                    "p-2",
+                    "relative",
+                    // Visual
+                    "rounded-md",
+                    // Typography
+                    "text-gray-500",
+                    // States
+                    "hover:text-rose-600 hover:bg-gray-50",
+                    "focus:outline-none focus:ring-2 focus:ring-rose-600/20",
+                    "disabled:opacity-50 disabled:cursor-not-allowed",
+                    "transition-all duration-200"
+                  )}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+          <TablePagination
+            pageIndex={Number(tableParams.page) - 1}
+            pageSize={tableParams.perPage}
+            totalItems={rest?.totalItems}
+            pageCount={rest?.totalPages}
+            onPageChange={(page) => tableParams.setPage(page + 1)}
+            onPageSizeChange={(size) => tableParams.setPerPage(size)}
+          />
+        </div>
+      </div>
     </div>
   );
 }

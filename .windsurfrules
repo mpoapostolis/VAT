@@ -71,7 +71,7 @@
        // Typography
        "text-sm font-medium text-gray-900",
        // Visual
-       "bg-white rounded-lg shadow-sm",
+       "bg-white rounded shadow-sm",
        // States
        "hover:bg-gray-50 focus:ring-2"
      )}

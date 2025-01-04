@@ -1,10 +1,7 @@
-import React from "react";
 import { Routes, Route } from "react-router-dom";
 import { AnimatedPage } from "@/components/AnimatedPage";
-import { CustomersList } from "@/components/customers/CustomersList";
-import { CreateCustomer } from "@/components/customers/CreateCustomer";
-import { ViewCustomer } from "@/components/customers/ViewCustomer";
-import { EditCustomer } from "@/components/customers/EditCustomer";
+import { CustomerList } from "@/components/customers/customer-list";
+import { CustomerForm } from "@/components/customers/customer-form";
 
 export function Customers() {
   return (
@@ -13,13 +10,27 @@ export function Customers() {
         path="/"
         element={
           <AnimatedPage>
-            <CustomersList />
+            <CustomerList />
           </AnimatedPage>
         }
       />
-      <Route path="/new" element={<CreateCustomer />} />
-      <Route path="/:id" element={<ViewCustomer />} />
-      <Route path="/:id/edit" element={<EditCustomer />} />
+      <Route
+        path=":id/edit"
+        element={
+          <AnimatedPage>
+            <CustomerForm />
+          </AnimatedPage>
+        }
+      />
+
+      <Route
+        path="new"
+        element={
+          <AnimatedPage>
+            <CustomerForm />
+          </AnimatedPage>
+        }
+      />
     </Routes>
   );
 }

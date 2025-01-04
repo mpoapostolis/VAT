@@ -87,18 +87,15 @@ export function InvoiceHeader({
                 Invoice #{invoice.number}
               </h1>
               <div
-                className={clsx(
-                  "px-2.5 py-0.5 rounded-md text-xs font-medium",
-                  {
-                    "bg-[#DCFCE7] text-[#10B981]":
-                      invoice.status.toLowerCase() === "paid",
-                    "bg-[#FEF9C3] text-[#F59E0B]":
-                      invoice.status.toLowerCase() === "pending",
-                    "bg-[#FEE2E2] text-[#EF4444]":
-                      invoice.status.toLowerCase() === "overdue",
-                    "bg-[#F1F5F9] text-[#64748B]": !invoice.status,
-                  }
-                )}
+                className={clsx("px-2.5 py-0.5 rounded text-xs font-medium", {
+                  "bg-[#DCFCE7] text-[#10B981]":
+                    invoice.status.toLowerCase() === "paid",
+                  "bg-[#FEF9C3] text-[#F59E0B]":
+                    invoice.status.toLowerCase() === "pending",
+                  "bg-[#FEE2E2] text-[#EF4444]":
+                    invoice.status.toLowerCase() === "overdue",
+                  "bg-[#F1F5F9] text-[#64748B]": !invoice.status,
+                })}
               >
                 {invoice.status}
               </div>

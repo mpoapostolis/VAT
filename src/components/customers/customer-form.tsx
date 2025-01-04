@@ -8,7 +8,20 @@ import { Select } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card } from "@/components/ui/card";
 import { FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Building2, Mail, Phone, MapPin, CreditCard, User } from "lucide-react";
+import {
+  Building2,
+  Mail,
+  Phone,
+  MapPin,
+  CreditCard,
+  User,
+  Loader2,
+} from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { useNavigate, useParams } from "react-router-dom";
+import { pb } from "@/lib/pocketbase";
+import { toast } from "sonner";
+import { useEffect } from "react";
 
 const businessTypes = [
   "Retail Trade",
@@ -54,9 +67,9 @@ const schema = z
   .object({
     // Company or Individual fields
     isCompany: z.boolean(),
-    companyName: z.string().optional(),
-    firstName: z.string().optional(),
-    lastName: z.string().optional(),
+    companyName: z.string(),
+    contactFirstName: z.string(),
+    contactLastName: z.string(),
 
     // Address fields
     billingAddress: z.string().min(1, "Billing address is required"),
@@ -64,89 +77,133 @@ const schema = z
     useShippingAsBilling: z.boolean(),
 
     // Contact fields
-    contact: z.object({
-      firstName: z.string().min(1, "Contact first name is required"),
-      lastName: z.string().min(1, "Contact last name is required"),
-      email: z.string().email("Invalid email address"),
-      phone: z.string().min(1, "Phone number is required"),
-    }),
+    email: z.string().email("Invalid email address"),
+    phoneNumber: z.string().min(1, "Phone number is required"),
 
     // Business fields
-    trn: z.string().min(1, "Tax Registration Number is required"),
+    taxRegistrationNumber: z.string().optional(),
     country: z.string().min(1, "Country is required"),
     emirate: z.string().optional(),
     freeZone: z.string().optional(),
     businessType: z.enum(businessTypes),
-    businessTypeDescription: z.string().optional(),
-    relationship: z.enum(["client", "supplier", "both"]),
+    relationship: z.enum(["Client", "Vendor", "Other"]),
   })
   .refine(
     (data) => {
-      if (!data.isCompany) {
-        return data.firstName && data.lastName;
+      if (data.isCompany) {
+        return data.companyName.length > 0;
+      } else {
+        return (
+          data.contactFirstName.length > 0 && data.contactLastName.length > 0
+        );
       }
-      return data.companyName && data.companyName.length > 0;
     },
     {
-      message: "Either company name or first/last name is required",
-      path: ["companyName"],
-    }
-  )
-  .refine(
-    (data) => {
-      if (data.country === "UAE") {
-        return data.emirate;
-      }
-      return true;
-    },
-    {
-      message: "Emirate is required for UAE",
-      path: ["emirate"],
-    }
-  )
-  .refine(
-    (data) => {
-      if (data.businessType === "Other") {
-        return data.businessTypeDescription;
-      }
-      return true;
-    },
-    {
-      message: "Business type description is required when 'Other' is selected",
-      path: ["businessTypeDescription"],
+      message: "Either company name or first and last name must be provided",
+      path: ["companyName"], // this shows the error under company name field
     }
   );
 
 type FormData = z.infer<typeof schema>;
 
-interface CustomerFormProps {
-  customer?: FormData;
-  onSubmit: (data: FormData) => Promise<void>;
-  isSubmitting: boolean;
-  onCancel: () => void;
-}
+export function CustomerForm() {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const isEditing = Boolean(id);
 
-export function CustomerForm({
-  customer,
-  onSubmit,
-  isSubmitting,
-  onCancel,
-}: CustomerFormProps) {
   const {
     register,
     handleSubmit,
     watch,
     setValue,
-    formState: { errors },
+    reset,
+    formState: { errors, isSubmitting },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       isCompany: true,
       useShippingAsBilling: false,
-      relationship: "client",
-      ...customer,
+      relationship: "Client",
+      businessType: "Other" as const,
+      country: "UAE",
+      emirate: "",
+      freeZone: "",
+      companyName: "",
+      contactFirstName: "",
+      contactLastName: "",
+      billingAddress: "",
+      shippingAddress: "",
+      email: "",
+      phoneNumber: "",
+      taxRegistrationNumber: "",
     },
   });
+
+  useEffect(() => {
+    async function loadCustomer() {
+      if (id) {
+        try {
+          const customer = await pb.collection("customers").getOne(id);
+          // Reset the form with all customer data at once
+          reset({
+            ...customer,
+            useShippingAsBilling: Boolean(customer.shippingAddress),
+            shippingAddress: customer.shippingAddress || "",
+            contactFirstName: customer.contactFirstName || "",
+            contactLastName: customer.contactLastName || "",
+            email: customer.email || "",
+            phoneNumber: customer.phoneNumber || "",
+            taxRegistrationNumber: customer.taxRegistrationNumber || "",
+            country: customer.country || "UAE",
+            emirate: customer.emirate || "",
+            freeZone: customer.freeZone || "",
+            businessType: customer.businessType || "Other",
+            relationship: customer.relationship || "Client",
+          });
+        } catch (error) {
+          console.error("Error loading customer:", error);
+          toast.error("Failed to load customer");
+        }
+      }
+    }
+    loadCustomer();
+  }, [id, reset]);
+
+  const onSubmit = async (data: FormData) => {
+    try {
+      const formData = {
+        ...data,
+        // Handle shipping address based on useShippingAsBilling flag
+        shippingAddress: data.useShippingAsBilling ? data.shippingAddress : "",
+        // Ensure proper typing for relationship and businessType
+        relationship: data.relationship as "Client" | "Vendor" | "Other",
+        businessType: data.businessType as (typeof businessTypes)[number],
+      };
+
+      if (isEditing && id) {
+        await pb.collection("customers").update(id, formData);
+        toast.success("Customer updated successfully");
+      } else {
+        await pb.collection("customers").create(formData);
+        toast.success("Customer created successfully");
+      }
+      navigate("/customers");
+    } catch (error: any) {
+      console.error("Error saving customer:", error);
+      if (error.data?.data) {
+        // Handle validation errors from PocketBase
+        const firstError = Object.entries(error.data.data)[0];
+        const [field, message] = firstError;
+        toast.error(`${field}: ${message}`);
+      } else {
+        toast.error(
+          `Failed to ${isEditing ? "update" : "create"} customer: ${
+            error.message || "Unknown error"
+          }`
+        );
+      }
+    }
+  };
 
   const isCompany = watch("isCompany");
   const country = watch("country");
@@ -163,7 +220,16 @@ export function CustomerForm({
             <div className="flex items-center gap-4">
               <Checkbox
                 checked={isCompany}
-                onChange={(e) => setValue("isCompany", e.target.checked)}
+                onChange={(e) => {
+                  setValue("isCompany", e.target.checked);
+                  // Clear the opposite fields when switching
+                  if (e.target.checked) {
+                    setValue("contactFirstName", "");
+                    setValue("contactLastName", "");
+                  } else {
+                    setValue("companyName", "");
+                  }
+                }}
               />
               <FormLabel>Register as Company</FormLabel>
             </div>
@@ -192,12 +258,12 @@ export function CustomerForm({
                   First Name
                 </FormLabel>
                 <Input
-                  {...register("firstName")}
+                  {...register("contactFirstName")}
                   className="bg-white"
                   placeholder="Enter first name"
                 />
-                {errors.firstName && (
-                  <FormMessage>{errors.firstName.message}</FormMessage>
+                {errors.contactFirstName && (
+                  <FormMessage>{errors.contactFirstName.message}</FormMessage>
                 )}
               </FormItem>
               <FormItem>
@@ -206,12 +272,12 @@ export function CustomerForm({
                   Last Name
                 </FormLabel>
                 <Input
-                  {...register("lastName")}
+                  {...register("contactLastName")}
                   className="bg-white"
                   placeholder="Enter last name"
                 />
-                {errors.lastName && (
-                  <FormMessage>{errors.lastName.message}</FormMessage>
+                {errors.contactLastName && (
+                  <FormMessage>{errors.contactLastName.message}</FormMessage>
                 )}
               </FormItem>
             </div>
@@ -227,7 +293,7 @@ export function CustomerForm({
               <MapPin className="w-4 h-4 inline-block mr-2 text-[#64748B]" />
               Billing Address
             </FormLabel>
-            <Input
+            <Textarea
               {...register("billingAddress")}
               className="bg-white"
               placeholder="Enter billing address"
@@ -255,7 +321,7 @@ export function CustomerForm({
                 <MapPin className="w-4 h-4 inline-block mr-2 text-[#64748B]" />
                 Shipping Address
               </FormLabel>
-              <Input
+              <Textarea
                 {...register("shippingAddress")}
                 className="bg-white"
                 placeholder="Enter shipping address"
@@ -278,12 +344,12 @@ export function CustomerForm({
                 Contact First Name
               </FormLabel>
               <Input
-                {...register("contact.firstName")}
+                {...register("contactFirstName")}
                 className="bg-white"
                 placeholder="Enter contact first name"
               />
-              {errors.contact?.firstName && (
-                <FormMessage>{errors.contact.firstName.message}</FormMessage>
+              {errors.contactFirstName && (
+                <FormMessage>{errors.contactFirstName.message}</FormMessage>
               )}
             </FormItem>
             <FormItem>
@@ -292,12 +358,12 @@ export function CustomerForm({
                 Contact Last Name
               </FormLabel>
               <Input
-                {...register("contact.lastName")}
+                {...register("contactLastName")}
                 className="bg-white"
                 placeholder="Enter contact last name"
               />
-              {errors.contact?.lastName && (
-                <FormMessage>{errors.contact.lastName.message}</FormMessage>
+              {errors.contactLastName && (
+                <FormMessage>{errors.contactLastName.message}</FormMessage>
               )}
             </FormItem>
           </div>
@@ -308,13 +374,13 @@ export function CustomerForm({
                 Email
               </FormLabel>
               <Input
-                {...register("contact.email")}
+                {...register("email")}
                 type="email"
                 className="bg-white"
                 placeholder="Enter email address"
               />
-              {errors.contact?.email && (
-                <FormMessage>{errors.contact.email.message}</FormMessage>
+              {errors.email && (
+                <FormMessage>{errors.email.message}</FormMessage>
               )}
             </FormItem>
             <FormItem>
@@ -323,12 +389,12 @@ export function CustomerForm({
                 Phone
               </FormLabel>
               <Input
-                {...register("contact.phone")}
+                {...register("phoneNumber")}
                 className="bg-white"
                 placeholder="Enter phone number"
               />
-              {errors.contact?.phone && (
-                <FormMessage>{errors.contact.phone.message}</FormMessage>
+              {errors.phoneNumber && (
+                <FormMessage>{errors.phoneNumber.message}</FormMessage>
               )}
             </FormItem>
           </div>
@@ -344,11 +410,13 @@ export function CustomerForm({
               Tax Registration Number (TRN)
             </FormLabel>
             <Input
-              {...register("trn")}
+              {...register("taxRegistrationNumber")}
               className="bg-white"
               placeholder="Enter TRN"
             />
-            {errors.trn && <FormMessage>{errors.trn.message}</FormMessage>}
+            {errors.taxRegistrationNumber && (
+              <FormMessage>{errors.taxRegistrationNumber.message}</FormMessage>
+            )}
           </FormItem>
 
           <FormItem>
@@ -435,36 +503,17 @@ export function CustomerForm({
             )}
           </FormItem>
 
-          {businessType === "Other" && (
-            <FormItem>
-              <FormLabel>Business Type Description</FormLabel>
-              <Input
-                {...register("businessTypeDescription")}
-                className="bg-white"
-                placeholder="Enter business type description"
-              />
-              {errors.businessTypeDescription && (
-                <FormMessage>
-                  {errors.businessTypeDescription.message}
-                </FormMessage>
-              )}
-            </FormItem>
-          )}
-
           <FormItem>
             <FormLabel>Relationship</FormLabel>
             <Select
               options={[
-                { value: "client", label: "Client" },
-                { value: "supplier", label: "Supplier" },
-                { value: "both", label: "Both" },
+                { value: "Client", label: "Client" },
+                { value: "Vendor", label: "Vendor" },
+                { value: "Other", label: "Other" },
               ]}
               value={watch("relationship")}
               onChange={(value) =>
-                setValue(
-                  "relationship",
-                  value as "client" | "supplier" | "both"
-                )
+                setValue("relationship", value as "Client" | "Vendor" | "Other")
               }
               placeholder="Select Relationship"
               className="bg-white"
@@ -480,19 +529,22 @@ export function CustomerForm({
         <Button
           type="button"
           variant="outline"
-          onClick={onCancel}
+          onClick={() => navigate("/customers")}
           className="bg-white"
         >
           Cancel
         </Button>
         <Button variant="primary" type="submit" disabled={isSubmitting}>
-          {isSubmitting
-            ? customer
-              ? "Saving..."
-              : "Creating..."
-            : customer
-            ? "Save Changes"
-            : "Create"}
+          {isSubmitting ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              {isEditing ? "Updating..." : "Creating..."}
+            </>
+          ) : isEditing ? (
+            "Update Customer"
+          ) : (
+            "Create Customer"
+          )}
         </Button>
       </div>
     </form>

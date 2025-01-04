@@ -402,7 +402,7 @@ export function DateRangePicker({
                       "[&_.rdrMonthAndYearPickers_select]:p-1",
                       // Navigation buttons
                       "[&_.rdrNextPrevButton]:w-8 [&_.rdrNextPrevButton]:h-8",
-                      "[&_.rdrNextPrevButton]:transition-colors [&_.rdrNextPrevButton]:rounded-md",
+                      "[&_.rdrNextPrevButton]:transition-colors [&_.rdrNextPrevButton]:rounded",
                       "[&_.rdrNextPrevButton]:hover:bg-gray-100",
 
                       /* ----------------------------------

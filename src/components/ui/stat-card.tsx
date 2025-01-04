@@ -28,7 +28,7 @@ export function StatCard({
 }: StatCardProps) {
   if (isLoading) {
     return (
-      <div className="h-[120px] bg-white rounded-lg border border-gray-200/60 animate-pulse p-4">
+      <div className="h-[120px] bg-white rounded border border-gray-200/60 animate-pulse p-4">
         <div className="space-y-4">
           <div className="w-10 h-10 bg-gray-100 rounded" />
           <div className="space-y-2">
@@ -71,7 +71,7 @@ export function StatCard({
       animate={{ opacity: 1, y: 0 }}
       className={cn(
         // Base styles
-        "group relative h-[190px] bg-white rounded-lg border border-gray-200/60 p-5",
+        "group relative h-[190px] bg-white rounded border border-gray-200/60 p-5",
         // Interactive states
         "hover:bg-gray-50/50 transition-all duration-300",
         // Shadow
@@ -81,7 +81,7 @@ export function StatCard({
       {/* Decorative gradient */}
       <div
         className={cn(
-          "absolute inset-0 rounded-lg bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-300",
+          "absolute inset-0 rounded bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-300",
           variantStyles[variant].decoration
         )}
       />
@@ -90,7 +90,7 @@ export function StatCard({
         {/* Icon */}
         <div
           className={cn(
-            "flex items-center justify-center w-11 h-11 rounded-lg",
+            "flex items-center justify-center w-11 h-11 rounded",
             variantStyles[variant].icon
           )}
         >
