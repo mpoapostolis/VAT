@@ -144,7 +144,7 @@ export function Login() {
               {!isRegister && (
                 <motion.div
                   variants={itemVariants}
-                  className="flex items-center justify-between text-sm"
+                  className="flex items-center justify-between text-xs"
                 >
                   <label className="flex items-center">
                     <input type="checkbox" className="mr-2" />
@@ -176,7 +176,7 @@ export function Login() {
               <button
                 type="button"
                 onClick={() => setIsRegister(!isRegister)}
-                className="text-sm text-gray-600 hover:text-[#0066FF]"
+                className="text-xs text-gray-600 hover:text-[#0066FF]"
               >
                 {isRegister
                   ? "Already have an account? Sign in"
@@ -186,7 +186,7 @@ export function Login() {
           </motion.div>
 
           <motion.div variants={itemVariants} className="mt-8 text-center">
-            <p className="text-sm text-white/70">
+            <p className="text-xs text-white/70">
               By continuing, you agree to our{" "}
               <a href="#" className="text-white hover:underline">
                 Terms of Service

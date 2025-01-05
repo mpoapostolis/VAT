@@ -99,10 +99,10 @@ export function EditVatReturn() {
                 <Receipt className="w-5 h-5 text-[#3B82F6]" />
               </div>
               <div>
-                <h2 className="font-medium text-[#0F172A] text-lg">
+                <h2 className="font-medium text-[#0F172A] text-xs">
                   Edit VAT Return
                 </h2>
-                <p className="text-sm text-[#64748B]">
+                <p className="text-xs text-[#64748B]">
                   Update the VAT return details below
                 </p>
               </div>
@@ -112,13 +112,13 @@ export function EditVatReturn() {
           <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-8">
             {/* Period Information */}
             <div className="space-y-4">
-              <h3 className="text-sm font-medium text-[#0F172A] flex items-center gap-2">
+              <h3 className="text-xs font-medium text-[#0F172A] flex items-center gap-2">
                 <Calculator className="w-4 h-4 text-[#3B82F6]" />
                 Period Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-[#0F172A]">
+                  <label className="text-xs font-medium text-[#0F172A]">
                     Period
                   </label>
                   <Input
@@ -128,7 +128,7 @@ export function EditVatReturn() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-[#0F172A]">
+                  <label className="text-xs font-medium text-[#0F172A]">
                     Start Date
                   </label>
                   <Input
@@ -140,7 +140,7 @@ export function EditVatReturn() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-[#0F172A]">
+                  <label className="text-xs font-medium text-[#0F172A]">
                     End Date
                   </label>
                   <Input
@@ -156,13 +156,13 @@ export function EditVatReturn() {
 
             {/* Sales Information */}
             <div className="space-y-4">
-              <h3 className="text-sm font-medium text-[#0F172A] flex items-center gap-2">
+              <h3 className="text-xs font-medium text-[#0F172A] flex items-center gap-2">
                 <Calculator className="w-4 h-4 text-[#3B82F6]" />
                 Sales Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-[#0F172A]">
+                  <label className="text-xs font-medium text-[#0F172A]">
                     Total Sales
                   </label>
                   <Input
@@ -177,7 +177,7 @@ export function EditVatReturn() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-[#0F172A]">
+                  <label className="text-xs font-medium text-[#0F172A]">
                     Sales VAT
                   </label>
                   <Input
@@ -199,13 +199,13 @@ export function EditVatReturn() {
 
             {/* Purchases Information */}
             <div className="space-y-4">
-              <h3 className="text-sm font-medium text-[#0F172A] flex items-center gap-2">
+              <h3 className="text-xs font-medium text-[#0F172A] flex items-center gap-2">
                 <Calculator className="w-4 h-4 text-[#3B82F6]" />
                 Purchases Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-[#0F172A]">
+                  <label className="text-xs font-medium text-[#0F172A]">
                     Total Purchases
                   </label>
                   <Input
@@ -223,7 +223,7 @@ export function EditVatReturn() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-[#0F172A]">
+                  <label className="text-xs font-medium text-[#0F172A]">
                     Purchases VAT
                   </label>
                   <Input
@@ -245,7 +245,7 @@ export function EditVatReturn() {
 
             {/* Additional Notes */}
             <div className="space-y-4">
-              <h3 className="text-sm font-medium text-[#0F172A] flex items-center gap-2">
+              <h3 className="text-xs font-medium text-[#0F172A] flex items-center gap-2">
                 <Calculator className="w-4 h-4 text-[#3B82F6]" />
                 Additional Notes
               </h3>

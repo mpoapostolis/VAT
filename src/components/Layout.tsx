@@ -77,7 +77,7 @@ export function Layout() {
                         className="h-8 w-8 rounded-full ring-2 ring-white"
                       />
                       <div className="hidden sm:flex items-center">
-                        <span className="text-sm font-medium text-gray-700">
+                        <span className="text-xs font-medium text-gray-700">
                           John Doe
                         </span>
                         <ChevronDown className="h-4 w-4 ml-2 text-gray-500" />
@@ -109,7 +109,7 @@ export function Layout() {
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`py-4 px-5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                  className={`py-4 px-5 text-xs font-medium border-b-2 transition-colors whitespace-nowrap ${
                     isActiveTab(item.href)
                       ? "border-[#0066FF] text-[#0066FF]"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
@@ -137,7 +137,7 @@ export function Layout() {
                 key={item.name}
                 to={item.href}
                 onClick={() => setIsDrawerOpen(false)}
-                className={`flex items-center space-x-3 px-4 py-3 text-sm font-medium transition-colors ${
+                className={`flex items-center space-x-3 px-4 py-3 text-xs font-medium transition-colors ${
                   isActiveTab(item.href)
                     ? "text-[#0066FF] bg-blue-50"
                     : "text-gray-700 hover:bg-gray-50"

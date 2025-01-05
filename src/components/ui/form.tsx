@@ -9,7 +9,7 @@ export function FormLabel({
   return (
     <label
       className={cn(
-        "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
+        "text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
         className
       )}
       {...props}
@@ -37,7 +37,7 @@ export function FormMessage({
   ...props
 }: React.HTMLAttributes<HTMLParagraphElement>) {
   return (
-    <p className={cn("text-sm font-medium text-red-500", className)} {...props}>
+    <p className={cn("text-xs font-medium text-red-500", className)} {...props}>
       {children}
     </p>
   );

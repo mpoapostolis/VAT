@@ -13,6 +13,7 @@ import { useTableParams } from "@/lib/hooks/useTableParams";
 import { Trash2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCategories } from "@/lib/hooks/useCategories";
+import { Badge } from "../ui/badge";
 
 export function CategoryList() {
   const { categories: data, isLoading, ...rest } = useCategories();
@@ -37,7 +38,7 @@ export function CategoryList() {
           <h1 className="text-xl md:text-2xl font-semibold text-gray-900 tracking-tight">
             Categories
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-xs text-gray-500 mt-1">
             Manage your invoice categories
           </p>
         </div>
@@ -46,12 +47,12 @@ export function CategoryList() {
           className={cn(
             "inline-flex items-center justify-center gap-2",
             "px-4 py-2.5 w-full sm:w-auto",
-            "text-sm font-medium text-white",
-            "bg-indigo-600 hover:bg-indigo-700",
+            "text-xs font-medium text-white",
+            "bg-blue-600 hover:bg-blue-700",
             "shadow-sm",
             "transition-all duration-200",
             "rounded",
-            "focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
+            "focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
           )}
         >
           <Plus className="w-4 h-4" />
@@ -102,7 +103,7 @@ export function CategoryList() {
             {isLoading ? (
               <TableRow>
                 <TableCell colSpan={6} className="h-24 text-center">
-                  <div className="flex items-center justify-center text-sm text-gray-500">
+                  <div className="flex items-center justify-center text-xs text-gray-500">
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Loading categories...
                   </div>
@@ -111,7 +112,7 @@ export function CategoryList() {
             ) : data?.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="h-24 text-center">
-                  <div className="text-sm text-gray-500">
+                  <div className="text-xs text-gray-500">
                     No categories found
                   </div>
                 </TableCell>
@@ -125,34 +126,36 @@ export function CategoryList() {
                   <TableCell className="py-3">
                     <div className="flex items-center gap-3">
                       <div className="relative">
-                        <div className="absolute inset-0 bg-indigo-600/5 blur-sm rounded"></div>
+                        <div className="absolute inset-0 bg-blue-600/5 blur-sm rounded"></div>
                         <div className="relative p-2 rounded bg-gradient-to-br from-gray-50 to-white shadow-sm">
-                          <FolderOpen className="w-4 h-4 text-indigo-600" />
+                          <FolderOpen className="w-4 h-4 text-blue-600" />
                         </div>
                       </div>
                       <div>
                         <Link
                           to={`/categories/${category.id}/edit`}
-                          className="font-medium text-xs text-gray-900 hover:text-indigo-600 transition-colors"
+                          className="font-medium text-xs text-gray-900 hover:text-blue-600 transition-colors"
                         >
                           {category.name}
                         </Link>
-                        <div className="text-sm text-gray-500">
+                        <div className="text-xs text-gray-500">
                           {category.description || "-"}
                         </div>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell className="py-3">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium ${
+                    <Badge
+                      variant="outline"
+                      className={cn(
+                        "capitalize text-xs font-medium px-2.5 py-0 border-0",
                         category.type === "income"
-                          ? "bg-[#DCFCE7] text-[#10B981]"
-                          : "bg-[#FEE2E2] text-[#EF4444]"
-                      }`}
+                          ? "bg-green-50 text-green-700 ring-1 ring-emerald-600/20"
+                          : "bg-red-50 text-red-700 ring-1 ring-red-600/20"
+                      )}
                     >
                       {category.type}
-                    </span>
+                    </Badge>
                   </TableCell>
 
                   <TableCell className="py-3">
@@ -168,8 +171,8 @@ export function CategoryList() {
                           // Typography
                           "text-gray-500",
                           // States
-                          "hover:text-rose-600 hover:bg-gray-50",
-                          "focus:outline-none focus:ring-2 focus:ring-rose-600/20",
+                          "hover:text-red-600 hover:bg-gray-50",
+                          "focus:outline-none focus:ring-2 focus:ring-red-600/20",
                           "disabled:opacity-50 disabled:cursor-not-allowed",
                           "transition-all duration-200"
                         )}
@@ -197,14 +200,14 @@ export function CategoryList() {
       {/* Mobile View */}
       <div className="md:hidden space-y-4">
         {isLoading ? (
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
+          <div className="bg-white border border-gray-200 rounded p-4">
             <div className="flex items-center justify-center text-xs text-gray-500">
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               Loading categories...
             </div>
           </div>
         ) : data?.length === 0 ? (
-          <div className="bg-white border border-gray-200 rounded-lg p-4">
+          <div className="bg-white border border-gray-200 rounded p-4">
             <div className="text-xs text-gray-500 text-center">
               No categories found
             </div>
@@ -213,16 +216,16 @@ export function CategoryList() {
           data?.map((category) => (
             <div
               key={category.id}
-              className="bg-white border border-gray-200 rounded-lg p-4 space-y-4"
+              className="bg-white border border-gray-200 rounded p-4 space-y-4"
             >
               <div className="flex items-start gap-3">
-                <div className="p-2 rounded-md bg-gray-50/50 flex-shrink-0">
-                  <FolderOpen className="w-5 h-5 text-indigo-600" />
+                <div className="p-2 rounded bg-gray-50/50 flex-shrink-0">
+                  <FolderOpen className="w-5 h-5 text-blue-600" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <Link
                     to={`/categories/${category.id}/edit`}
-                    className="block text-xs font-medium text-gray-900 hover:text-indigo-600 transition-colors truncate"
+                    className="block text-xs font-medium text-gray-900 hover:text-blue-600 transition-colors truncate"
                   >
                     {category.name}
                   </Link>
@@ -230,15 +233,17 @@ export function CategoryList() {
                     {category.description || "-"}
                   </div>
                 </div>
-                <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    category.type === "income"
-                      ? "bg-[#DCFCE7] text-[#10B981]"
-                      : "bg-[#FEE2E2] text-[#EF4444]"
-                  }`}
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    "capitalize text-xs font-medium px-2.5 py-1 border-0",
+                    category.type === "expense"
+                      ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20"
+                      : "bg-red-50 text-red-700 ring-1 ring-red-600/20"
+                  )}
                 >
                   {category.type}
-                </span>
+                </Badge>
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-200">
@@ -249,12 +254,12 @@ export function CategoryList() {
                     "p-2",
                     "relative",
                     // Visual
-                    "rounded-md",
+                    "rounded",
                     // Typography
                     "text-gray-500",
                     // States
-                    "hover:text-rose-600 hover:bg-gray-50",
-                    "focus:outline-none focus:ring-2 focus:ring-rose-600/20",
+                    "hover:text-red-600 hover:bg-gray-50",
+                    "focus:outline-none focus:ring-2 focus:ring-red-600/20",
                     "disabled:opacity-50 disabled:cursor-not-allowed",
                     "transition-all duration-200"
                   )}
@@ -265,7 +270,7 @@ export function CategoryList() {
             </div>
           ))
         )}
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <div className="bg-white border border-gray-200 rounded overflow-hidden">
           <TablePagination
             pageIndex={Number(tableParams.page) - 1}
             pageSize={tableParams.perPage}

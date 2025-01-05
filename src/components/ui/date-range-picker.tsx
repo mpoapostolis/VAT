@@ -23,7 +23,7 @@ import { DateRange } from "react-date-range";
 import { cn } from "@/lib/utils";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 
 /* ----------------------------------------------
    QUICK RANGES
@@ -155,7 +155,8 @@ export function DateRangePicker({
   value,
   className,
 }: DateRangePickerProps) {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -197,17 +198,45 @@ export function DateRangePicker({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // If ?from= and ?to= are in the URL, pre-set them
+  // Update URL parameters when range changes
+  const updateUrlParams = (newRange: {
+    from: Date | undefined;
+    to: Date | undefined;
+  }) => {
+    const params = new URLSearchParams(searchParams);
+    if (newRange.from && newRange.to) {
+      params.set("from", newRange.from.toISOString());
+      params.set("to", newRange.to.toISOString());
+    } else {
+      params.delete("from");
+      params.delete("to");
+    }
+    navigate(`?${params.toString()}`, { replace: true });
+  };
+
+  // Initialize from URL parameters
+  const from = searchParams.get("from");
+  const to = searchParams.get("to");
+  useEffect(() => {
+    if (!from && !to) {
+      const newRange = { from: undefined, to: undefined };
+      setRange(newRange);
+      onChange?.(newRange);
+    }
+  }, [from, to]);
+
   useEffect(() => {
     const from = searchParams.get("from");
     const to = searchParams.get("to");
     if (from && to) {
-      setRange({
+      const newRange = {
         from: new Date(from),
         to: new Date(to),
-      });
+      };
+      setRange(newRange);
+      onChange?.(newRange);
     }
-  }, [searchParams]);
+  }, []);
 
   // Called when the user selects a date range on the calendar
   const handleSelect = (ranges: any) => {
@@ -217,6 +246,7 @@ export function DateRangePicker({
     };
     setRange(newRange);
     onChange?.(newRange);
+    updateUrlParams(newRange);
   };
 
   // Resets the date range
@@ -224,6 +254,7 @@ export function DateRangePicker({
     const newRange = { from: undefined, to: undefined };
     setRange(newRange);
     onChange?.(newRange);
+    updateUrlParams(newRange);
     setIsOpen(false);
   };
 
@@ -232,6 +263,7 @@ export function DateRangePicker({
     const newRange = quickRange.getValue();
     setRange(newRange);
     onChange?.(newRange);
+    updateUrlParams(newRange);
     setIsOpen(false);
   };
 
@@ -242,7 +274,7 @@ export function DateRangePicker({
         id="date-range-picker-button"
         variant="outline"
         className={cn(
-          "w-full flex truncate items-center text-sm justify-start text-left font-medium group",
+          "w-full flex roundedsm text-xs truncate items-center  justify-start text-left font-medium group",
           "border-gray-200 bg-white hover:bg-gray-100",
           "focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500",
           "transition-colors duration-200",
@@ -251,26 +283,29 @@ export function DateRangePicker({
         onClick={() => setIsOpen((prev) => !prev)}
       >
         <CalendarIcon className="mr-2 h-4 w-4 text-gray-600 group-hover:text-blue-600 transition-colors duration-200" />
-        {range.from ? (
-          range.to ? (
-            <span className="text-gray-700 group-hover:text-gray-900 transition-colors duration-200">
-              {format(range.from, "MMM d, yyyy")} -{" "}
-              {format(range.to, "MMM d, yyyy")}
-            </span>
+        <span className=" truncate">
+          {range.from ? (
+            range.to ? (
+              <span className="text-gray-700 group-hover:text-gray-900 transition-colors duration-200">
+                {format(range.from, "MMM d, yyyy")} -{" "}
+                {format(range.to, "MMM d, yyyy")}
+              </span>
+            ) : (
+              <span className="text-gray-700 group-hover:text-gray-900 transition-colors duration-200">
+                {format(range.from, "MMM d, yyyy")}
+              </span>
+            )
           ) : (
-            <span className="text-gray-700 group-hover:text-gray-900 transition-colors duration-200">
-              {format(range.from, "MMM d, yyyy")}
-            </span>
-          )
-        ) : (
-          <span>Select date range</span>
-        )}
+            <span>Select date range</span>
+          )}
+        </span>
+
         {/* Clear button if there is a range */}
         {range.from && (
           <Button
             variant="ghost"
             size="icon"
-            className="ml-auto h-6 w-6 rounded-full opacity-70 hover:opacity-100 hover:bg-gray-100"
+            className="ml-auto h-6 w-6 roundedfull opacity-70 hover:opacity-100 hover:bg-gray-100"
             onClick={(e) => {
               e.stopPropagation();
               clearRange();
@@ -310,13 +345,13 @@ export function DateRangePicker({
           >
             {/* Mobile header with close button */}
             <div className="flex items-center justify-between p-4 border-b border-gray-200 lg:hidden">
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-xs font-semibold text-gray-900">
                 Select Date Range
               </h3>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 rounded-full"
+                className="h-8 w-8 roundedfull"
                 onClick={() => setIsOpen(false)}
               >
                 <CloseIcon className="h-4 w-4" />
@@ -333,7 +368,7 @@ export function DateRangePicker({
               >
                 {/* Quick Ranges Panel */}
                 <div className="p-4 lg:w-[220px] lg:flex-shrink-0">
-                  <h4 className="text-sm font-semibold text-gray-900 mb-3 hidden lg:block">
+                  <h4 className="text-xs font-semibold text-gray-900 mb-3 hidden lg:block">
                     Quick Ranges
                   </h4>
                   <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
@@ -414,16 +449,16 @@ export function DateRangePicker({
      * DAYS / CELLS
      ---------------------------------- */
                       // Container for each day cell
-                      "[&_.rdrDay]:!w-[14.28%]", // Force 7 columns (100/7 ~ 14.28)
+                      // "[&_.rdrDay]:!w-[14.28%]", // Force 7 columns (100/7 ~ 14.28)
                       // For bigger screens, optionally narrower cells:
-                      "lg:[&_.rdrDay]:!w-10",
-                      "[&_.rdrDay]:aspect-square", // keep squares on smaller screens
+                      // "lg:[&_.rdrDay]:!w-10",
+                      // "[&_.rdrDay]:aspect-square", // keep squares on smaller screens
                       // The day number container
-                      "[&_.rdrDayNumber]:!w-full [&_.rdrDayNumber]:!h-full",
-                      "[&_.rdrDayNumber]:flex [&_.rdrDayNumber]:items-center [&_.rdrDayNumber]:justify-center",
-                      "[&_.rdrDayNumber]:[&>span]:w-10 [&_.rdrDayNumber]:[&>span]:h-10",
-                      "[&_.rdrDayNumber]:[&>span]:flex [&_.rdrDayNumber]:[&>span]:items-center [&_.rdrDayNumber]:[&>span]:justify-center",
-                      "[&_.rdrDayNumber]:[&>span]:text-sm [&_.rdrDayNumber]:[&>span]:font-medium",
+                      // "[&_.rdrDayNumber]:!w-full [&_.rdrDayNumber]:!h-full",
+                      // "[&_.rdrDayNumber]:flex [&_.rdrDayNumber]:items-center [&_.rdrDayNumber]:justify-center",
+                      // "[&_.rdrDayNumber]:[&>span]:w-10 [&_.rdrDayNumber]:[&>span]:h-10",
+                      // "[&_.rdrDayNumber]:[&>span]:flex [&_.rdrDayNumber]:[&>span]:items-center [&_.rdrDayNumber]:[&>span]:justify-center",
+                      // "[&_.rdrDayNumber]:[&>span]:text-xs [&_.rdrDayNumber]:[&>span]:font-medium",
                       // Disabled days
                       "[&_.rdrDayDisabled]:opacity-30",
 
@@ -434,15 +469,13 @@ export function DateRangePicker({
                       "[&_.rdrDayToday]:text-blue-600 [&_.rdrDayToday]:font-semibold",
                       "[&_.rdrDayToday_.rdrDayNumber]:after:hidden", // kill default ring
                       // Hover effect
-                      "[&_.rdrDayHovered]:!bg-blue-50",
                       // Range selection
-                      "[&_.rdrStartEdge]:!bg-blue-600 [&_.rdrStartEdge]:!rounded-l-full",
-                      "[&_.rdrEndEdge]:!bg-blue-600 [&_.rdrEndEdge]:!rounded-r-full",
-                      "[&_.rdrInRange]:!bg-blue-600/80 [&_.rdrInRange]:!rounded-none",
+                      "[&_.rdrStartEdge]:!bg-blue-600 [&_.rdrStartEdge]:!roundedl-full",
+                      "[&_.rdrEndEdge]:!bg-blue-600 [&_.rdrEndEdge]:!roundedr-full",
+                      "[&_.rdrInRange]:!bg-blue-600/80 [&_.rdrInRange]:!roundednone",
                       // Preview selection on hover
-                      "[&_.rdrDayInPreview]:!bg-blue-50 [&_.rdrDayInPreview]:!border-blue-600/50",
-                      "[&_.rdrDayStartPreview]:!rounded-l-full [&_.rdrDayStartPreview]:!border-blue-600/50",
-                      "[&_.rdrDayEndPreview]:!rounded-r-full [&_.rdrDayEndPreview]:!border-blue-600/50",
+                      "[&_.rdrDayStartPreview]:!roundedl-full [&_.rdrDayStartPreview]:!border-blue-600/50",
+                      "[&_.rdrDayEndPreview]:!roundedr-full [&_.rdrDayEndPreview]:!border-blue-600/50",
                       // Selected day text
                       "[&_.rdrSelected]:text-white"
                     )}
@@ -456,13 +489,13 @@ export function DateRangePicker({
               <div className="flex gap-3 lg:justify-end">
                 <Button
                   variant="outline"
-                  className="flex-1 lg:flex-none text-sm font-medium bg-white hover:bg-gray-50"
+                  className="flex-1 lg:flex-none text-xs font-medium bg-white hover:bg-gray-50"
                   onClick={clearRange}
                 >
                   Clear
                 </Button>
                 <Button
-                  className="flex-1 lg:flex-none text-sm font-medium bg-blue-600 text-white hover:bg-blue-700"
+                  className="flex-1 lg:flex-none text-xs font-medium bg-blue-600 text-white hover:bg-blue-700"
                   onClick={() => setIsOpen(false)}
                 >
                   Apply

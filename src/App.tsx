@@ -9,7 +9,6 @@ import { SWRConfig } from "swr";
 import { AnimatePresence } from "framer-motion";
 import { Layout } from "./components/layout/layout";
 import { Dashboard } from "./pages/Dashboard";
-import { Invoices } from "./pages/Invoices";
 import { Customers } from "./pages/Customers";
 import { Categories } from "./pages/Categories";
 import { Companies } from "./pages/Companies";
@@ -23,6 +22,8 @@ import { AuthProvider, useAuth } from "./lib/auth";
 import { ToastProvider } from "./lib/contexts/toast-context";
 import { pb } from "./lib/pocketbase";
 import { Loading } from "./components/ui/loading";
+import { Payables } from "./pages/Payables";
+import { Receivables } from "./pages/Receivables";
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
@@ -64,7 +65,8 @@ export default function App() {
                     }
                   >
                     <Route index element={<Dashboard />} />
-                    <Route path="invoices/*" element={<Invoices />} />
+                    <Route path="receivables/*" element={<Receivables />} />
+                    <Route path="payables/*" element={<Payables />} />
                     <Route path="customers/*" element={<Customers />} />
                     <Route path="categories/*" element={<Categories />} />
                     <Route path="companies/*" element={<Companies />} />

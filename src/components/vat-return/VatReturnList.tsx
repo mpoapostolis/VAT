@@ -78,13 +78,13 @@ export function VatReturnList() {
           <h1 className="text-2xl font-semibold text-[#0F172A] tracking-tight">
             VAT Returns
           </h1>
-          <p className="text-sm text-[#64748B] mt-1">
+          <p className="text-xs text-[#64748B] mt-1">
             Manage your VAT returns and submissions
           </p>
         </div>
         <Link
           to="/vat-return/new"
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#3B82F6] hover:bg-[#2563EB] transition-colors rounded"
+          className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium text-white bg-[#3B82F6] hover:bg-[#2563EB] transition-colors rounded"
         >
           <Plus className="w-4 h-4" />
           New VAT Return
@@ -196,7 +196,7 @@ export function VatReturnList() {
                           >
                             {vatReturn.period}
                           </Link>
-                          <div className="text-sm text-[#64748B]">
+                          <div className="text-xs text-[#64748B]">
                             Net VAT: {formatCurrency(netVat)}
                           </div>
                         </div>

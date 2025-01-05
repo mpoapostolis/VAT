@@ -20,6 +20,7 @@ export function useCategories() {
         .getList<Category>(page, perPage, {
           filter,
           sort,
+          requestKey: cacheKey,
         });
 
       return {

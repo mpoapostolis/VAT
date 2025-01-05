@@ -61,7 +61,7 @@ export function Dropdown({
                     onClick={item.onClick}
                     className={cn(
                       "flex w-full items-center px-4 py-2.5",
-                      "text-sm transition-colors duration-150",
+                      "text-xs transition-colors duration-150",
                       "hover:bg-gray-50/80",
                       active ? "bg-gray-50/80 text-gray-900" : "text-gray-700"
                     )}

@@ -9,37 +9,39 @@ import { formatCurrency } from "@/lib/utils";
 import { CompanySelect } from "@/components/ui/company-select";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { StatCard } from "@/components/ui/stat-card";
+import { useSearchParams } from "react-router-dom";
+import { useInvoices } from "@/lib/hooks/useInvoices";
+import { useCustomers } from "@/lib/hooks/useCustomers";
 
-interface StatsSectionProps {
-  isLoading: boolean;
-  stats: {
-    totalInvoices: number;
-    totalRevenue: number;
-    netSales: number;
-    closeToEnd: number;
-  };
-  onCompanyChange?: (companyId: string) => void;
-  onDateRangeChange?: (range: {
-    from: Date | undefined;
-    to: Date | undefined;
-  }) => void;
-  selectedCompany?: string;
-  dateRange?: { from: Date | undefined; to: Date | undefined };
-}
+export function StatsSection() {
+  // Fetch all invoices for the selected company and date range
+  const { invoices, isLoading } = useInvoices();
 
-export function StatsSection({
-  isLoading,
-  stats,
-  onCompanyChange,
-  onDateRangeChange,
-  selectedCompany,
-  dateRange,
-}: StatsSectionProps) {
+  // Calculate stats from invoices
+  const totalRevenue =
+    invoices
+      ?.filter((inv) => inv.type === "receivable")
+      .reduce((sum, inv) => sum + (inv.total || 0), 0) || 0;
+
+  const { customers } = useCustomers();
+
+  const totalExpenses =
+    invoices
+      ?.filter((inv) => inv.type === "payable")
+      .reduce((sum, inv) => sum + (inv.total || 0), 0) || 0;
+
+  const totalInvoices = invoices?.length || 0;
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const companyId = searchParams.get("companyId") || "";
+  const from = searchParams.get("from");
+  const to = searchParams.get("to");
+
   const statCards = [
     {
       icon: <BanknotesIcon />,
       label: "Total Revenue",
-      value: formatCurrency(stats.totalRevenue),
+      value: formatCurrency(totalRevenue),
       trend: {
         value: 12.5,
         label: "vs. last month",
@@ -49,7 +51,7 @@ export function StatsSection({
     {
       icon: <ReceiptPercentIcon />,
       label: "Total Expenses",
-      value: formatCurrency(stats.netSales),
+      value: formatCurrency(totalExpenses),
       trend: {
         value: -8.2,
         label: "vs. last month",
@@ -59,7 +61,7 @@ export function StatsSection({
     {
       icon: <DocumentDuplicateIcon />,
       label: "Total Invoices",
-      value: stats.totalInvoices.toString(),
+      value: totalInvoices.toString(),
       trend: {
         value: 24.5,
         label: "vs. last month",
@@ -69,7 +71,7 @@ export function StatsSection({
     {
       icon: <UsersIcon />,
       label: "Active Customers",
-      value: stats.totalInvoices.toString(),
+      value: customers.length,
       trend: {
         value: 4.2,
         label: "vs. last month",
@@ -77,7 +79,6 @@ export function StatsSection({
       variant: "violet",
     },
   ] as const;
-
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Header Section */}
@@ -87,25 +88,32 @@ export function StatsSection({
             <BuildingOffice2Icon className="h-5 w-5 text-gray-600" />
           </div>
           <div>
-            <h1 className="text-lg sm:text-xl font-semibold text-gray-900">
+            <h1 className="text-xs sm:text-xl font-semibold text-gray-900">
               Dashboard Overview
             </h1>
-            <p className="text-xs sm:text-sm text-gray-500">
+            <p className="text-xs sm:text-xs text-gray-500">
               Track your business performance and revenue
             </p>
           </div>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
           <div className="w-full sm:w-auto">
-            <CompanySelect
-              value={selectedCompany}
-              onChange={onCompanyChange || (() => {})}
-            />
+            <div className="sm:w-60">
+              <CompanySelect
+                value={companyId}
+                onChange={(c) => {
+                  searchParams.set("companyId", c);
+                  setSearchParams(searchParams);
+                }}
+              />
+            </div>
           </div>
           <div className="w-full sm:w-auto">
             <DateRangePicker
-              value={dateRange}
-              onChange={onDateRangeChange || (() => {})}
+              value={{
+                from: from ? new Date(from) : undefined,
+                to: to ? new Date(to) : undefined,
+              }}
               className="w-full sm:w-auto"
             />
           </div>

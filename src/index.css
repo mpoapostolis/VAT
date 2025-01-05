@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -12,7 +12,7 @@
 
 @layer base {
   body {
-    font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -191,12 +191,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #E2E8F0;
+  background: #e2e8f0;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #CBD5E1;
+  background: #cbd5e1;
 }
 
 /* Table Styles */
@@ -205,11 +205,11 @@
 }
 
 .data-table th {
-  @apply text-left py-4 px-6 bg-gray-50 text-sm font-semibold text-gray-600 border-b border-gray-200;
+  @apply text-left py-4 px-6 bg-gray-50 text-xs font-semibold text-gray-600 border-b border-gray-200;
 }
 
 .data-table td {
-  @apply py-4 px-6 text-sm text-gray-600 border-b border-gray-100;
+  @apply py-4 px-6 text-xs text-gray-600 border-b border-gray-100;
 }
 
 .data-table tr:hover {
@@ -223,7 +223,7 @@
 }
 
 .form-label {
-  @apply block text-sm font-medium text-gray-700 mb-1;
+  @apply block text-xs font-medium text-gray-700 mb-1;
 }
 
 /* Card Styles */
@@ -256,6 +256,6 @@
   @apply text-base leading-relaxed text-gray-600;
 }
 
-.text-small {
-  @apply text-sm text-gray-500;
+.text-xsall {
+  @apply text-xs text-gray-500;
 }

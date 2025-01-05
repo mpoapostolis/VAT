@@ -27,7 +27,7 @@ function UserDropdown() {
       trigger={
         <button className="flex items-center gap-3 hover:bg-[#F8FAFC] px-3 py-2 rounded transition-colors">
           <div className="flex flex-col items-end">
-            <span className="text-sm font-medium text-[#0F172A] tracking-tight">
+            <span className="text-xs font-medium text-[#0F172A] tracking-tight">
               {user?.email || "John Doe"}
             </span>
             <span className="text-[11px] text-[#64748B] font-medium tracking-wide uppercase">

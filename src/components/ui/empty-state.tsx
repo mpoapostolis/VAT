@@ -28,8 +28,8 @@ export function EmptyState({
       <div className="w-16 h-16 mb-4 rounded-full bg-gray-50 flex items-center justify-center">
         <Icon className="w-8 h-8 text-gray-400" />
       </div>
-      <h3 className="text-lg font-medium text-gray-900 mb-1">{title}</h3>
-      <p className="text-sm text-gray-500 mb-6 max-w-sm">{description}</p>
+      <h3 className="text-xs font-medium text-gray-900 mb-1">{title}</h3>
+      <p className="text-xs text-gray-500 mb-6 max-w-sm">{description}</p>
       {action && (
         <Button onClick={action.onClick} className="min-w-[200px]">
           {action.label}

@@ -31,9 +31,9 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           >
             <Check className={cn("w-3 h-3 text-white", "transition-opacity")} />
           </div>
-          {label && <span className="ml-2 text-sm text-gray-700">{label}</span>}
+          {label && <span className="ml-2 text-xs text-gray-700">{label}</span>}
         </label>
-        {error && <span className="ml-2 text-sm text-red-500">{error}</span>}
+        {error && <span className="ml-2 text-xs text-red-500">{error}</span>}
       </div>
     );
   }

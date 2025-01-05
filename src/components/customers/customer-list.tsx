@@ -132,11 +132,11 @@ export function CustomerList() {
             "inline-flex items-center justify-center gap-2",
             "px-4 py-2.5 w-full sm:w-auto",
             "text-xs font-medium text-white",
-            "bg-indigo-600 hover:bg-indigo-700",
+            "bg-blue-600 hover:bg-blue-700",
             "shadow-sm",
             "transition-all duration-200",
             "rounded",
-            "focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
+            "focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
           )}
         >
           <Plus className="w-4 h-4" />
@@ -206,15 +206,15 @@ export function CustomerList() {
                 <TableCell className="py-3">
                   <div className="flex items-center gap-3">
                     <div className="relative">
-                      <div className="absolute inset-0 bg-indigo-600/5 blur-sm rounded"></div>
+                      <div className="absolute inset-0 bg-blue-600/5 blur-sm rounded"></div>
                       <div className="relative p-2 rounded bg-gradient-to-br from-gray-50 to-white shadow-sm">
-                        <User className="w-4 h-4 text-indigo-600" />
+                        <User className="w-4 h-4 text-blue-600" />
                       </div>
                     </div>
                     <div>
                       <Link
                         to={`/customers/${customer.id}/edit`}
-                        className="font-medium text-xs text-gray-900 hover:text-indigo-600 transition-colors"
+                        className="font-medium text-xs text-gray-900 hover:text-blue-600 transition-colors"
                       >
                         {customer.isCompany
                           ? customer.companyName
@@ -270,8 +270,8 @@ export function CustomerList() {
                         "relative",
                         "rounded",
                         "text-gray-500",
-                        "hover:text-indigo-600 hover:bg-gray-50",
-                        "focus:outline-none focus:ring-2 focus:ring-indigo-600/20",
+                        "hover:text-blue-600 hover:bg-gray-50",
+                        "focus:outline-none focus:ring-2 focus:ring-blue-600/20",
                         "disabled:opacity-50 disabled:cursor-not-allowed",
                         "transition-all duration-200"
                       )}
@@ -329,12 +329,12 @@ export function CustomerList() {
           >
             <div className="flex items-start gap-3">
               <div className="p-2 rounded bg-gray-50/50 flex-shrink-0">
-                <User className="w-5 h-5 text-indigo-600" />
+                <User className="w-5 h-5 text-blue-600" />
               </div>
               <div className="flex-1 min-w-0">
                 <Link
                   to={`/customers/${customer.id}/edit`}
-                  className="block text-xs font-medium text-gray-900 hover:text-indigo-600 transition-colors truncate"
+                  className="block text-xs font-medium text-gray-900 hover:text-blue-600 transition-colors truncate"
                 >
                   {customer.isCompany
                     ? customer.companyName
@@ -389,8 +389,8 @@ export function CustomerList() {
                   "relative",
                   "rounded",
                   "text-gray-500",
-                  "hover:text-indigo-600 hover:bg-gray-50",
-                  "focus:outline-none focus:ring-2 focus:ring-indigo-600/20",
+                  "hover:text-blue-600 hover:bg-gray-50",
+                  "focus:outline-none focus:ring-2 focus:ring-blue-600/20",
                   "transition-all duration-200"
                 )}
               >
@@ -405,8 +405,8 @@ export function CustomerList() {
                   "relative",
                   "rounded",
                   "text-gray-500",
-                  "hover:text-indigo-600 hover:bg-gray-50",
-                  "focus:outline-none focus:ring-2 focus:ring-indigo-600/20",
+                  "hover:text-blue-600 hover:bg-gray-50",
+                  "focus:outline-none focus:ring-2 focus:ring-blue-600/20",
                   "disabled:opacity-50 disabled:cursor-not-allowed",
                   "transition-all duration-200"
                 )}

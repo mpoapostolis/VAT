@@ -1,10 +1,10 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Search } from 'lucide-react';
+import React from "react";
+import { Link } from "react-router-dom";
+import { Search } from "lucide-react";
 
 interface SearchResult {
   id: string;
-  type: 'invoice' | 'customer';
+  type: "invoice" | "customer";
   title: string;
   subtitle: string;
   href: string;
@@ -12,25 +12,25 @@ interface SearchResult {
 
 const mockResults: SearchResult[] = [
   {
-    id: '1',
-    type: 'invoice',
-    title: 'Invoice #890642',
-    subtitle: 'Wade Warren - $624,00.90',
-    href: '/invoices/1',
+    id: "1",
+    type: "invoice",
+    title: "Invoice #890642",
+    subtitle: "Wade Warren - $624,00.90",
+    href: "/invoices/1",
   },
   {
-    id: '2',
-    type: 'customer',
-    title: 'Floyed Miles',
-    subtitle: 'Employee Manager',
-    href: '/customers/2',
+    id: "2",
+    type: "customer",
+    title: "Floyed Miles",
+    subtitle: "Employee Manager",
+    href: "/customers/2",
   },
   {
-    id: '3',
-    type: 'invoice',
-    title: 'Invoice #230642',
-    subtitle: 'Theresa Wedd - $624,00.90',
-    href: '/invoices/3',
+    id: "3",
+    type: "invoice",
+    title: "Invoice #230642",
+    subtitle: "Theresa Wedd - $624,00.90",
+    href: "/invoices/3",
   },
 ];
 
@@ -62,16 +62,20 @@ export function SearchDropdown({ onClose }: SearchDropdownProps) {
             onClick={onClose}
           >
             <div className="flex items-center space-x-3">
-              <div className={`p-2 ${
-                result.type === 'invoice' ? 'bg-blue-50' : 'bg-green-50'
-              }`}>
-                <div className={`w-2 h-2 ${
-                  result.type === 'invoice' ? 'bg-blue-500' : 'bg-green-500'
-                }`} />
+              <div
+                className={`p-2 ${
+                  result.type === "invoice" ? "bg-blue-50" : "bg-green-50"
+                }`}
+              >
+                <div
+                  className={`w-2 h-2 ${
+                    result.type === "invoice" ? "bg-blue-500" : "bg-green-500"
+                  }`}
+                />
               </div>
               <div>
                 <div className="font-medium text-gray-900">{result.title}</div>
-                <div className="text-sm text-gray-500">{result.subtitle}</div>
+                <div className="text-xs text-gray-500">{result.subtitle}</div>
               </div>
             </div>
           </Link>
@@ -80,7 +84,9 @@ export function SearchDropdown({ onClose }: SearchDropdownProps) {
 
       <div className="p-4 border-t border-gray-100 bg-gray-50/50">
         <div className="text-xs text-gray-500">
-          Press <kbd className="px-2 py-1 bg-white border border-gray-200">↵</kbd> to select
+          Press{" "}
+          <kbd className="px-2 py-1 bg-white border border-gray-200">↵</kbd> to
+          select
         </div>
       </div>
     </div>

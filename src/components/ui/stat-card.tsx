@@ -121,7 +121,7 @@ export function StatCard({
 
       {/* Content */}
       <div className="mt-4 space-y-1.5">
-        <div className="text-sm font-medium text-gray-500">{label}</div>
+        <div className="text-xs font-medium text-gray-500">{label}</div>
         <div className="text-2xl font-semibold text-gray-900">{value}</div>
         {trend && (
           <div className="text-xs text-gray-500 mt-1">{trend.label}</div>

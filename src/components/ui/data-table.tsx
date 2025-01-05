@@ -79,8 +79,10 @@ export function DataTable<T>({
           <div className="w-16 h-16 mb-4 rounded-full bg-[#F8FAFC] flex items-center justify-center">
             <FileX className="w-8 h-8 text-[#94A3B8]" />
           </div>
-          <h3 className="text-lg font-medium text-[#0F172A] mb-1">No results found</h3>
-          <p className="text-sm text-[#64748B] mb-6 text-center max-w-sm">
+          <h3 className="text-xs font-medium text-[#0F172A] mb-1">
+            No results found
+          </h3>
+          <p className="text-xs text-[#64748B] mb-6 text-center max-w-sm">
             No records match your search criteria.
           </p>
         </div>
@@ -96,7 +98,7 @@ export function DataTable<T>({
                         <th
                           key={header.id}
                           scope="col"
-                          className="px-6 py-4 text-left text-sm font-medium text-[#64748B] bg-[#F8FAFC] border-b border-black/10"
+                          className="px-6 py-4 text-left text-xs font-medium text-[#64748B] bg-[#F8FAFC] border-b border-black/10"
                         >
                           {header.column.columnDef.header}
                         </th>
@@ -107,10 +109,19 @@ export function DataTable<T>({
               </thead>
               <tbody className="divide-y divide-black/10">
                 {table.getRowModel().rows.map((row) => (
-                  <tr key={row.id} className="hover:bg-[#F8FAFC] transition-colors">
+                  <tr
+                    key={row.id}
+                    className="hover:bg-[#F8FAFC] transition-colors"
+                  >
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className="px-6 py-4 text-sm whitespace-nowrap">
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      <td
+                        key={cell.id}
+                        className="px-6 py-4 text-xs whitespace-nowrap"
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
                       </td>
                     ))}
                   </tr>
@@ -127,7 +138,10 @@ export function DataTable<T>({
                   size="sm"
                   onClick={() => {
                     const newPage = Math.max(1, currentPage - 1);
-                    setSearchParams({ ...searchParams, page: newPage.toString() });
+                    setSearchParams({
+                      ...searchParams,
+                      page: newPage.toString(),
+                    });
                   }}
                   disabled={currentPage === 1}
                 >
@@ -138,14 +152,17 @@ export function DataTable<T>({
                   size="sm"
                   onClick={() => {
                     const newPage = Math.min(pageCount, currentPage + 1);
-                    setSearchParams({ ...searchParams, page: newPage.toString() });
+                    setSearchParams({
+                      ...searchParams,
+                      page: newPage.toString(),
+                    });
                   }}
                   disabled={currentPage === pageCount}
                 >
                   Next
                 </Button>
               </div>
-              <div className="text-sm text-[#64748B]">
+              <div className="text-xs text-[#64748B]">
                 Page {currentPage} of {pageCount}
               </div>
             </div>

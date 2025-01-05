@@ -1,31 +1,25 @@
-import { BaseService } from './base-service';
-import type { Company } from '@/types/company';
-import { pb } from '@/lib/pocketbase';
-import type { TableParams } from '@/lib/hooks/useTableParams';
+import { BaseService } from "./base-service";
+import type { Company } from "@/types/company";
+import { pb } from "@/lib/pocketbase";
+import type { TableParams } from "@/lib/hooks/useTableParams";
 
 class CompanyService extends BaseService<Company> {
   constructor() {
-    super('companies');
+    super("companies");
   }
 
   async getList(params: TableParams) {
     try {
-      console.log('Fetching companies with params:', params);
-      
-      let sortField = params.sort || '-created';
-      
-      const result = await pb.collection('companies').getList(
-        params.page,
-        params.perPage,
-        {
-          sort: sortField
-        }
-      );
-      
-      console.log('Fetched companies:', result);
+      const sortField = params.sort || "-created";
+
+      const result = await pb
+        .collection("companies")
+        .getList(params.page, params.perPage, {
+          sort: sortField,
+        });
       return result;
     } catch (error) {
-      console.error('Failed to fetch companies:', error);
+      console.error("Failed to fetch companies:", error);
       throw error;
     }
   }
@@ -34,7 +28,7 @@ class CompanyService extends BaseService<Company> {
     return this.getList({
       page: 1,
       perPage: 100,
-      sort: '-created'
+      sort: "-created",
     });
   }
 

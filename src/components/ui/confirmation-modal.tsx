@@ -56,11 +56,11 @@ export function ConfirmationModal({
               <AlertTriangle className="h-6 w-6" />
             </div>
             <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-              <h3 className="text-lg font-semibold leading-6 text-gray-900">
+              <h3 className="text-xs font-semibold leading-6 text-gray-900">
                 {title}
               </h3>
               <div className="mt-2">
-                <p className="text-sm text-gray-500">{message}</p>
+                <p className="text-xs text-gray-500">{message}</p>
               </div>
             </div>
           </div>

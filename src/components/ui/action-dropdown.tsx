@@ -128,7 +128,7 @@ export function ActionDropdown({
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.2, delay: index * 0.05 }}
                           className={cn(
-                            "relative z-10 flex items-center w-full px-3 py-2 text-sm transition-all duration-200",
+                            "relative z-10 flex items-center w-full px-3 py-2 text-xs transition-all duration-200",
                             "group"
                           )}
                         >

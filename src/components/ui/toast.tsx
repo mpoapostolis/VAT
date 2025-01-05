@@ -40,7 +40,7 @@ export function Toast({ id, message, type, onRemove }: ToastProps) {
     >
       <div className="flex items-center space-x-3">
         <Icon className="h-5 w-5" />
-        <p className="text-sm font-medium">{message}</p>
+        <p className="text-xs font-medium">{message}</p>
       </div>
       <button
         onClick={() => onRemove(id)}

@@ -17,6 +17,7 @@ import { companyService } from "@/lib/services/company";
 import { useNavigate, useParams } from "react-router-dom";
 import { useCompanies } from "@/lib/hooks/useCompanies";
 import { pb } from "@/lib/pocketbase";
+import useSWR from "swr";
 
 interface CompanyFormProps {
   onSuccess: () => void;
@@ -24,9 +25,10 @@ interface CompanyFormProps {
 }
 
 export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
-  const { companies } = useCompanies();
   const id = useParams().id;
-  const company = companies?.find((c) => c.id === id);
+  const { data: company } = useSWR(id && `companies/${id}`, () =>
+    pb.collection("companies").getOne(id!)
+  );
   const {
     register,
     handleSubmit,
@@ -69,7 +71,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
     if (company) {
       reset(company);
     }
-  }, [company, reset]);
+  }, [company, reset, id]);
 
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
@@ -211,7 +213,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
               <div className="p-2 bg-blue-50 rounded lg">
                 <Building2 className="h-5 w-5 text-blue-500" />
               </div>
-              <h2 className="text-lg font-medium text-gray-900">
+              <h2 className="text-xs font-medium text-gray-900">
                 Basic Information
               </h2>
             </div>
@@ -278,9 +280,9 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                       accept="image/jpeg,image/png,image/gif"
                       onChange={handleLogoUpload}
                       disabled={mode === "view"}
-                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                      className="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                     />
-                    <p className="mt-2 text-sm text-gray-500">
+                    <p className="mt-2 text-xs text-gray-500">
                       Upload a company logo (JPEG, PNG, or GIF, max 5MB)
                     </p>
                     <FormMessage>{errors.logo?.message}</FormMessage>
@@ -407,7 +409,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
               <div className="p-2 bg-green-50 rounded">
                 <MapPin className="h-5 w-5 text-green-500" />
               </div>
-              <h2 className="text-lg font-medium text-gray-900">
+              <h2 className="text-xs font-medium text-gray-900">
                 Location Information
               </h2>
             </div>
@@ -447,7 +449,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                     />
                     <label
                       htmlFor="freeZone"
-                      className="text-sm font-medium text-gray-700 cursor-pointer select-none"
+                      className="text-xs font-medium text-gray-700 cursor-pointer select-none"
                     >
                       This company operates in a Free Zone
                     </label>
@@ -459,7 +461,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                   freeZoneOptions.length > 1 && (
                     <div className="pl-6">
                       <FormItem className="space-y-1.5">
-                        <FormLabel className="text-gray-600 text-sm block">
+                        <FormLabel className="text-gray-600 text-xs block">
                           Select Free Zone
                         </FormLabel>
                         <Select
@@ -560,7 +562,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                     {...register("useShippingAddress")}
                     disabled={mode === "view"}
                   />
-                  <span className="text-sm text-gray-500">
+                  <span className="text-xs text-gray-500">
                     Use different shipping address
                   </span>
                 </div>
@@ -626,7 +628,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
               <div className="p-2 bg-purple-50 rounded">
                 <User className="h-5 w-5 text-purple-500" />
               </div>
-              <h2 className="text-lg font-medium text-gray-900">
+              <h2 className="text-xs font-medium text-gray-900">
                 Contact Information
               </h2>
             </div>
@@ -724,7 +726,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
               <div className="p-2 bg-orange-50 rounded">
                 <CreditCard className="h-5 w-5 text-orange-500" />
               </div>
-              <h2 className="text-lg font-medium text-gray-900">
+              <h2 className="text-xs font-medium text-gray-900">
                 Financial Information
               </h2>
             </div>
@@ -797,7 +799,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                     {...register("reverseChargeMechanism")}
                     disabled={mode === "view"}
                   />
-                  <span className="text-sm text-gray-500">
+                  <span className="text-xs text-gray-500">
                     Enable reverse charge mechanism
                   </span>
                 </div>

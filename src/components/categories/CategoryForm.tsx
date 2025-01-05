@@ -95,7 +95,7 @@ export function CategoryForm({ onSuccess, mode = "edit" }: CategoryFormProps) {
             <div className="p-2 bg-blue-50 rounded lg">
               <Tag className="h-5 w-5 text-blue-500" />
             </div>
-            <h2 className="text-lg font-medium text-gray-900">
+            <h2 className="text-xs font-medium text-gray-900">
               Basic Information
             </h2>
           </div>
@@ -126,7 +126,9 @@ export function CategoryForm({ onSuccess, mode = "edit" }: CategoryFormProps) {
             </FormItem>
 
             <FormItem className="col-span-1 lg:col-span-2">
-              <FormLabel className="text-gray-700 font-medium">Description</FormLabel>
+              <FormLabel className="text-gray-700 font-medium">
+                Description
+              </FormLabel>
               <Input
                 {...register("description")}
                 placeholder="Category description"
@@ -146,14 +148,14 @@ export function CategoryForm({ onSuccess, mode = "edit" }: CategoryFormProps) {
             <div className="p-2 bg-green-50 rounded lg">
               <Percent className="h-5 w-5 text-green-500" />
             </div>
-            <h2 className="text-lg font-medium text-gray-900">
-              VAT Settings
-            </h2>
+            <h2 className="text-xs font-medium text-gray-900">VAT Settings</h2>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
             <FormItem>
-              <FormLabel className="text-gray-700 font-medium">VAT Rate (%)</FormLabel>
+              <FormLabel className="text-gray-700 font-medium">
+                VAT Rate (%)
+              </FormLabel>
               <Input
                 type="number"
                 {...register("vatRate", { valueAsNumber: true })}
@@ -166,7 +168,7 @@ export function CategoryForm({ onSuccess, mode = "edit" }: CategoryFormProps) {
               )}
             </FormItem>
 
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded border p-4">
               <div className="flex h-4 items-center">
                 <Checkbox
                   {...register("isActive")}
@@ -175,8 +177,10 @@ export function CategoryForm({ onSuccess, mode = "edit" }: CategoryFormProps) {
                 />
               </div>
               <div className="space-y-1 leading-none">
-                <FormLabel className="text-gray-700 font-medium">Active</FormLabel>
-                <p className="text-sm text-gray-500">
+                <FormLabel className="text-gray-700 font-medium">
+                  Active
+                </FormLabel>
+                <p className="text-xs text-gray-500">
                   Inactive categories won't appear in selection lists
                 </p>
               </div>

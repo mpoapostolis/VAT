@@ -3,13 +3,20 @@ import { useSearchParams } from "react-router-dom";
 import { pb } from "../pocketbase";
 import { Company } from "@/types/company";
 
-export function useCompanies() {
+export function useCompanies(
+  params: {
+    page?: number;
+    perPage?: number;
+    sort?: string;
+    filter?: string;
+  } = {}
+) {
   const [searchParams] = useSearchParams();
 
-  const page = Number(searchParams.get("page")) || 1;
-  const perPage = Number(searchParams.get("perPage")) || 5;
-  const sort = searchParams.get("sort") || "-created";
-  const filter = searchParams.get("filter") || "";
+  const page = Number(searchParams.get("page")) || params.page || 1;
+  const perPage = Number(searchParams.get("perPage")) || params.perPage || 5;
+  const sort = searchParams.get("sort") || params.sort || "-created";
+  const filter = searchParams.get("filter") || params.filter || "";
 
   const cacheKey = `/api/companies?page=${page}&perPage=${perPage}&sort=${sort}&filter=${filter}`;
 
@@ -20,6 +27,7 @@ export function useCompanies() {
         .getList<Company>(page, perPage, {
           filter,
           sort,
+          requestKey: cacheKey,
         });
 
       return {

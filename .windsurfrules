@@ -69,7 +69,7 @@
        // Layout
        "flex flex-col gap-4",
        // Typography
-       "text-sm font-medium text-gray-900",
+       "text-xs font-medium text-gray-900",
        // Visual
        "bg-white rounded shadow-sm",
        // States
@@ -79,7 +79,7 @@
 
 2. Color System:
 
-   - Primary: indigo-600 (#6366f1)
+   - Primary: blue-600 (#6366f1)
    - Gray Scale: gray-50 to gray-900
    - Status Colors:
      - Success: emerald-500

@@ -10,7 +10,7 @@ export const Table = React.forwardRef<
   <div className="w-full overflow-auto">
     <table
       ref={ref}
-      className={cn("w-full caption-bottom text-sm", className)}
+      className={cn("w-full caption-bottom text-xs", className)}
       {...props}
     />
   </div>
@@ -130,10 +130,10 @@ export const TablePagination = ({
     <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200">
       <div className="flex flex-1 items-center gap-6">
         <div className="flex items-center space-x-2  px-3 py-1.5 rounded">
-          <span className="text-sm font-medium text-slate-700">Limit:</span>
+          <span className="text-xs font-medium text-slate-700">Limit:</span>
           <Dropdown
             trigger={
-              <button className="inline-flex h-7 min-w-[50px] items-center justify-center rounded bg-white shadow-sm border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all">
+              <button className="inline-flex h-7  min-w-[50px] items-center justify-center rounded bg-white shadow-sm border border-slate-200 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all">
                 {pageSize}
               </button>
             }
@@ -145,7 +145,7 @@ export const TablePagination = ({
             }))}
           />
         </div>
-        <div className="text-sm text-slate-600 mx-auto flex items-center space-x-1">
+        <div className="text-xs text-slate-600 mx-auto flex items-center space-x-1">
           <span className="font-medium">{startItem}</span>
           <span>-</span>
           <span className="font-medium">
@@ -159,14 +159,14 @@ export const TablePagination = ({
       </div>
       <div className="flex items-center space-x-2">
         <button
-          className="h-8 px-3 rounded border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 transition-all"
+          className="h-8 px-3 rounded border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 transition-all"
           onClick={() => onPageChange(pageIndex - 1)}
           disabled={pageIndex === 0}
         >
           Previous
         </button>
         <button
-          className="h-8 px-3 rounded border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 transition-all"
+          className="h-8 px-3 rounded border border-slate-200 text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:text-slate-600 transition-all"
           onClick={() => onPageChange(pageIndex + 1)}
           disabled={pageIndex === pageCount - 1}
         >

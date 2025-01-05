@@ -80,10 +80,10 @@ export function ViewVatReturn() {
                 <Receipt className="w-5 h-5 text-[#3B82F6]" />
               </div>
               <div>
-                <h2 className="font-medium text-[#0F172A] text-lg">
+                <h2 className="font-medium text-[#0F172A] text-xs">
                   VAT Return for {vatReturn.period}
                 </h2>
-                <div className="flex items-center gap-2 text-sm text-[#64748B]">
+                <div className="flex items-center gap-2 text-xs text-[#64748B]">
                   <Clock className="w-4 h-4" />
                   <span>Created on {formatDate(vatReturn.created)}</span>
                   <span
@@ -104,7 +104,7 @@ export function ViewVatReturn() {
           <div className="p-6 space-y-8">
             {/* Sales Information */}
             <div>
-              <h3 className="text-sm font-medium text-[#0F172A] mb-4 flex items-center gap-2">
+              <h3 className="text-xs font-medium text-[#0F172A] mb-4 flex items-center gap-2">
                 <ArrowUpRight className="w-4 h-4 text-[#3B82F6]" />
                 Sales Information
               </h3>
@@ -114,10 +114,10 @@ export function ViewVatReturn() {
                     <CreditCard className="w-4 h-4 text-[#3B82F6]" />
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-[#0F172A]">
+                    <div className="text-xs font-medium text-[#0F172A]">
                       Total Sales
                     </div>
-                    <div className="text-sm text-[#64748B]">
+                    <div className="text-xs text-[#64748B]">
                       {formatCurrency(vatReturn.sales || 0)}
                     </div>
                   </div>
@@ -127,10 +127,10 @@ export function ViewVatReturn() {
                     <BadgeEuro className="w-4 h-4 text-[#3B82F6]" />
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-[#0F172A]">
+                    <div className="text-xs font-medium text-[#0F172A]">
                       Sales VAT
                     </div>
-                    <div className="text-sm text-[#64748B]">
+                    <div className="text-xs text-[#64748B]">
                       {formatCurrency(vatReturn.salesVat || 0)}
                     </div>
                   </div>
@@ -140,7 +140,7 @@ export function ViewVatReturn() {
 
             {/* Purchases Information */}
             <div>
-              <h3 className="text-sm font-medium text-[#0F172A] mb-4 flex items-center gap-2">
+              <h3 className="text-xs font-medium text-[#0F172A] mb-4 flex items-center gap-2">
                 <ArrowDownRight className="w-4 h-4 text-[#3B82F6]" />
                 Purchases Information
               </h3>
@@ -150,10 +150,10 @@ export function ViewVatReturn() {
                     <CreditCard className="w-4 h-4 text-[#3B82F6]" />
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-[#0F172A]">
+                    <div className="text-xs font-medium text-[#0F172A]">
                       Total Purchases
                     </div>
-                    <div className="text-sm text-[#64748B]">
+                    <div className="text-xs text-[#64748B]">
                       {formatCurrency(vatReturn.purchases || 0)}
                     </div>
                   </div>
@@ -163,10 +163,10 @@ export function ViewVatReturn() {
                     <BadgeEuro className="w-4 h-4 text-[#3B82F6]" />
                   </div>
                   <div>
-                    <div className="text-sm font-medium text-[#0F172A]">
+                    <div className="text-xs font-medium text-[#0F172A]">
                       Purchases VAT
                     </div>
-                    <div className="text-sm text-[#64748B]">
+                    <div className="text-xs text-[#64748B]">
                       {formatCurrency(vatReturn.purchasesVat || 0)}
                     </div>
                   </div>
@@ -176,22 +176,22 @@ export function ViewVatReturn() {
 
             {/* Net VAT */}
             <div>
-              <h3 className="text-sm font-medium text-[#0F172A] mb-4 flex items-center gap-2">
+              <h3 className="text-xs font-medium text-[#0F172A] mb-4 flex items-center gap-2">
                 <Calculator className="w-4 h-4 text-[#3B82F6]" />
                 Net VAT
               </h3>
               <div className="bg-[#F8FAFC] border border-black/5 rounded p-4">
                 <div className="flex items-center justify-between">
-                  <div className="text-sm font-medium text-[#0F172A]">
+                  <div className="text-xs font-medium text-[#0F172A]">
                     Amount to Pay
                   </div>
                   <div
-                    className={`text-lg font-semibold ${
+                    className={`text-xs font-semibold ${
                       netVat >= 0 ? "text-red-600" : "text-green-600"
                     }`}
                   >
                     {formatCurrency(Math.abs(netVat))}
-                    <span className="text-sm ml-1">
+                    <span className="text-xs ml-1">
                       {netVat >= 0 ? "Payable" : "Refundable"}
                     </span>
                   </div>
@@ -202,12 +202,12 @@ export function ViewVatReturn() {
             {/* Notes */}
             {vatReturn.notes && (
               <div>
-                <h3 className="text-sm font-medium text-[#0F172A] mb-4 flex items-center gap-2">
+                <h3 className="text-xs font-medium text-[#0F172A] mb-4 flex items-center gap-2">
                   <FileText className="w-4 h-4 text-[#3B82F6]" />
                   Additional Notes
                 </h3>
                 <div className="bg-[#F8FAFC] border border-black/5 rounded p-4">
-                  <div className="text-sm text-[#64748B] whitespace-pre-wrap">
+                  <div className="text-xs text-[#64748B] whitespace-pre-wrap">
                     {vatReturn.notes}
                   </div>
                 </div>

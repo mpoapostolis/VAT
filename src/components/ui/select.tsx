@@ -35,7 +35,7 @@ export const Select = (props: SelectProps) => {
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "flex h-10 w-full text-left items-center justify-between rounded border bg-white px-3 py-2 text-sm",
+          "flex h-10 w-full text-left items-center justify-between rounded border bg-white px-3 py-2 text-xs",
           "transition-colors hover:bg-gray-50",
           "focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
           {
@@ -46,7 +46,12 @@ export const Select = (props: SelectProps) => {
           className
         )}
       >
-        <span className={!selectedOption ? "text-gray-500" : "text-gray-900"}>
+        <span
+          className={cn(
+            "truncate text-xs",
+            !selectedOption ? "text-gray-500" : "text-gray-900"
+          )}
+        >
           {selectedOption ? selectedOption.label : placeholder}
         </span>
         <ChevronDown
@@ -79,7 +84,7 @@ export const Select = (props: SelectProps) => {
               className="rounded border border-gray-200 bg-white py-1 shadow-xl z-[99999] overflow-auto"
             >
               {options.length === 0 ? (
-                <div className="px-3 py-2 text-sm text-gray-500">
+                <div className="px-3 py-2 text-xs text-gray-500">
                   No options available
                 </div>
               ) : (
@@ -89,7 +94,7 @@ export const Select = (props: SelectProps) => {
                     type="button"
                     onClick={() => handleSelect(option)}
                     className={cn(
-                      "flex text-left w-full items-center px-3 py-2 text-sm",
+                      "flex text-xs text-left w-full items-center px-3 py-2 text-xs",
                       "transition-colors hover:bg-gray-100",
                       {
                         "bg-gray-50 text-gray-900": option.value === value,

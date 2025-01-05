@@ -211,7 +211,7 @@ export function CompanyList() {
           <h1 className="text-xl md:text-2xl font-semibold text-gray-900 tracking-tight">
             Companies
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-xs text-gray-500 mt-1">
             Manage your companies and their details
           </p>
         </div>
@@ -220,12 +220,12 @@ export function CompanyList() {
           className={cn(
             "inline-flex items-center justify-center gap-2",
             "px-4 py-2.5 w-full sm:w-auto",
-            "text-sm font-medium text-white",
-            "bg-indigo-600 hover:bg-indigo-700",
+            "text-xs font-medium text-white",
+            "bg-blue-600 hover:bg-blue-700",
             "shadow-sm",
             "transition-all duration-200",
             "rounded",
-            "focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
+            "focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
           )}
         >
           <Plus className="w-4 h-4" />
@@ -308,7 +308,7 @@ export function CompanyList() {
                 <TableCell className="py-3">
                   <div className="flex items-center gap-3">
                     <div className="relative">
-                      <div className="absolute inset-0 bg-indigo-600/5 blur-sm rounded"></div>
+                      <div className="absolute inset-0 bg-blue-600/5 blur-sm rounded"></div>
                       <div className="relative p-2 rounded bg-gradient-to-br from-gray-50 to-white shadow-sm">
                         {company.logo ? (
                           <img
@@ -317,14 +317,14 @@ export function CompanyList() {
                             className="w-6 h-6 rounded"
                           />
                         ) : (
-                          <Building2 className="w-4 h-4 text-indigo-600" />
+                          <Building2 className="w-4 h-4 text-blue-600" />
                         )}
                       </div>
                     </div>
                     <div>
                       <Link
                         to={`/companies/${company.id}`}
-                        className="font-medium text-xs text-gray-900 hover:text-indigo-600 transition-colors"
+                        className="font-medium text-xs text-gray-900 hover:text-blue-600 transition-colors"
                       >
                         {company.companyNameEN}
                       </Link>
@@ -345,7 +345,7 @@ export function CompanyList() {
                       {company.emirate}
                     </div>
                     {company.freeZone && (
-                      <div className="text-sm text-gray-500">
+                      <div className="text-xs text-gray-500">
                         {company.freeZone}
                       </div>
                     )}
@@ -378,8 +378,8 @@ export function CompanyList() {
                         // Typography
                         "text-gray-500",
                         // States
-                        "hover:text-indigo-600 hover:bg-gray-50",
-                        "focus:outline-none focus:ring-2 focus:ring-indigo-600/20",
+                        "hover:text-blue-600 hover:bg-gray-50",
+                        "focus:outline-none focus:ring-2 focus:ring-blue-600/20",
                         "disabled:opacity-50 disabled:cursor-not-allowed",
                         "transition-all duration-200"
                       )}
@@ -448,13 +448,13 @@ export function CompanyList() {
                     className="w-8 h-8 rounded"
                   />
                 ) : (
-                  <Building2 className="w-5 h-5 text-indigo-600" />
+                  <Building2 className="w-5 h-5 text-blue-600" />
                 )}
               </div>
               <div className="flex-1 min-w-0">
                 <Link
                   to={`/companies/${company.id}`}
-                  className="block text-xs font-medium text-gray-900 hover:text-indigo-600 transition-colors truncate"
+                  className="block text-xs font-medium text-gray-900 hover:text-blue-600 transition-colors truncate"
                 >
                   {company.companyNameEN}
                 </Link>
@@ -508,8 +508,8 @@ export function CompanyList() {
                   // Typography
                   "text-gray-500",
                   // States
-                  "hover:text-indigo-600 hover:bg-gray-50",
-                  "focus:outline-none focus:ring-2 focus:ring-indigo-600/20",
+                  "hover:text-blue-600 hover:bg-gray-50",
+                  "focus:outline-none focus:ring-2 focus:ring-blue-600/20",
                   "disabled:opacity-50 disabled:cursor-not-allowed",
                   "transition-all duration-200"
                 )}
