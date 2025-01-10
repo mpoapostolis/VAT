@@ -33,7 +33,6 @@ export function CategoryForm({ onSuccess, mode = "edit" }: CategoryFormProps) {
   const { id } = useParams();
   const navigate = useNavigate();
   const category = categories?.find((c) => c.id === id);
-
   const {
     register,
     handleSubmit,
@@ -65,7 +64,10 @@ export function CategoryForm({ onSuccess, mode = "edit" }: CategoryFormProps) {
         await pb.collection("categories").update(id, data);
         toast.success("Category updated successfully");
       } else {
-        await pb.collection("categories").create(data);
+        await pb.collection("categories").create({
+          ...data,
+          userId: pb.authStore.model?.id,
+        });
         toast.success("Category created successfully");
         reset();
       }
@@ -86,13 +88,13 @@ export function CategoryForm({ onSuccess, mode = "edit" }: CategoryFormProps) {
     <form
       id="category-form"
       onSubmit={handleSubmit(onSubmit)}
-      className="bg-white rounded border border-black/10 shadow-sm overflow-hidden"
+      className="bg-white  border border-black/10 shadow-sm overflow-hidden"
     >
       <div className="p-4 md:p-8 space-y-6 md:space-y-8">
         {/* Basic Information */}
         <div className="space-y-4 md:space-y-6">
           <div className="flex items-center space-x-3 mb-4 md:mb-6">
-            <div className="p-2 bg-blue-50 rounded lg">
+            <div className="p-2 bg-blue-50  lg">
               <Tag className="h-5 w-5 text-blue-500" />
             </div>
             <h2 className="text-xs font-medium text-gray-900">
@@ -107,7 +109,7 @@ export function CategoryForm({ onSuccess, mode = "edit" }: CategoryFormProps) {
                 {...register("name")}
                 placeholder="Category name"
                 disabled={mode === "view"}
-                className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
               />
               {errors.name && <FormMessage>{errors.name.message}</FormMessage>}
             </FormItem>
@@ -120,7 +122,7 @@ export function CategoryForm({ onSuccess, mode = "edit" }: CategoryFormProps) {
                 onChange={(value) => setValue("type", value)}
                 disabled={mode === "view"}
                 error={!!errors.type}
-                className="rounded xl"
+                className=" xl"
               />
               {errors.type && <FormMessage>{errors.type.message}</FormMessage>}
             </FormItem>
@@ -133,7 +135,7 @@ export function CategoryForm({ onSuccess, mode = "edit" }: CategoryFormProps) {
                 {...register("description")}
                 placeholder="Category description"
                 disabled={mode === "view"}
-                className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
               />
               {errors.description && (
                 <FormMessage>{errors.description.message}</FormMessage>
@@ -145,7 +147,7 @@ export function CategoryForm({ onSuccess, mode = "edit" }: CategoryFormProps) {
         {/* VAT Settings */}
         <div className="space-y-4 md:space-y-6">
           <div className="flex items-center space-x-3 mb-4 md:mb-6">
-            <div className="p-2 bg-green-50 rounded lg">
+            <div className="p-2 bg-green-50  lg">
               <Percent className="h-5 w-5 text-green-500" />
             </div>
             <h2 className="text-xs font-medium text-gray-900">VAT Settings</h2>
@@ -161,14 +163,14 @@ export function CategoryForm({ onSuccess, mode = "edit" }: CategoryFormProps) {
                 {...register("vatRate", { valueAsNumber: true })}
                 placeholder="5"
                 disabled={mode === "view"}
-                className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
               />
               {errors.vatRate && (
                 <FormMessage>{errors.vatRate.message}</FormMessage>
               )}
             </FormItem>
 
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded border p-4">
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0  border p-4">
               <div className="flex h-4 items-center">
                 <Checkbox
                   {...register("isActive")}

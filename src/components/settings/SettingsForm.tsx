@@ -57,7 +57,7 @@ export function SettingsForm() {
               value={settings.userPreferences.theme}
               onChange={handleUserPreferencesChange}
               className={cn(
-                "w-full rounded border border-gray-300 px-3 py-2",
+                "w-full  border border-gray-300 px-3 py-2",
                 "focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               )}
             >
@@ -76,7 +76,7 @@ export function SettingsForm() {
               value={settings.userPreferences.language}
               onChange={handleUserPreferencesChange}
               className={cn(
-                "w-full rounded border border-gray-300 px-3 py-2",
+                "w-full  border border-gray-300 px-3 py-2",
                 "focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               )}
             >
@@ -100,7 +100,7 @@ export function SettingsForm() {
               value={settings.vatSettings.defaultVATRate}
               onChange={handleVATSettingsChange}
               className={cn(
-                "w-full rounded border border-gray-300 px-3 py-2",
+                "w-full  border border-gray-300 px-3 py-2",
                 "focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               )}
             />
@@ -115,7 +115,7 @@ export function SettingsForm() {
               value={settings.vatSettings.vatPeriodType}
               onChange={handleVATSettingsChange}
               className={cn(
-                "w-full rounded border border-gray-300 px-3 py-2",
+                "w-full  border border-gray-300 px-3 py-2",
                 "focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               )}
             >
@@ -135,7 +135,7 @@ export function SettingsForm() {
               value={settings.vatSettings.vatNumber}
               onChange={handleVATSettingsChange}
               className={cn(
-                "w-full rounded border border-gray-300 px-3 py-2",
+                "w-full  border border-gray-300 px-3 py-2",
                 "focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               )}
             />
@@ -151,7 +151,7 @@ export function SettingsForm() {
               value={settings.vatSettings.businessName}
               onChange={handleVATSettingsChange}
               className={cn(
-                "w-full rounded border border-gray-300 px-3 py-2",
+                "w-full  border border-gray-300 px-3 py-2",
                 "focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               )}
             />
@@ -167,7 +167,7 @@ export function SettingsForm() {
               name="emailNotifications"
               checked={settings.notifications.emailNotifications}
               onChange={handleNotificationChange}
-              className="h-4 w-4 rounded border-gray-300 text-blue-600"
+              className="h-4 w-4  border-gray-300 text-blue-600"
             />
             <span className="text-xs text-gray-700">Email Notifications</span>
           </label>
@@ -178,7 +178,7 @@ export function SettingsForm() {
               name="vatReturnReminders"
               checked={settings.notifications.vatReturnReminders}
               onChange={handleNotificationChange}
-              className="h-4 w-4 rounded border-gray-300 text-blue-600"
+              className="h-4 w-4  border-gray-300 text-blue-600"
             />
             <span className="text-xs text-gray-700">VAT Return Reminders</span>
           </label>
@@ -189,7 +189,7 @@ export function SettingsForm() {
               name="dueDateReminders"
               checked={settings.notifications.dueDateReminders}
               onChange={handleNotificationChange}
-              className="h-4 w-4 rounded border-gray-300 text-blue-600"
+              className="h-4 w-4  border-gray-300 text-blue-600"
             />
             <span className="text-xs text-gray-700">Due Date Reminders</span>
           </label>
@@ -200,7 +200,7 @@ export function SettingsForm() {
         <button
           onClick={resetSettings}
           className={cn(
-            "rounded px-4 py-2 text-xs font-medium text-gray-700",
+            " px-4 py-2 text-xs font-medium text-gray-700",
             "border border-gray-300 bg-white",
             "hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
           )}

@@ -14,13 +14,13 @@ export function useInvoices(
 
   // Get parameters from URL or fallback to passed params
   const type =
-    (searchParams.get("type") as "receivable" | "payable" | "all") ||
     params.type ||
+    (searchParams.get("type") as "receivable" | "payable" | "all") ||
     "all";
 
-  const search = searchParams.get("search") || params.search;
+  const search = params.search || searchParams.get("search");
 
-  const customerId = searchParams.get("customerId") || params.customerId;
+  const customerId = params.customerId || searchParams.get("customerId");
   const status =
     (searchParams.get("status") as
       | "draft"
@@ -32,11 +32,12 @@ export function useInvoices(
       | undefined) || params.status;
   const from = searchParams.get("from");
   const to = searchParams.get("to");
-  const currency = searchParams.get("currency") || params.currency;
-  const minAmount = searchParams.get("minAmount") || params.minAmount;
-  const maxAmount = searchParams.get("maxAmount") || params.maxAmount;
-  const companyId = searchParams.get("companyId") || params.companyId;
-
+  const currency = params.currency || searchParams.get("currency");
+  const minAmount = params.minAmount || searchParams.get("minAmount");
+  const maxAmount = params.maxAmount || searchParams.get("maxAmount");
+  const companyId = params.companyId || searchParams.get("companyId");
+  const perPage = Number(searchParams.get("perPage")) || params.perPage || 5;
+  const page = Number(searchParams.get("page")) || params.page || 1;
   // Build cache key
   const cacheKey = `/api/invoices?${type ? `type=${type}` : ""}${
     search ? `&search=${search}` : ""
@@ -46,7 +47,10 @@ export function useInvoices(
     currency ? `&currency=${currency}` : ""
   }${minAmount ? `&minAmount=${minAmount}` : ""}${
     maxAmount ? `&maxAmount=${maxAmount}` : ""
-  }${companyId ? `&companyId=${companyId}` : ""}`;
+  }${companyId ? `&companyId=${companyId}` : ""}
+    &page=${page}
+    &perPage=${perPage}
+  `;
 
   const fetcher = async () => {
     try {
@@ -92,14 +96,15 @@ export function useInvoices(
 
       // Join filters into a single query string
       const filter = filters.length > 0 ? filters.join(" && ") : undefined;
-
       // Fetch invoices with filters, sorting, and pagination
-      const response = await pb.collection("invoices").getList<Invoice>(1, 50, {
-        sort: "-created", // Sort by the latest created first
-        filter, // Apply the filters
-        expand: "customerId", // Expand related customer data
-        requestKey: cacheKey,
-      });
+      const response = await pb
+        .collection("invoices")
+        .getList<Invoice>(page, perPage, {
+          sort: "-created", // Sort by the latest created first
+          filter, // Apply the filters
+          expand: "customerId,companyId,categoryId", // Expand related customer data
+          requestKey: null,
+        });
 
       // Return the formatted result
       return {

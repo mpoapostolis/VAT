@@ -129,15 +129,7 @@ export const generateInvoicePDF = async (
       const statusText = (invoice.status || "PENDING").toUpperCase();
       const statusWidth = doc.getTextWidth(statusText) + 10;
       doc.setFillColor(statusColor);
-      doc.roundedRect(
-        rightColumn - statusWidth,
-        y - 5,
-        statusWidth,
-        7,
-        1,
-        1,
-        "F"
-      );
+      doc.Rect(rightColumn - statusWidth, y - 5, statusWidth, 7, 1, 1, "F");
       doc.setTextColor("#FFFFFF");
       doc.setFontSize(9);
       const statusX = rightColumn - statusWidth + statusWidth / 2;

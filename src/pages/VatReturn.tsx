@@ -1,15 +1,9 @@
-import React from "react";
-import { Routes, Route, Link, useNavigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { AnimatedPage } from "@/components/AnimatedPage";
-import { Button } from "@/components/ui/button";
-import { VatReturnList } from "@/components/vat-return/VatReturnList";
-import { CreateVatReturn } from "@/components/vat-return/CreateVatReturn";
-import { EditVatReturn } from "@/components/vat-return/EditVatReturn";
-import { ViewVatReturn } from "@/components/vat-return/ViewVatReturn";
-import { Plus } from "lucide-react";
+import { VatReturnList } from "@/components/vat-returns/vat-return-list";
+import { VatReturnForm } from "@/components/vat-returns/vat-return-form";
 
 export function VatReturn() {
-  const navigate = useNavigate();
   return (
     <Routes>
       <Route
@@ -22,9 +16,8 @@ export function VatReturn() {
           </AnimatedPage>
         }
       />
-      <Route path="new" element={<CreateVatReturn />} />
-      <Route path="/:id" element={<ViewVatReturn />} />
-      <Route path="/:id/edit" element={<EditVatReturn />} />
+      <Route path="new" element={<VatReturnForm />} />
+      <Route path=":id/edit" element={<VatReturnForm />} />
     </Routes>
   );
 }

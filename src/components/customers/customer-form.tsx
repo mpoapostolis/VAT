@@ -184,7 +184,9 @@ export function CustomerForm() {
         await pb.collection("customers").update(id, formData);
         toast.success("Customer updated successfully");
       } else {
-        await pb.collection("customers").create(formData);
+        await pb
+          .collection("customers")
+          .create({ ...formData, userId: pb.authStore.model?.id });
         toast.success("Customer created successfully");
       }
       navigate("/customers");

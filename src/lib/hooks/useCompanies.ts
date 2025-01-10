@@ -27,7 +27,7 @@ export function useCompanies(
         .getList<Company>(page, perPage, {
           filter,
           sort,
-          requestKey: cacheKey,
+          requestKey: null,
         });
 
       return {

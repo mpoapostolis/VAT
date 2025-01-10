@@ -143,7 +143,9 @@ export function CompanyList() {
           formData.append("logo", blob, "logo");
         }
 
-        await pb.collection("companies").create(formData);
+        await pb
+          .collection("companies")
+          .create({ ...formData, userId: pb.authStore.model?.id });
         await mutate();
         toast.success("Company duplicated successfully");
       } catch (error) {
@@ -224,7 +226,7 @@ export function CompanyList() {
             "bg-blue-600 hover:bg-blue-700",
             "shadow-sm",
             "transition-all duration-200",
-            "rounded",
+            "",
             "focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
           )}
         >
@@ -234,7 +236,7 @@ export function CompanyList() {
       </div>
 
       {/* Desktop View */}
-      <div className="hidden md:block overflow-hidden bg-white rounded border border-gray-200 shadow-sm">
+      <div className="hidden md:block overflow-hidden bg-white  border border-gray-200 shadow-sm">
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-50/50">
@@ -308,13 +310,13 @@ export function CompanyList() {
                 <TableCell className="py-3">
                   <div className="flex items-center gap-3">
                     <div className="relative">
-                      <div className="absolute inset-0 bg-blue-600/5 blur-sm rounded"></div>
-                      <div className="relative p-2 rounded bg-gradient-to-br from-gray-50 to-white shadow-sm">
+                      <div className="absolute inset-0 bg-blue-600/5 blur-sm "></div>
+                      <div className="relative p-2  bg-gradient-to-br from-gray-50 to-white shadow-sm">
                         {company.logo ? (
                           <img
                             src={pb.getFileUrl(company, company.logo as string)}
                             alt={company.companyNameEN}
-                            className="w-6 h-6 rounded"
+                            className="w-6 h-6 "
                           />
                         ) : (
                           <Building2 className="w-4 h-4 text-blue-600" />
@@ -354,7 +356,7 @@ export function CompanyList() {
                 <TableCell className="py-3">
                   <span
                     className={cn(
-                      "inline-flex items-center px-2.5 py-0.5 rounded",
+                      "inline-flex items-center px-2.5 py-0.5 ",
                       "text-xs font-medium",
                       "bg-emerald-50 text-emerald-700",
                       "shadow-sm ring-1 ring-inset ring-emerald-600/10"
@@ -374,7 +376,7 @@ export function CompanyList() {
                         "p-2",
                         "relative",
                         // Visual
-                        "rounded",
+                        "",
                         // Typography
                         "text-gray-500",
                         // States
@@ -399,7 +401,7 @@ export function CompanyList() {
                         "p-2",
                         "relative",
                         // Visual
-                        "rounded",
+                        "",
                         // Typography
                         "text-gray-500",
                         // States
@@ -437,15 +439,15 @@ export function CompanyList() {
         {data?.map((company) => (
           <div
             key={company.id}
-            className="bg-white border border-gray-200 rounded p-4 space-y-4"
+            className="bg-white border border-gray-200  p-4 space-y-4"
           >
             <div className="flex items-start gap-3">
-              <div className="p-2 rounded bg-gray-50/50 flex-shrink-0">
+              <div className="p-2  bg-gray-50/50 flex-shrink-0">
                 {company.logo ? (
                   <img
                     src={pb.getFileUrl(company, company.logo as string)}
                     alt={company.companyNameEN}
-                    className="w-8 h-8 rounded"
+                    className="w-8 h-8 "
                   />
                 ) : (
                   <Building2 className="w-5 h-5 text-blue-600" />
@@ -464,7 +466,7 @@ export function CompanyList() {
               </div>
               <span
                 className={cn(
-                  "inline-flex items-center px-2.5 py-0.5 rounded",
+                  "inline-flex items-center px-2.5 py-0.5 ",
                   "text-xs font-medium",
                   "bg-emerald-50 text-emerald-700",
                   "shadow-sm ring-1 ring-inset ring-emerald-600/10"
@@ -504,7 +506,7 @@ export function CompanyList() {
                   "p-2",
                   "relative",
                   // Visual
-                  "rounded",
+                  "",
                   // Typography
                   "text-gray-500",
                   // States
@@ -529,7 +531,7 @@ export function CompanyList() {
                   "p-2",
                   "relative",
                   // Visual
-                  "rounded",
+                  "",
                   // Typography
                   "text-gray-500",
                   // States
@@ -548,7 +550,7 @@ export function CompanyList() {
             </div>
           </div>
         ))}
-        <div className="bg-white border border-gray-200 rounded overflow-hidden">
+        <div className="bg-white border border-gray-200  overflow-hidden">
           <TablePagination
             pageIndex={tableParams.page - 1}
             pageSize={tableParams.perPage}

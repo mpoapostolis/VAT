@@ -77,7 +77,7 @@ export function Login() {
 
           <motion.div
             variants={itemVariants}
-            className="bg-white rounded p-8 shadow-2xl shadow-blue-900/20"
+            className="bg-white  p-8 shadow-2xl shadow-blue-900/20"
           >
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               {isRegister && (

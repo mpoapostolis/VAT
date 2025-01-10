@@ -270,7 +270,7 @@ export function Search({ className }: SearchProps) {
             // Layout
             "flex items-center w-full",
             // Visual
-            "h-10 px-3.5 text-sm rounded",
+            "h-10 px-3.5 text-xs ",
             "bg-white/95 backdrop-blur-xl border border-slate-200/70",
             "shadow-[0_2px_8px_-4px_rgba(71,85,105,0.08)]",
             // States
@@ -284,7 +284,7 @@ export function Search({ className }: SearchProps) {
           <span className="ml-2.5 text-slate-500 group-hover:text-slate-600 transition-colors duration-200">
             Quick search...
           </span>
-          <kbd className="ml-auto inline-flex items-center gap-1 rounded bg-slate-100/80 px-2 py-0.5 text-xs font-medium text-slate-500 transition-colors group-hover:text-slate-600">
+          <kbd className="ml-auto inline-flex items-center gap-1  bg-slate-100/80 px-2 py-0.5 text-xs font-medium text-slate-500 transition-colors group-hover:text-slate-600">
             <span className="text-xs">⌘</span>K
           </kbd>
         </div>
@@ -301,7 +301,7 @@ export function Search({ className }: SearchProps) {
             // Layout
             "relative mx-auto max-w-2xl",
             // Visual
-            "bg-white/95 backdrop-blur-2xl rounded",
+            "bg-white/95 backdrop-blur-2xl ",
             "shadow-[0_24px_48px_-12px_rgba(71,85,105,0.14),0_0_0_1px_rgba(71,85,105,0.02)]",
             // Animation
             "animate-in fade-in slide-in-from-top-8 duration-300 ease-out"
@@ -373,7 +373,7 @@ export function Search({ className }: SearchProps) {
                     />
                   </svg>
                 </div>
-                <span className="text-sm text-blue-500/80">Searching...</span>
+                <span className="text-xs text-blue-500/80">Searching...</span>
               </div>
             )}
           </div>
@@ -441,7 +441,7 @@ export function Search({ className }: SearchProps) {
                                 // Layout
                                 "w-full px-2.5 py-2.5",
                                 "flex items-start gap-3",
-                                "rounded",
+                                "",
                                 // States
                                 colors.hover,
                                 isSelected && colors.selected,
@@ -460,7 +460,7 @@ export function Search({ className }: SearchProps) {
                                 className={cn(
                                   // Layout
                                   "relative flex-shrink-0",
-                                  "w-10 h-10 rounded",
+                                  "w-10 h-10 ",
                                   "flex items-center justify-center",
                                   // Visual
                                   `bg-gradient-to-br ${colors.bg}`,
@@ -489,20 +489,20 @@ export function Search({ className }: SearchProps) {
                                     {result.subtitle
                                       .toLowerCase()
                                       .includes("receivable") && (
-                                      <span className="flex-shrink-0  inline-flex items-center rounded bg-emerald-50 px-2 py-[2px] text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
+                                      <span className="flex-shrink-0  inline-flex items-center  bg-emerald-50 px-2 py-[2px] text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">
                                         Receivable
                                       </span>
                                     )}
                                     {result.subtitle
                                       .toLowerCase()
                                       .includes("payable") && (
-                                      <span className="flex-shrink-0 inline-flex items-center rounded bg-rose-50 px-2 py-[2px] text-xs font-medium text-rose-700 ring-1 ring-inset ring-rose-600/20">
+                                      <span className="flex-shrink-0 inline-flex items-center  bg-rose-50 px-2 py-[2px] text-xs font-medium text-rose-700 ring-1 ring-inset ring-rose-600/20">
                                         Expense
                                       </span>
                                     )}
                                   </div>
                                   <div className="flex-shrink-0">
-                                    <kbd className="inline-flex items-center rounded px-1.5 text-xs font-medium text-slate-400/80 bg-slate-100/50 select-none">
+                                    <kbd className="inline-flex items-center  px-1.5 text-xs font-medium text-slate-400/80 bg-slate-100/50 select-none">
                                       ↵
                                     </kbd>
                                   </div>
@@ -542,13 +542,13 @@ export function Search({ className }: SearchProps) {
                 transition={{ duration: 0.2 }}
                 className="px-6 py-14 text-center"
               >
-                <div className="mx-auto w-12 h-12 rounded-full bg-slate-100/80 ring-1 ring-slate-200/60 flex items-center justify-center">
+                <div className="mx-auto w-12 h-12 -full bg-slate-100/80 ring-1 ring-slate-200/60 flex items-center justify-center">
                   <SearchIcon className="w-5 h-5 text-slate-400/80" />
                 </div>
-                <div className="mt-4 text-sm font-medium text-slate-900">
+                <div className="mt-4 text-xs font-medium text-slate-900">
                   No results found
                 </div>
-                <div className="mt-1 text-sm text-slate-500/90">
+                <div className="mt-1 text-xs text-slate-500/90">
                   Try adjusting your search terms
                 </div>
               </motion.div>
@@ -572,23 +572,23 @@ export function Search({ className }: SearchProps) {
             >
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1">
-                  <kbd className="inline-flex items-center rounded px-1.5 font-medium bg-slate-100/70 text-slate-500/80">
+                  <kbd className="inline-flex items-center  px-1.5 font-medium bg-slate-100/70 text-slate-500/80">
                     ↑
                   </kbd>
-                  <kbd className="inline-flex items-center rounded px-1.5 font-medium bg-slate-100/70 text-slate-500/80">
+                  <kbd className="inline-flex items-center  px-1.5 font-medium bg-slate-100/70 text-slate-500/80">
                     ↓
                   </kbd>
                   <span className="ml-1">to navigate</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <kbd className="inline-flex items-center rounded px-1.5 font-medium bg-slate-100/70 text-slate-500/80">
+                  <kbd className="inline-flex items-center  px-1.5 font-medium bg-slate-100/70 text-slate-500/80">
                     ↵
                   </kbd>
                   <span className="ml-1">to select</span>
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                <kbd className="inline-flex items-center rounded px-1.5 font-medium bg-slate-100/70 text-slate-500/80">
+                <kbd className="inline-flex items-center  px-1.5 font-medium bg-slate-100/70 text-slate-500/80">
                   esc
                 </kbd>
                 <span className="ml-1">to close</span>

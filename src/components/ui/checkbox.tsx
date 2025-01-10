@@ -21,7 +21,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
           />
           <div
             className={cn(
-              "w-4 h-4 border grid place-items-center rounded transition-colors",
+              "w-4 h-4 border grid place-items-center  transition-colors",
               "peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-primary/20",
               "peer-checked:bg-blue-500 peer-checked:border-blue-500",
               "peer-disabled:opacity-50 peer-disabled:cursor-not-allowed",

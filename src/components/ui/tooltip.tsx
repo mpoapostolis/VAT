@@ -81,7 +81,7 @@ export function Tooltip({
             className={cn(
               "fixed z-[9999] p-3",
               "bg-white shadow-lg",
-              "rounded border border-black/[0.08]",
+              " border border-black/[0.08]",
               "transition-all duration-150",
               "data-[state=open]:translate-x-0 data-[state=closed]:-translate-x-2 data-[state=closed]:opacity-0",
               className

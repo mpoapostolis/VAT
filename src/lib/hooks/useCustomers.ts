@@ -27,7 +27,7 @@ export function useCustomers(
         .getList<Customer>(page, perPage, {
           filter,
           sort,
-          requestKey: cacheKey,
+          requestKey: null,
         });
 
       return {

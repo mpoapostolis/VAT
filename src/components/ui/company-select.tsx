@@ -18,7 +18,7 @@ export function CompanySelect({ value, onChange }: CompanySelectProps) {
   return (
     <Listbox value={value} onChange={onChange}>
       <div className="relative text-xs w-full ">
-        <Listbox.Button className="relative w-full h-10 cursor-default rounded bg-white py-2 pl-9 pr-10 text-left border border-input shadow-sm hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-primary">
+        <Listbox.Button className="relative w-full h-10 cursor-default  bg-white py-2 pl-9 pr-10 text-left border border-input shadow-sm hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-primary">
           <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
           <span className="block truncate text-xs">
             {selectedCompany?.companyNameEN || "All Companies"}
@@ -33,7 +33,7 @@ export function CompanySelect({ value, onChange }: CompanySelectProps) {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-xs z-[999]">
+          <Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto  bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-xs z-[999]">
             <Listbox.Option
               className={({ active }) =>
                 cn(

@@ -71,7 +71,7 @@
        // Typography
        "text-xs font-medium text-gray-900",
        // Visual
-       "bg-white rounded shadow-sm",
+       "bg-white  shadow-sm",
        // States
        "hover:bg-gray-50 focus:ring-2"
      )}
@@ -148,10 +148,11 @@
      }, [dependency1, dependency2]);
      ```
 
-2. Loading States:
-   - Implement skeleton loaders for better UX
-   - Use suspense boundaries when appropriate
-   - Example: Use TableSkeleton during data fetch
+2. Css
+
+   - Use tailwind for styling
+   - Never you rounded
+   - Main text should be text-xs
 
 # ACCESSIBILITY GUIDELINES
 

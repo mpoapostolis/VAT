@@ -36,7 +36,7 @@ export function Dropdown({
         <Menu.Items
           className={cn(
             "absolute z-50",
-            "bg-white rounded shadow-lg",
+            "bg-white  shadow-lg",
             "border border-gray-200",
             "focus:outline-none",
             "min-w-[200px]",

@@ -86,6 +86,7 @@ export interface Address {
  */
 export interface Company {
   id?: string;
+  userId?: string;
   logo?: string | File;
   companyNameEN: string;
   companyNameAR?: string;

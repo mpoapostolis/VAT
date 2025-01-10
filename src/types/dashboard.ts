@@ -7,5 +7,5 @@ export interface Transaction {
   number: string;
   date: string;
   amount: number;
-  status: 'PENDING' | 'PAID';
+  status: "PENDING" | "PAID";
 }

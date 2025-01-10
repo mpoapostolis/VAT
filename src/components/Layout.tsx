@@ -52,7 +52,7 @@ export function Layout() {
               <div className="flex items-center">
                 <button
                   onClick={() => setIsDrawerOpen(true)}
-                  className="p-2 -ml-2 mr-2 rounded hover:bg-gray-100 lg:hidden"
+                  className="p-2 -ml-2 mr-2  hover:bg-gray-100 lg:hidden"
                 >
                   <Menu className="h-5 w-5 text-gray-500" />
                 </button>
@@ -70,11 +70,11 @@ export function Layout() {
 
                 <Dropdown
                   trigger={
-                    <button className="flex items-center space-x-3 hover:bg-gray-50 rounded py-2 px-3 transition-colors">
+                    <button className="flex items-center space-x-3 hover:bg-gray-50  py-2 px-3 transition-colors">
                       <img
                         src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
                         alt="Profile"
-                        className="h-8 w-8 rounded-full ring-2 ring-white"
+                        className="h-8 w-8 -full ring-2 ring-white"
                       />
                       <div className="hidden sm:flex items-center">
                         <span className="text-xs font-medium text-gray-700">

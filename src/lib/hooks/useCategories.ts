@@ -3,13 +3,20 @@ import { useSearchParams } from "react-router-dom";
 import { pb } from "../pocketbase";
 import { Category } from "@/types/category";
 
-export function useCategories() {
+export function useCategories(
+  params: {
+    page?: number;
+    perPage?: number;
+    sort?: string;
+    filter?: string;
+  } = {}
+) {
   const [searchParams] = useSearchParams();
 
-  const page = Number(searchParams.get("page")) || 1;
-  const perPage = Number(searchParams.get("perPage")) || 5;
-  const sort = searchParams.get("sort") || "-created";
-  const filter = searchParams.get("filter") || "";
+  const page = Number(searchParams.get("page")) || params.page || 1;
+  const perPage = Number(searchParams.get("perPage")) || params.perPage || 5;
+  const sort = searchParams.get("sort") || params.sort || "-created";
+  const filter = searchParams.get("filter") || params.filter || "";
 
   const cacheKey = `/api/categories?page=${page}&perPage=${perPage}&sort=${sort}&filter=${filter}`;
 
@@ -20,7 +27,7 @@ export function useCategories() {
         .getList<Category>(page, perPage, {
           filter,
           sort,
-          requestKey: cacheKey,
+          requestKey: null,
         });
 
       return {

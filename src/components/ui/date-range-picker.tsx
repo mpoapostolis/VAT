@@ -145,6 +145,7 @@ interface DateRangePickerProps {
   onChange?: (range: { from: Date | undefined; to: Date | undefined }) => void;
   value?: { from: Date | undefined; to: Date | undefined };
   className?: string;
+  side?: "left" | "right";
 }
 
 /* ----------------------------------------------
@@ -154,6 +155,7 @@ export function DateRangePicker({
   onChange,
   value,
   className,
+  side = "right",
 }: DateRangePickerProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -274,7 +276,7 @@ export function DateRangePicker({
         id="date-range-picker-button"
         variant="outline"
         className={cn(
-          "w-full flex roundedsm text-xs truncate items-center  justify-start text-left font-medium group",
+          "w-full h-9 flex sm text-xs truncate items-center  justify-start text-left font-medium group",
           "border-gray-200 bg-white hover:bg-gray-100",
           "focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500",
           "transition-colors duration-200",
@@ -305,7 +307,7 @@ export function DateRangePicker({
           <Button
             variant="ghost"
             size="icon"
-            className="ml-auto h-6 w-6 roundedfull opacity-70 hover:opacity-100 hover:bg-gray-100"
+            className="ml-auto h-6 w-6 full opacity-70 hover:opacity-100 hover:bg-gray-100"
             onClick={(e) => {
               e.stopPropagation();
               clearRange();
@@ -322,13 +324,13 @@ export function DateRangePicker({
           <motion.div
             initial={{
               opacity: 0,
-              y: window.innerWidth < 1024 ? "100%" : 8,
+              x: window.innerWidth < 1024 ? "100%" : side === "right" ? 8 : -8,
               scale: window.innerWidth < 1024 ? 1 : 0.98,
             }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{
               opacity: 0,
-              y: window.innerWidth < 1024 ? "100%" : 8,
+              x: window.innerWidth < 1024 ? "100%" : side === "right" ? 8 : -8,
               scale: window.innerWidth < 1024 ? 1 : 0.98,
             }}
             transition={{
@@ -337,9 +339,11 @@ export function DateRangePicker({
             }}
             className={cn(
               "fixed inset-0 z-50 lg:absolute lg:inset-auto",
-              "lg:right-0 lg:mt-2 lg:origin-top-right",
+              side === "right"
+                ? "lg:right-0 lg:mt-2 lg:origin-top-right"
+                : "lg:left-0 lg:mt-2 lg:origin-top-left",
               "w-full h-[100dvh] lg:h-auto lg:w-auto lg:max-w-[90vw]",
-              "bg-white lg:rounded lg:border lg:border-gray-200 lg:shadow-lg",
+              "bg-white lg: lg:border lg:border-gray-200 lg:shadow-lg",
               "flex flex-col"
             )}
           >
@@ -351,7 +355,7 @@ export function DateRangePicker({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 roundedfull"
+                className="h-8 w-8 full"
                 onClick={() => setIsOpen(false)}
               >
                 <CloseIcon className="h-4 w-4" />
@@ -437,7 +441,7 @@ export function DateRangePicker({
                       "[&_.rdrMonthAndYearPickers_select]:p-1",
                       // Navigation buttons
                       "[&_.rdrNextPrevButton]:w-8 [&_.rdrNextPrevButton]:h-8",
-                      "[&_.rdrNextPrevButton]:transition-colors [&_.rdrNextPrevButton]:rounded",
+                      "[&_.rdrNextPrevButton]:transition-colors [&_.rdrNextPrevButton]:",
                       "[&_.rdrNextPrevButton]:hover:bg-gray-100",
 
                       /* ----------------------------------
@@ -470,12 +474,12 @@ export function DateRangePicker({
                       "[&_.rdrDayToday_.rdrDayNumber]:after:hidden", // kill default ring
                       // Hover effect
                       // Range selection
-                      "[&_.rdrStartEdge]:!bg-blue-600 [&_.rdrStartEdge]:!roundedl-full",
-                      "[&_.rdrEndEdge]:!bg-blue-600 [&_.rdrEndEdge]:!roundedr-full",
-                      "[&_.rdrInRange]:!bg-blue-600/80 [&_.rdrInRange]:!roundednone",
+                      "[&_.rdrStartEdge]:!bg-blue-600 [&_.rdrStartEdge]:!l-full",
+                      "[&_.rdrEndEdge]:!bg-blue-600 [&_.rdrEndEdge]:!r-full",
+                      "[&_.rdrInRange]:!bg-blue-600/80 [&_.rdrInRange]:!none",
                       // Preview selection on hover
-                      "[&_.rdrDayStartPreview]:!roundedl-full [&_.rdrDayStartPreview]:!border-blue-600/50",
-                      "[&_.rdrDayEndPreview]:!roundedr-full [&_.rdrDayEndPreview]:!border-blue-600/50",
+                      "[&_.rdrDayStartPreview]:!l-full [&_.rdrDayStartPreview]:!border-blue-600/50",
+                      "[&_.rdrDayEndPreview]:!r-full [&_.rdrDayEndPreview]:!border-blue-600/50",
                       // Selected day text
                       "[&_.rdrSelected]:text-white"
                     )}

@@ -73,7 +73,7 @@ export function Sidebar() {
   const pathname = useLocation().pathname;
   useEffect(() => {
     const handleResize = () => {
-      const mobile = window.innerWidth <= 1024;
+      const mobile = window.innerWidth <= 1280;
       setIsMobile(mobile);
       if (mobile) {
         setIsCollapsed(true);
@@ -107,8 +107,8 @@ export function Sidebar() {
           )}
         >
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-violet-500/20 blur-xl rounded-full"></div>
-            <div className="relative bg-gradient-to-br from-blue-50 via-white to-violet-50 rounded p-2.5  ring-black/[0.03]">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-violet-500/20 blur-xl -full"></div>
+            <div className="relative bg-gradient-to-br from-blue-50 via-white to-violet-50  p-2.5  ring-black/[0.03]">
               <Calculator className="w-[22px] h-[22px] text-blue-600" />
             </div>
           </div>
@@ -128,7 +128,7 @@ export function Sidebar() {
             onClick={() => setIsCollapsed(!isCollapsed)}
             className={cn(
               "hover:bg-gray-50/80 text-gray-400 hover:text-gray-600",
-              "h-7 w-7 rounded flex items-center justify-center",
+              "h-7 w-7  flex items-center justify-center",
               "transition-colors ml-1 duration-200"
             )}
           >
@@ -151,7 +151,7 @@ export function Sidebar() {
                 className={({ isActive }) =>
                   cn(
                     // Base styles
-                    "flex items-center gap-3.5 px-4 py-2.5 rounded",
+                    "flex items-center gap-3.5 px-4 py-2.5 ",
                     "transition-all duration-200 ease-out group",
                     // Text styles
                     "text-gray-500 hover:text-gray-900",
@@ -192,7 +192,7 @@ export function Sidebar() {
                 {isMobile || isCollapsed ? (
                   <Tooltip
                     content={
-                      <div className="flex flex-col gap-1 min-w-[200px] p-2 rounded bg-gradient-to-r from-blue-50/50 to-violet-50/50">
+                      <div className="flex flex-col gap-1 min-w-[200px] p-2  bg-gradient-to-r from-blue-50/50 to-violet-50/50">
                         <span className="text-xs font-medium text-gray-900">
                           {item.name}
                         </span>

@@ -131,6 +131,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
   const onSubmit = async (data: Company) => {
     try {
       const formData = new FormData();
+      formData.append("userId", pb.authStore.model?.id || "");
 
       Object.entries(data).forEach(([key, value]) => {
         if (key === "logo" && value instanceof File) {
@@ -203,14 +204,14 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
       onSubmit={handleSubmit(onSubmit)}
       encType="multipart/form-data"
     >
-      <div className="bg-white rounded border border-black/10 shadow-sm overflow-hidden">
+      <div className="bg-white  border border-black/10 shadow-sm overflow-hidden">
         {/* Header */}
 
         <div className="p-4 md:p-8 space-y-6 md:space-y-8">
           {/* Basic Information */}
           <div className="space-y-4 md:space-y-6">
             <div className="flex items-center space-x-3 mb-4 md:mb-6">
-              <div className="p-2 bg-blue-50 rounded lg">
+              <div className="p-2 bg-blue-50  lg">
                 <Building2 className="h-5 w-5 text-blue-500" />
               </div>
               <h2 className="text-xs font-medium text-gray-900">
@@ -231,13 +232,13 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                         <img
                           src={logoPreview}
                           alt="Company logo"
-                          className="h-20 w-20 md:h-24 md:w-24 rounded object-cover border border-gray-200"
+                          className="h-20 w-20 md:h-24 md:w-24  object-cover border border-gray-200"
                         />
                         {!mode || mode === "edit" ? (
                           <button
                             type="button"
                             onClick={handleRemoveLogo}
-                            className="absolute -top-2 -right-2 rounded-full bg-white p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                            className="absolute -top-2 -right-2 -full bg-white p-1 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                           >
                             <span className="sr-only">Remove logo</span>
                             <svg
@@ -257,7 +258,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                         ) : null}
                       </div>
                     ) : (
-                      <div className="h-20 w-20 md:h-24 md:w-24 rounded border-2 border-dashed border-gray-300 bg-white p-2 flex items-center justify-center">
+                      <div className="h-20 w-20 md:h-24 md:w-24  border-2 border-dashed border-gray-300 bg-white p-2 flex items-center justify-center">
                         <svg
                           className="h-8 w-8 text-gray-400"
                           fill="none"
@@ -280,7 +281,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                       accept="image/jpeg,image/png,image/gif"
                       onChange={handleLogoUpload}
                       disabled={mode === "view"}
-                      className="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                      className="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file: file:border-0 file:text-xs file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                     />
                     <p className="mt-2 text-xs text-gray-500">
                       Upload a company logo (JPEG, PNG, or GIF, max 5MB)
@@ -301,7 +302,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                   error={errors.companyNameEN?.message}
                   disabled={mode === "view"}
                   placeholder="Enter company name in English"
-                  className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
                 <FormMessage>{errors.companyNameEN?.message}</FormMessage>
               </FormItem>
@@ -318,7 +319,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                   disabled={mode === "view"}
                   placeholder="Enter company name in Arabic"
                   dir="rtl"
-                  className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
                 <FormMessage>{errors.companyNameAR?.message}</FormMessage>
               </FormItem>
@@ -334,7 +335,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                   error={errors.tradeLicenseNumber?.message}
                   disabled={mode === "view"}
                   placeholder="Enter trade license number"
-                  className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
                 <FormMessage>{errors.tradeLicenseNumber?.message}</FormMessage>
               </FormItem>
@@ -349,7 +350,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                   onChange={(value) => setValue("primaryBusinessType", value)}
                   disabled={mode === "view"}
                   error={!!errors.primaryBusinessType}
-                  className="rounded xl"
+                  className=" xl"
                 />
                 <FormMessage>{errors.primaryBusinessType?.message}</FormMessage>
               </FormItem>
@@ -367,7 +368,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                   })}
                   disabled={mode === "view"}
                   placeholder="Enter business type description"
-                  className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
                 <FormMessage>
                   {errors.businessTypeDescription?.message}
@@ -384,7 +385,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                   onChange={(value) => setValue("serviceType", value)}
                   disabled={mode === "view"}
                   error={!!errors.serviceType}
-                  className="rounded xl"
+                  className=" xl"
                 />
                 <FormMessage>{errors.serviceType?.message}</FormMessage>
               </FormItem>
@@ -397,7 +398,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                   {...register("website")}
                   disabled={mode === "view"}
                   placeholder="Enter company website"
-                  className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
               </FormItem>
             </div>
@@ -406,7 +407,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
           {/* Location Information */}
           <div className="space-y-4 md:space-y-6 pt-4 md:pt-6 border-t border-gray-100">
             <div className="flex items-center space-x-3 mb-4 md:mb-6">
-              <div className="p-2 bg-green-50 rounded">
+              <div className="p-2 bg-green-50 ">
                 <MapPin className="h-5 w-5 text-green-500" />
               </div>
               <h2 className="text-xs font-medium text-gray-900">
@@ -431,21 +432,21 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                     disabled={mode === "view"}
                     error={!!errors.emirate}
                     placeholder="Select Emirate"
-                    className="rounded"
+                    className=""
                   />
                   <FormMessage>{errors.emirate?.message}</FormMessage>
                 </FormItem>
               </div>
 
               {/* Free Zone Section */}
-              <div className="space-y-4 bg-gray-50 p-3 md:p-4 rounded">
+              <div className="space-y-4 bg-gray-50 p-3 md:p-4 ">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="freeZone"
                       {...register("freeZone")}
                       disabled={mode === "view"}
-                      className="rounded"
+                      className=""
                     />
                     <label
                       htmlFor="freeZone"
@@ -472,7 +473,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                           }
                           error={!!errors.Designated_Zone}
                           placeholder="Select Free Zone"
-                          className="rounded"
+                          className=""
                         />
                         <FormMessage>
                           {errors.Designated_Zone?.message}
@@ -500,7 +501,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                     error={errors.billingAddress?.street?.message}
                     disabled={mode === "view"}
                     placeholder="Enter street address"
-                    className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                   />
                   <FormMessage>
                     {errors.billingAddress?.street?.message}
@@ -518,7 +519,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                     error={errors.billingAddress?.city?.message}
                     disabled={mode === "view"}
                     placeholder="Enter city"
-                    className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                   />
                   <FormMessage>
                     {errors.billingAddress?.city?.message}
@@ -533,7 +534,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                     {...register("billingAddress.state")}
                     disabled={mode === "view"}
                     placeholder="Enter state"
-                    className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </FormItem>
 
@@ -545,7 +546,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                     {...register("billingAddress.postalCode")}
                     disabled={mode === "view"}
                     placeholder="Enter postal code"
-                    className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                   />
                 </FormItem>
               </div>
@@ -578,7 +579,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                       {...register("shippingAddress.street")}
                       disabled={mode === "view"}
                       placeholder="Enter street address"
-                      className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                      className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </FormItem>
 
@@ -590,7 +591,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                       {...register("shippingAddress.city")}
                       disabled={mode === "view"}
                       placeholder="Enter city"
-                      className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                      className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </FormItem>
 
@@ -602,7 +603,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                       {...register("shippingAddress.state")}
                       disabled={mode === "view"}
                       placeholder="Enter state"
-                      className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                      className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </FormItem>
 
@@ -614,7 +615,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                       {...register("shippingAddress.postalCode")}
                       disabled={mode === "view"}
                       placeholder="Enter postal code"
-                      className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                      className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                     />
                   </FormItem>
                 </div>
@@ -625,7 +626,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
           {/* Contact Information */}
           <div className="space-y-4 md:space-y-6 pt-4 md:pt-6 border-t border-gray-100">
             <div className="flex items-center space-x-3 mb-4 md:mb-6">
-              <div className="p-2 bg-purple-50 rounded">
+              <div className="p-2 bg-purple-50 ">
                 <User className="h-5 w-5 text-purple-500" />
               </div>
               <h2 className="text-xs font-medium text-gray-900">
@@ -645,7 +646,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                   error={errors.contactPersonFirstName?.message}
                   disabled={mode === "view"}
                   placeholder="Enter first name"
-                  className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
                 <FormMessage>
                   {errors.contactPersonFirstName?.message}
@@ -663,7 +664,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                   error={errors.contactPersonLastName?.message}
                   disabled={mode === "view"}
                   placeholder="Enter last name"
-                  className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
                 <FormMessage>
                   {errors.contactPersonLastName?.message}
@@ -678,7 +679,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                   {...register("contactPersonPosition")}
                   disabled={mode === "view"}
                   placeholder="Enter position"
-                  className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
               </FormItem>
 
@@ -697,7 +698,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                   error={errors.email?.message}
                   disabled={mode === "view"}
                   placeholder="Enter email address"
-                  className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
                 <FormMessage>{errors.email?.message}</FormMessage>
               </FormItem>
@@ -713,7 +714,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                   error={errors.phoneNumber?.message}
                   disabled={mode === "view"}
                   placeholder="Enter phone number"
-                  className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
                 <FormMessage>{errors.phoneNumber?.message}</FormMessage>
               </FormItem>
@@ -723,7 +724,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
           {/* Financial Information */}
           <div className="space-y-4 md:space-y-6 pt-4 md:pt-6 border-t border-gray-100">
             <div className="flex items-center space-x-3 mb-4 md:mb-6">
-              <div className="p-2 bg-orange-50 rounded">
+              <div className="p-2 bg-orange-50 ">
                 <CreditCard className="h-5 w-5 text-orange-500" />
               </div>
               <h2 className="text-xs font-medium text-gray-900">
@@ -740,7 +741,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                   {...register("baseCurrency")}
                   disabled={true}
                   value="AED"
-                  className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
               </FormItem>
 
@@ -763,7 +764,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                   })}
                   error={errors.defaultVatRate?.message}
                   disabled={mode === "view"}
-                  className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
                 <FormMessage>{errors.defaultVatRate?.message}</FormMessage>
               </FormItem>
@@ -783,7 +784,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                   })}
                   error={errors.defaultPaymentTermsDays?.message}
                   disabled={mode === "view"}
-                  className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                 />
                 <FormMessage>
                   {errors.defaultPaymentTermsDays?.message}
@@ -821,7 +822,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                     })}
                     disabled={mode === "view"}
                     placeholder="Enter bank name"
-                    className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                   />
                   <FormMessage>{errors.bankName?.message}</FormMessage>
                 </FormItem>
@@ -836,7 +837,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                     })}
                     disabled={mode === "view"}
                     placeholder="Enter branch name"
-                    className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                   />
                   <FormMessage>{errors.branch?.message}</FormMessage>
                 </FormItem>
@@ -851,7 +852,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                     })}
                     disabled={mode === "view"}
                     placeholder="Enter account number"
-                    className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                   />
                   <FormMessage>{errors.accountNumber?.message}</FormMessage>
                 </FormItem>
@@ -866,7 +867,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                     })}
                     disabled={mode === "view"}
                     placeholder="Enter SWIFT code"
-                    className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                   />
                   <FormMessage>{errors.swiftCode?.message}</FormMessage>
                 </FormItem>
@@ -881,7 +882,7 @@ export function CompanyForm({ onSuccess, mode = "edit" }: CompanyFormProps) {
                     })}
                     disabled={mode === "view"}
                     placeholder="Enter account currency"
-                    className="rounded xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                    className=" xl border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                   />
                   <FormMessage>{errors.accountCurrency?.message}</FormMessage>
                 </FormItem>

@@ -3,34 +3,18 @@ import {
   BuildingOffice2Icon,
   ReceiptPercentIcon,
   DocumentDuplicateIcon,
-  UsersIcon,
 } from "@heroicons/react/24/outline";
 import { formatCurrency } from "@/lib/utils";
 import { CompanySelect } from "@/components/ui/company-select";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { StatCard } from "@/components/ui/stat-card";
 import { useSearchParams } from "react-router-dom";
-import { useInvoices } from "@/lib/hooks/useInvoices";
-import { useCustomers } from "@/lib/hooks/useCustomers";
+import { useInvoiceTotals } from "@/lib/hooks/useInvoiceTotals";
+import { AlertCircle } from "lucide-react";
 
 export function StatsSection() {
   // Fetch all invoices for the selected company and date range
-  const { invoices, isLoading } = useInvoices();
-
-  // Calculate stats from invoices
-  const totalRevenue =
-    invoices
-      ?.filter((inv) => inv.type === "receivable")
-      .reduce((sum, inv) => sum + (inv.total || 0), 0) || 0;
-
-  const { customers } = useCustomers();
-
-  const totalExpenses =
-    invoices
-      ?.filter((inv) => inv.type === "payable")
-      .reduce((sum, inv) => sum + (inv.total || 0), 0) || 0;
-
-  const totalInvoices = invoices?.length || 0;
+  const totals = useInvoiceTotals();
 
   const [searchParams, setSearchParams] = useSearchParams();
   const companyId = searchParams.get("companyId") || "";
@@ -40,8 +24,8 @@ export function StatsSection() {
   const statCards = [
     {
       icon: <BanknotesIcon />,
-      label: "Total Revenue",
-      value: formatCurrency(totalRevenue),
+      label: "Total Receivables",
+      value: formatCurrency(totals?.totalReceivableAmount),
       trend: {
         value: 12.5,
         label: "vs. last month",
@@ -50,8 +34,8 @@ export function StatsSection() {
     },
     {
       icon: <ReceiptPercentIcon />,
-      label: "Total Expenses",
-      value: formatCurrency(totalExpenses),
+      label: "Total Payables",
+      value: formatCurrency(totals?.totalPayableAmount),
       trend: {
         value: -8.2,
         label: "vs. last month",
@@ -61,7 +45,7 @@ export function StatsSection() {
     {
       icon: <DocumentDuplicateIcon />,
       label: "Total Invoices",
-      value: totalInvoices.toString(),
+      value: totals?.totalInvoices,
       trend: {
         value: 24.5,
         label: "vs. last month",
@@ -69,22 +53,24 @@ export function StatsSection() {
       variant: "blue",
     },
     {
-      icon: <UsersIcon />,
-      label: "Active Customers",
-      value: customers.length,
+      icon: <AlertCircle />,
+      label: "Overdue Invoices",
+      value:
+        (totals?.totalOverdueInvoices ?? 0) +
+        (totals?.totalOverdueReceivables ?? 0),
       trend: {
         value: 4.2,
         label: "vs. last month",
       },
-      variant: "violet",
+      variant: "rose",
     },
   ] as const;
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Header Section */}
-      <div className="flex z-200 flex-col flex-wrap gap-3 sm:flex-row sm:items-center justify-between bg-white/60 p-3 sm:p-4 rounded border border-gray-200/60 shadow-lg shadow-gray-200/20">
+      <div className="flex z-200 flex-col flex-wrap gap-3 sm:flex-row sm:items-center justify-between bg-white/60 p-3 sm:p-4  border border-gray-200/60  shadow-gray-200/20">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded bg-gray-50 ring-1 ring-gray-200/50">
+          <div className="p-2  bg-gray-50 ring-1 ring-gray-200/50">
             <BuildingOffice2Icon className="h-5 w-5 text-gray-600" />
           </div>
           <div>
@@ -130,7 +116,6 @@ export function StatsSection() {
             value={card.value}
             trend={card.trend}
             variant={card.variant}
-            isLoading={isLoading}
           />
         ))}
       </div>

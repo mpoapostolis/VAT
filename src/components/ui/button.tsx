@@ -16,7 +16,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         disabled={disabled}
         className={cn(
-          "inline-fle text-xs rounded items-center justify-center font-medium transition-all duration-200",
+          "inline-fle text-xs  items-center justify-center font-medium transition-all duration-200",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
           "disabled:opacity-50 disabled:cursor-not-allowed",
           {

@@ -17,9 +17,6 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Loader2,
-  AlertTriangle,
-  Clock,
-  CheckCircle2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -42,10 +39,10 @@ import { AnimatedPage } from "../AnimatedPage";
 import { useInvoices } from "@/lib/hooks/useInvoices";
 import { useCompanies } from "@/lib/hooks/useCompanies";
 import { useInvoiceTotals } from "@/lib/hooks/useInvoiceTotals";
-import { isAfter, addDays } from "date-fns";
-import { AmountDisplay } from "@/components/ui/amount-display";
 import { DocumentIcon } from "@heroicons/react/24/outline";
-import { Invoice } from "@/lib/pocketbase";
+import { pb } from "@/lib/pocketbase";
+import { AdvancedFilters } from "../advanced-filters";
+import { ActionDropdown } from "../ui/action-dropdown";
 
 function StatsCard({
   title,
@@ -75,7 +72,7 @@ function StatsCard({
         <div
           className={cn(
             // Base styles
-            "rounded p-2.5 flex items-center justify-center",
+            " p-2.5 flex items-center justify-center",
             // Transitions
             "transition-all duration-300",
             // Color variants
@@ -95,7 +92,7 @@ function StatsCard({
             {title}
           </p>
           <div className="mt-2 flex items-baseline gap-2">
-            <h3 className="text-2xl font-semibold tracking-tight text-gray-900">
+            <h3 className=" font-semibold tracking-tight text-gray-600">
               {value}
             </h3>
             {trend && (
@@ -136,7 +133,7 @@ export function InvoiceList() {
     type: "receivable",
   });
 
-  const invoiceTotals = useInvoiceTotals(invoices);
+  const invoiceTotals = useInvoiceTotals();
   const { customers } = useCustomers({
     perPage: 500,
   });
@@ -154,8 +151,9 @@ export function InvoiceList() {
     navigate(`?${params.toString()}`, { replace: true });
   };
 
-  const handleDelete = (id: string) => {
-    // implement delete logic here
+  const handleDelete = async (id: string) => {
+    await pb.collection("invoices").delete(id);
+    rest.mutate();
   };
 
   return (
@@ -175,7 +173,7 @@ export function InvoiceList() {
 
           <Button
             size="sm"
-            className=" rounded-sm bg-gradient-to-r  from-blue-600 to-blue-600 hover:from-blue-700 hover:to-blue-700 transition-all group relative overflow-hidden"
+            className=" -sm bg-gradient-to-r  from-blue-600 to-blue-600 hover:from-blue-700 hover:to-blue-700 transition-all group relative overflow-hidden"
           >
             <Link to="/receivables/new" className="flex items-center">
               <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -188,259 +186,41 @@ export function InvoiceList() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatsCard
             title="Total Receivables"
-            value={formatCurrency(invoiceTotals.totalReceivables || 0)}
+            value={formatCurrency(invoiceTotals.totalReceivableAmount || 0)}
             icon={ArrowUpRight}
             className="bg-emerald-50/50 text-emerald-500"
           />
           <StatsCard
-            title="Total Invoices"
-            value={String(invoiceTotals.receivableInvoices || 0)}
+            title="Paid Receivables Invoices"
+            value={String(invoiceTotals.totalPaidReceivables || 0)}
             icon={FileText}
             className="bg-amber-50/50 text-amber-500"
           />
           <StatsCard
-            title="Average Invoice Value"
-            value={formatCurrency(
-              (invoiceTotals.totalReceivables || 0) /
-                (invoiceTotals.receivableInvoices || 1)
-            )}
+            title="Issued Invoice "
+            value={String(invoiceTotals.totalIssuedInvoicesReceivable || 0)}
             icon={Activity}
             className="bg-blue-50/50 text-blue-500"
           />
           <StatsCard
             title="Overdue Invoices"
-            value={String(invoiceTotals.overdueInvoices || 0)}
+            value={String(invoiceTotals.totalOverdueReceivables || 0)}
             icon={AlertCircle}
             className="bg-rose-50/50 text-rose-500"
           />
         </div>
 
-        <Card className="p-6 bg-white  transition-all duration-300 border border-gray-200/50  bg-white/50">
-          <Disclosure defaultOpen>
-            {({ open }) => (
-              <>
-                <Disclosure.Button className="w-full focus:outline-none">
-                  <div className="flex items-center justify-between cursor-pointer group">
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-2">
-                        <Search className="h-4 w-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
-                        <h2 className="text-base font-medium bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 group-hover:from-gray-800 group-hover:to-gray-500 transition-all">
-                          Advanced Filters
-                        </h2>
-                      </div>
-                      <div className="flex gap-1.5">
-                        {Object.keys(Object.fromEntries([...searchParams]))
-                          .length > 0 && (
-                          <>
-                            <Badge
-                              variant="outline"
-                              className="bg-blue-50/50 border-blue-200/50 text-blue-700 hover:bg-blue-100/50 transition-colors"
-                            >
-                              {
-                                Object.keys(
-                                  Object.fromEntries([...searchParams])
-                                ).length
-                              }{" "}
-                              active
-                            </Badge>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-5 px-2 flex items-center text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100/75"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const params = new URLSearchParams(
-                                  searchParams
-                                );
-                                Array.from(params.keys()).forEach((key) => {
-                                  params.delete(key);
-                                });
-                                navigate(`?${params.toString()}`, {
-                                  replace: true,
-                                });
-                              }}
-                            >
-                              <RotateCcw className="h-3 w-3 mr-1" />
-                              Reset
-                            </Button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    <ChevronDown
-                      className={cn(
-                        "h-4 w-4 text-gray-400 transition-all duration-300",
-                        open ? "transform rotate-180" : "transform rotate-0",
-                        "group-hover:text-gray-600"
-                      )}
-                    />
-                  </div>
-                </Disclosure.Button>
-
-                <Transition
-                  enter="transition duration-200 ease-out"
-                  enterFrom="transform scale-98 opacity-0"
-                  enterTo="transform scale-100 opacity-100"
-                  leave="transition duration-150 ease-out"
-                  leaveFrom="transform scale-100 opacity-100"
-                  leaveTo="transform scale-98 opacity-0"
-                >
-                  <Disclosure.Panel className="mt-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                      <div className="space-y-2 group">
-                        <label className="flex items-center gap-2 text-xs font-medium text-gray-600 group-hover:text-gray-900 transition-colors">
-                          <Search className="h-4 w-4 text-gray-400 group-hover:text-gray-500" />
-                          Search
-                        </label>
-                        <Input
-                          type="text"
-                          placeholder="Search by invoice number, description..."
-                          value={searchParams.get("search") || ""}
-                          onChange={(e) =>
-                            updateSearchParam("search", e.target.value)
-                          }
-                        />
-                      </div>
-
-                      <div className="space-y-2 group">
-                        <label className="flex items-center gap-2 text-xs font-medium text-gray-600 group-hover:text-gray-900 transition-colors">
-                          <Building2 className="h-4 w-4 text-gray-400 group-hover:text-gray-500" />
-                          Customer
-                        </label>
-                        <Select
-                          value={searchParams.get("customerId") || ""}
-                          onChange={(value) =>
-                            updateSearchParam("customerId", value)
-                          }
-                          options={[
-                            { label: "All Customers", value: "" },
-                            ...(customers?.map((customer) => ({
-                              label:
-                                customer.contactFirstName ||
-                                customer?.companyName,
-                              value: customer.id,
-                            })) || []),
-                          ]}
-                        />
-                      </div>
-
-                      <div className="space-y-2 group">
-                        <label className="flex items-center gap-2 text-xs font-medium text-gray-600 group-hover:text-gray-900 transition-colors">
-                          <Building2 className="h-4 w-4 text-gray-400 group-hover:text-gray-500" />
-                          Company
-                        </label>
-                        <Select
-                          value={searchParams.get("companyId") || ""}
-                          onChange={(value) =>
-                            updateSearchParam("companyId", value)
-                          }
-                          options={[
-                            { label: "All Companies", value: "" },
-                            ...(companies?.map((company) => ({
-                              label: company.companyNameEN,
-                              value: company.id ?? "",
-                            })) || []),
-                          ]}
-                        />
-                      </div>
-
-                      <div className="space-y-2 group">
-                        <label className="flex items-center gap-2 text-xs font-medium text-gray-600 group-hover:text-gray-900 transition-colors">
-                          <Activity className="h-4 w-4 text-gray-400 group-hover:text-gray-500" />
-                          Status
-                        </label>
-                        <Select
-                          value={searchParams.get("status") || ""}
-                          onChange={(value) =>
-                            updateSearchParam("status", value)
-                          }
-                          options={[
-                            { label: "All Statuses", value: "" },
-                            { label: "Draft", value: "draft" },
-                            { label: "Pending", value: "pending" },
-                            { label: "Paid", value: "paid" },
-                            { label: "Overdue", value: "overdue" },
-                          ]}
-                        />
-                      </div>
-
-                      <div className="space-y-2 group">
-                        <label className="flex items-center gap-2 text-xs font-medium text-gray-600 group-hover:text-gray-900 transition-colors">
-                          <CreditCard className="h-4 w-4 text-gray-400 group-hover:text-gray-500" />
-                          Currency
-                        </label>
-                        <Select
-                          value={searchParams.get("currency") || ""}
-                          onChange={(value) =>
-                            updateSearchParam("currency", value)
-                          }
-                          options={[
-                            { label: "All Currencies", value: "" },
-                            { label: "EUR", value: "EUR" },
-                            { label: "USD", value: "USD" },
-                            { label: "GBP", value: "GBP" },
-                          ]}
-                        />
-                      </div>
-
-                      <div className="space-y-2 group">
-                        <label className="flex items-center gap-2 text-xs font-medium text-gray-600 group-hover:text-gray-900 transition-colors">
-                          <CreditCard className="h-4 w-4 text-gray-400 group-hover:text-gray-500" />
-                          Amount Range
-                        </label>
-                        <div className="flex items-center gap-2">
-                          <Input
-                            type="number"
-                            placeholder="Min"
-                            value={searchParams.get("minAmount") || ""}
-                            onChange={(e) =>
-                              updateSearchParam("minAmount", e.target.value)
-                            }
-                          />
-                          <span className="text-gray-400">—</span>
-                          <Input
-                            type="number"
-                            placeholder="Max"
-                            value={searchParams.get("maxAmount") || ""}
-                            onChange={(e) =>
-                              updateSearchParam("maxAmount", e.target.value)
-                            }
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2 group ml-auto w-full">
-                        <label className="flex items-center gap-2 text-xs font-medium text-gray-600 group-hover:text-gray-900 transition-colors">
-                          <Calendar className="h-4 w-4 text-gray-400 group-hover:text-gray-500" />
-                          Date Range
-                        </label>
-                        <DateRangePicker
-                          from={
-                            searchParams.get("from")
-                              ? new Date(searchParams.get("from")!)
-                              : undefined
-                          }
-                          to={
-                            searchParams.get("to")
-                              ? new Date(searchParams.get("to")!)
-                              : undefined
-                          }
-                          onFromChange={(date) =>
-                            updateSearchParam("from", date?.toISOString() || "")
-                          }
-                          onToChange={(date) =>
-                            updateSearchParam("to", date?.toISOString() || "")
-                          }
-                          className="shadow-sm w-full"
-                        />
-                      </div>
-                    </div>
-                  </Disclosure.Panel>
-                </Transition>
-              </>
-            )}
-          </Disclosure>
-        </Card>
+        <AdvancedFilters
+          filters={[
+            "search",
+            "customer",
+            "company",
+            "status",
+            "currency",
+            "amountRange",
+            "dateRange",
+          ]}
+        />
 
         <Card className="bg-white/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200/50 overflow-hidden">
           <div className="overflow-x-auto">
@@ -450,7 +230,7 @@ export function InvoiceList() {
                   <TableHead className="w-fit py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Issuer
                   </TableHead>
-                  <TableHead className="py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  <TableHead className="py-4 min-w-[250px] text-xs font-semibold text-gray-600 uppercase tracking-wider">
                     Invoice Number
                   </TableHead>
                   <TableHead className="py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -502,24 +282,11 @@ export function InvoiceList() {
                   </TableRow>
                 ) : (
                   invoices?.map((invoice, index) => {
-                    const customer = customers?.find(
-                      (c) => c.id === invoice.customerId
-                    );
-                    const company = companies?.find(
-                      (c) => c.id === invoice.companyId
-                    );
-                    const customerInitial = customer?.contactFirstName
-                      ? customer.contactFirstName.charAt(0).toUpperCase()
-                      : customer?.companyName
-                      ? customer.companyName.charAt(0).toUpperCase()
-                      : "?";
-
+                    const company = invoice?.expand?.companyId;
+                    const customer = invoice?.expand?.customerId;
                     const customerName =
-                      customer?.contactLastName ||
-                      customer?.companyName ||
-                      "Unknown";
-                    const customerEmail = customer?.email || "No email";
-
+                      customer?.contactFirstName || customer?.companyName;
+                    const customerEmail = customer?.email;
                     return (
                       <TableRow
                         key={invoice.id}
@@ -539,27 +306,22 @@ export function InvoiceList() {
                               {company?.companyNameEN || "Unknown"}
                             </span>
                             <span className="truncate text-xs text-gray-500 mt-0.5">
-                              VAT ID: {company?.vatNumber || "N/A"}
+                              {company?.tradeLicenseNumber || "N/A"}
                             </span>
                           </Link>
                         </TableCell>
                         <TableCell>
-                          <Link
-                            to={`/receivables/${invoice.id}`}
-                            className="text-gray-900 font-medium hover:text-blue-600 transition-colors"
+                          <Badge
+                            variant="secondary"
+                            className="text-xs min-w-[150px] font-mono py-1"
                           >
-                            <Badge
-                              variant="secondary"
-                              className="text-xs font-mono py-1"
-                            >
-                              #{invoice.number}
-                            </Badge>
-                          </Link>
+                            #{invoice.number}
+                          </Badge>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4 text-gray-400" />
-                            <span className="text-sm text-gray-600">
+                            <span className="text-xs text-gray-600">
                               {new Date(invoice.date).toLocaleDateString()}
                             </span>
                           </div>
@@ -574,49 +336,10 @@ export function InvoiceList() {
                           >
                             <span
                               className={cn(
-                                "inline-flex w-24 items-center gap-2 px-2 py-1",
-                                "text-xs font-medium",
-                                "rounded border",
-                                {
-                                  "bg-rose-50 text-rose-700 border-rose-200":
-                                    isAfter(
-                                      new Date(),
-                                      new Date(invoice.dueDate)
-                                    ),
-                                  "bg-amber-50 text-amber-700 border-amber-200":
-                                    !isAfter(
-                                      new Date(),
-                                      new Date(invoice.dueDate)
-                                    ) &&
-                                    isAfter(
-                                      addDays(new Date(), 7),
-                                      new Date(invoice.dueDate)
-                                    ),
-                                  "bg-emerald-50 text-emerald-700 border-emerald-200":
-                                    !isAfter(
-                                      addDays(new Date(), 7),
-                                      new Date(invoice.dueDate)
-                                    ),
-                                }
+                                "inline-flex w-24 items-center gap-2 px-2 py-0",
+                                "text-xs font-medium"
                               )}
                             >
-                              {isAfter(
-                                new Date(),
-                                new Date(invoice.dueDate)
-                              ) ? (
-                                <AlertTriangle className="h-3.5 w-3.5 text-rose-600" />
-                              ) : !isAfter(
-                                  new Date(),
-                                  new Date(invoice.dueDate)
-                                ) &&
-                                isAfter(
-                                  addDays(new Date(), 7),
-                                  new Date(invoice.dueDate)
-                                ) ? (
-                                <Clock className="h-3.5 w-3.5 text-amber-600" />
-                              ) : (
-                                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
-                              )}
                               {new Date(invoice.dueDate).toLocaleDateString()}
                             </span>
                           </div>
@@ -625,7 +348,7 @@ export function InvoiceList() {
                           <Badge
                             variant="outline"
                             className={cn(
-                              "capitalize text-xs font-medium px-2.5 py-1 border-0",
+                              "capitalize text-xs font-medium px-2 py-0 border-0",
                               invoice.status === "paid"
                                 ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20"
                                 : invoice.status === "overdue"
@@ -640,78 +363,56 @@ export function InvoiceList() {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex flex-col items-end">
-                            <span className="text-sm font-medium text-gray-900">
+                            <span className="text-xs font-medium text-gray-900">
                               {formatCurrency(invoice.total)}
                             </span>
-                            <span className="text-xs text-gray-500">
-                              {invoice.currency}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex flex-col items-end">
+                            <span className="text-xs font-medium text-gray-900">
+                              {formatCurrency(invoice.vat)}
                             </span>
                           </div>
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex flex-col items-end">
-                            <span className="text-sm font-medium text-gray-900">
-                              {formatCurrency(invoice.vatAmount)}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              {(invoice.vatRate * 100).toFixed(0)}%
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex flex-col items-end">
-                            <span className="text-sm font-medium text-gray-900">
-                              {formatCurrency(invoice.paid || 0)}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              {invoice.paid ? ((invoice.paid / invoice.total) * 100).toFixed(0) + "%" : "0%"}
+                            <span className="text-xs font-medium text-gray-900">
+                              {formatCurrency(invoice.total || 0)}
                             </span>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded-full flex items-center justify-center ring-1 transition-colors bg-emerald-50 text-emerald-600 ring-emerald-600/20">
-                              <span className="text-xs font-medium">
-                                {customerInitial}
-                              </span>
+                          {customer ? (
+                            <div className="flex items-center gap-3">
+                              <Link
+                                to={`/customers/${customer?.id}/edit`}
+                                className="flex flex-col max-w-[200px] group/link"
+                              >
+                                <span className="truncate text-gray-900 font-medium group-hover/link:text-blue-600 transition-colors">
+                                  {customerName}
+                                </span>
+                                <span className="truncate text-xs text-gray-500 mt-0.5">
+                                  {customerEmail}
+                                </span>
+                              </Link>
                             </div>
-                            <Link
-                              to={`/customers/${customer?.id}/edit`}
-                              className="flex flex-col max-w-[200px] group/link"
-                            >
-                              <span className="truncate text-gray-900 font-medium group-hover/link:text-blue-600 transition-colors">
-                                {customerName}
-                              </span>
-                              <span className="truncate text-xs text-gray-500 mt-0.5">
-                                {customerEmail}
-                              </span>
-                            </Link>
-                          </div>
+                          ) : (
+                            "-"
+                          )}
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center justify-end gap-1">
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="h-8 w-8"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                rest.duplicateInvoice(invoice.id!);
-                              }}
-                            >
-                              <DocumentIcon className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              className="h-8 w-8 text-rose-500"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDelete(invoice.id!);
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                          <div
+                            onClick={(e) => {
+                              e.stopPropagation();
+                            }}
+                          >
+                            <ActionDropdown
+                              onDuplicate={() =>
+                                rest.duplicateInvoice(invoice.id!)
+                              }
+                              onDelete={() => handleDelete(invoice.id!)}
+                            />
                           </div>
                         </TableCell>
                       </TableRow>

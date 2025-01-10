@@ -1,3 +1,7 @@
+import { Category } from "./category";
+import { Company } from "./company";
+import { Customer } from "./customer";
+
 export interface InvoiceItem {
   itemNo: number;
   description: string;
@@ -27,7 +31,8 @@ export interface Invoice {
   customerId: string;
   items: InvoiceItem[];
   subtotal: number;
-  vatAmount: number;
+  vat: number;
+
   total: number;
   purchaseOrderNumber?: string;
   referenceNumber?: string;
@@ -37,6 +42,11 @@ export interface Invoice {
   status?: "draft" | "sent" | "paid" | "overdue" | "cancelled";
   created?: string;
   updated?: string;
+  expand?: {
+    categoryId: Category;
+    customerId: Customer;
+    companyId: Company;
+  };
 }
 
 export interface UseInvoicesOptions {
@@ -45,6 +55,8 @@ export interface UseInvoicesOptions {
   sort?: string;
   type?: "receivable" | "payable";
   filter?: string;
+  from?: string;
+  to?: string;
   search?: string;
   customerId?: string;
   companyId?: string;

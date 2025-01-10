@@ -37,7 +37,7 @@ export function Dialog({ isOpen, onClose, title, children }: DialogProps) {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <HeadlessDialog.Panel className="w-full max-w-5xl transform rounded bg-white shadow-xl">
+              <HeadlessDialog.Panel className="w-full max-w-5xl transform  bg-white shadow-xl">
                 <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
                   <HeadlessDialog.Title
                     as="h3"

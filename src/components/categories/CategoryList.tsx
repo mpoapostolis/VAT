@@ -14,6 +14,8 @@ import { Trash2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCategories } from "@/lib/hooks/useCategories";
 import { Badge } from "../ui/badge";
+import { pb } from "@/lib/pocketbase";
+import { AdvancedFilters } from "../advanced-filters";
 
 export function CategoryList() {
   const { categories: data, isLoading, ...rest } = useCategories();
@@ -51,7 +53,7 @@ export function CategoryList() {
             "bg-blue-600 hover:bg-blue-700",
             "shadow-sm",
             "transition-all duration-200",
-            "rounded",
+            "",
             "focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
           )}
         >
@@ -61,7 +63,7 @@ export function CategoryList() {
       </div>
 
       {/* Desktop View */}
-      <div className="hidden md:block overflow-hidden bg-white rounded border border-gray-200 shadow-sm">
+      <div className="hidden md:block overflow-hidden bg-white  border border-gray-200 shadow-sm">
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-50/50">
@@ -126,8 +128,8 @@ export function CategoryList() {
                   <TableCell className="py-3">
                     <div className="flex items-center gap-3">
                       <div className="relative">
-                        <div className="absolute inset-0 bg-blue-600/5 blur-sm rounded"></div>
-                        <div className="relative p-2 rounded bg-gradient-to-br from-gray-50 to-white shadow-sm">
+                        <div className="absolute inset-0 bg-blue-600/5 blur-sm "></div>
+                        <div className="relative p-2  bg-gradient-to-br from-gray-50 to-white shadow-sm">
                           <FolderOpen className="w-4 h-4 text-blue-600" />
                         </div>
                       </div>
@@ -162,12 +164,16 @@ export function CategoryList() {
                     <div className="flex items-center gap-2">
                       <button
                         aria-label={`Delete ${category.name}`}
+                        onClick={async () => {
+                          await pb.collection("categories").delete(category.id);
+                          rest.mutate();
+                        }}
                         className={cn(
                           // Layout
                           "p-2",
                           "relative",
                           // Visual
-                          "rounded",
+                          "",
                           // Typography
                           "text-gray-500",
                           // States
@@ -200,14 +206,14 @@ export function CategoryList() {
       {/* Mobile View */}
       <div className="md:hidden space-y-4">
         {isLoading ? (
-          <div className="bg-white border border-gray-200 rounded p-4">
+          <div className="bg-white border border-gray-200  p-4">
             <div className="flex items-center justify-center text-xs text-gray-500">
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               Loading categories...
             </div>
           </div>
         ) : data?.length === 0 ? (
-          <div className="bg-white border border-gray-200 rounded p-4">
+          <div className="bg-white border border-gray-200  p-4">
             <div className="text-xs text-gray-500 text-center">
               No categories found
             </div>
@@ -216,10 +222,10 @@ export function CategoryList() {
           data?.map((category) => (
             <div
               key={category.id}
-              className="bg-white border border-gray-200 rounded p-4 space-y-4"
+              className="bg-white border border-gray-200  p-4 space-y-4"
             >
               <div className="flex items-start gap-3">
-                <div className="p-2 rounded bg-gray-50/50 flex-shrink-0">
+                <div className="p-2  bg-gray-50/50 flex-shrink-0">
                   <FolderOpen className="w-5 h-5 text-blue-600" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -249,12 +255,16 @@ export function CategoryList() {
               <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-200">
                 <button
                   aria-label={`Delete ${category.name}`}
+                  onClick={async () => {
+                    await pb.collection("categories").delete(category.id);
+                    rest.mutate();
+                  }}
                   className={cn(
                     // Layout
                     "p-2",
                     "relative",
                     // Visual
-                    "rounded",
+                    "",
                     // Typography
                     "text-gray-500",
                     // States
@@ -270,7 +280,7 @@ export function CategoryList() {
             </div>
           ))
         )}
-        <div className="bg-white border border-gray-200 rounded overflow-hidden">
+        <div className="bg-white border border-gray-200  overflow-hidden">
           <TablePagination
             pageIndex={Number(tableParams.page) - 1}
             pageSize={tableParams.perPage}

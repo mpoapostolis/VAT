@@ -100,12 +100,12 @@ export function InvoiceView() {
   return (
     <div className="mx-auto  space-y-6">
       {/* Main Content */}
-      <div className="bg-white rounded border border-black/10 shadow-sm overflow-hidden">
+      <div className="bg-white  border border-black/10 shadow-sm overflow-hidden">
         {/* Header */}
         <div className="p-4 md:p-8 space-y-6 md:space-y-8">
           <div className="flex border-b flex-wrap  border-gray-200 pb-3 items-center   gap-4">
             <div className="flex mr-auto  items-center space-x-3">
-              <div className="p-2 bg-blue-50 rounded">
+              <div className="p-2 bg-blue-50 ">
                 <FileText className="h-5 w-5 text-blue-500" />
               </div>
               <div>
@@ -132,7 +132,7 @@ export function InvoiceView() {
                     variant="secondary"
                     className={cn(
                       "text-xs px-3 h-5",
-                      invoice.status === "paid" || invoice.status === "issued"
+                      invoice.status === "paid"
                         ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                         : invoice.status === "overdue"
                         ? "bg-rose-50 text-rose-700 border-rose-200"
@@ -147,6 +147,22 @@ export function InvoiceView() {
                 </p>
               </div>
             </div>
+            {invoice.status === "issued" && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  await pb.collection("invoices").update(id!, {
+                    status: "paid",
+                  });
+                  mutate();
+                }}
+                className="flex h-7 items-center text-xs gap-2"
+              >
+                <DollarSign className="h-3 w-3" />
+                Pay
+              </Button>
+            )}
             {invoice.status === "draft" && (
               <Button
                 variant="outline"
@@ -164,15 +180,17 @@ export function InvoiceView() {
               </Button>
             )}
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate(`/receivables/${id}/edit`)}
-              className="flex   h-7 items-center text-xs gap-2"
-            >
-              <Edit2 className="h-3 w-3" />
-              Edit
-            </Button>
+            {invoice.status === "draft" && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate(`/receivables/${id}/edit`)}
+                className="flex   h-7 items-center text-xs gap-2"
+              >
+                <Edit2 className="h-3 w-3" />
+                Edit
+              </Button>
+            )}
             <Button
               variant="outline"
               size="sm"
@@ -192,7 +210,7 @@ export function InvoiceView() {
           {/* Invoice Details Grid */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
             <div className="flex items-start gap-3">
-              <div className="p-2 bg-blue-50 rounded">
+              <div className="p-2 bg-blue-50 ">
                 <Calendar className="h-4 w-4 text-blue-500" />
               </div>
               <div>
@@ -203,7 +221,7 @@ export function InvoiceView() {
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="p-2 bg-blue-50 rounded">
+              <div className="p-2 bg-blue-50 ">
                 <Calendar className="h-4 w-4 text-blue-500" />
               </div>
               <div>
@@ -214,7 +232,7 @@ export function InvoiceView() {
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="p-2 bg-blue-50 rounded">
+              <div className="p-2 bg-blue-50 ">
                 <CreditCard className="h-4 w-4 text-blue-500" />
               </div>
               <div>
@@ -227,7 +245,7 @@ export function InvoiceView() {
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="p-2 bg-blue-50 rounded">
+              <div className="p-2 bg-blue-50 ">
                 <FileText className="h-4 w-4 text-blue-500" />
               </div>
               <div>
@@ -245,7 +263,7 @@ export function InvoiceView() {
             <Card className="bg-gray-50/50">
               <div className="p-6">
                 <div className="flex items-start gap-3 mb-6">
-                  <div className="p-2 bg-blue-50 rounded">
+                  <div className="p-2 bg-blue-50 ">
                     <User className="h-5 w-5 text-blue-500" />
                   </div>
                   <div>
@@ -315,7 +333,7 @@ export function InvoiceView() {
             <Card className="bg-gray-50/50">
               <div className="p-6">
                 <div className="flex items-start gap-3 mb-6">
-                  <div className="p-2 bg-blue-50 rounded">
+                  <div className="p-2 bg-blue-50 ">
                     <Building2 className="h-5 w-5 text-blue-500" />
                   </div>
                   <div>
@@ -383,7 +401,7 @@ export function InvoiceView() {
           </div>
 
           {/* Invoice Items */}
-          <div className="border border-gray-200 rounded overflow-hidden">
+          <div className="border border-gray-200  overflow-hidden">
             <table className="min-w-full divide-y divide-gray-200">
               <thead>
                 <tr className="bg-gray-50">

@@ -76,7 +76,7 @@ export function DataTable<T>({
     <div className="py-12">
       {!data.length && !isLoading ? (
         <div className="flex flex-col items-center justify-center">
-          <div className="w-16 h-16 mb-4 rounded-full bg-[#F8FAFC] flex items-center justify-center">
+          <div className="w-16 h-16 mb-4 -full bg-[#F8FAFC] flex items-center justify-center">
             <FileX className="w-8 h-8 text-[#94A3B8]" />
           </div>
           <h3 className="text-xs font-medium text-[#0F172A] mb-1">

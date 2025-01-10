@@ -22,7 +22,7 @@ export function PageHeader({
     <motion.div
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20 rounded overflow-hidden"
+      className="bg-white border border-gray-200/60 shadow-lg shadow-gray-200/20  overflow-hidden"
     >
       <div
         className={`h-2 ${
@@ -41,7 +41,7 @@ export function PageHeader({
               <Button
                 variant="ghost"
                 onClick={onBack}
-                className="rounded-full w-10 h-10 p-0 hover:bg-gray-100"
+                className="-full w-10 h-10 p-0 hover:bg-gray-100"
               >
                 <ArrowLeft className="h-5 w-5 text-gray-600" />
               </Button>

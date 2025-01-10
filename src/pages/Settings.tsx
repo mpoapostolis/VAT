@@ -132,7 +132,7 @@ export function Settings() {
                     name="emailNotifications"
                     checked={settings.notifications.emailNotifications}
                     onChange={handleNotificationChange}
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600"
+                    className="h-4 w-4  border-gray-300 text-blue-600"
                   />
                 </div>
 
@@ -153,7 +153,7 @@ export function Settings() {
                     name="vatReturnReminders"
                     checked={settings.notifications.vatReturnReminders}
                     onChange={handleNotificationChange}
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600"
+                    className="h-4 w-4  border-gray-300 text-blue-600"
                   />
                 </div>
 
@@ -174,7 +174,7 @@ export function Settings() {
                     name="dueDateReminders"
                     checked={settings.notifications.dueDateReminders}
                     onChange={handleNotificationChange}
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600"
+                    className="h-4 w-4  border-gray-300 text-blue-600"
                   />
                 </div>
               </div>

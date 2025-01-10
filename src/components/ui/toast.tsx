@@ -29,7 +29,7 @@ export function Toast({ id, message, type, onRemove }: ToastProps) {
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
       className={cn(
-        "flex items-center justify-between w-full max-w-sm px-4 py-3 rounded shadow-lg",
+        "flex items-center justify-between w-full max-w-sm px-4 py-3  shadow-lg",
         {
           "bg-green-50 text-green-800 border border-green-200":
             type === "success",

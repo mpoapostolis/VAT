@@ -40,6 +40,7 @@ import { useCustomers } from "@/lib/hooks/useCustomers";
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { pb } from "@/lib/pocketbase";
+import { useCategories } from "@/lib/hooks/useCategories";
 
 const invoiceFormSchema = z.object({
   type: z.enum(["receivable", "payable"], {
@@ -54,6 +55,7 @@ const invoiceFormSchema = z.object({
   currency: z.string().min(1, "Currency is required"),
   exchangeRate: z.number().optional(),
   paymentTerms: z.string().min(1, "Payment terms are required"),
+  categoryId: z.string().min(1, "Category is required"),
   items: z
     .array(
       z.object({
@@ -97,14 +99,6 @@ const invoiceFormSchema = z.object({
 });
 
 type InvoiceFormData = z.infer<typeof invoiceFormSchema>;
-
-interface InvoiceFormProps {
-  onSubmit: (data: InvoiceFormData) => Promise<void>;
-  isSubmitting: boolean;
-  onCancel: () => void;
-  defaultValues?: Partial<InvoiceFormData>;
-  mode?: "view" | "edit" | "create";
-}
 
 const defaultItem = {
   itemNo: 1,
@@ -175,6 +169,9 @@ export function InvoiceForm() {
     perPage: 500,
   });
   const { customers, isLoading: isLoadingCustomers } = useCustomers({
+    perPage: 500,
+  });
+  const { categories } = useCategories({
     perPage: 500,
   });
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
@@ -254,13 +251,15 @@ export function InvoiceForm() {
       if (mode === "edit" && id) {
         await pb.collection("invoices").update(id, calculatedData);
       } else {
-        await pb
-          .collection("invoices")
-          .create({ ...calculatedData, status: "draft" });
+        await pb.collection("invoices").create({
+          ...calculatedData,
+          userId: pb.authStore.model?.id,
+          status: "draft",
+        });
       }
       navigate("/receivables");
     } catch (error) {
-      console.error("Error saving invoice:", error);
+      alert(error);
     } finally {
       setIsSubmittingForm(false);
     }
@@ -287,12 +286,12 @@ export function InvoiceForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-6">
-      <div className="bg-white rounded border border-black/10 shadow-sm overflow-hidden">
+      <div className="bg-white  border border-black/10 shadow-sm overflow-hidden">
         {/* Header */}
         <div className="p-4 md:p-8 space-y-6 md:space-y-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-blue-50 rounded">
+              <div className="p-2 bg-blue-50 ">
                 <FileText className="h-5 w-5 text-blue-500" />
               </div>
               <div>
@@ -412,6 +411,28 @@ export function InvoiceForm() {
                 <FormMessage>{errors.invoiceType.message}</FormMessage>
               )}
             </FormItem>
+
+            <FormItem>
+              <FormLabel className="text-gray-700 font-medium">
+                Category
+                <span className="text-red-500 ml-1">*</span>
+              </FormLabel>
+              <Select
+                options={
+                  categories?.map((category) => ({
+                    value: category.id ?? "",
+                    label: category.name,
+                  })) ?? []
+                }
+                value={watch("categoryId")}
+                onChange={(value) => setValue("categoryId", value)}
+                error={!!errors.categoryId}
+                className="w-full"
+              />
+              {errors.categoryId && (
+                <FormMessage>{errors.categoryId.message}</FormMessage>
+              )}
+            </FormItem>
           </div>
         </div>
 
@@ -422,7 +443,7 @@ export function InvoiceForm() {
               {/* Company Information */}
               <div className="space-y-6">
                 <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-blue-50 rounded">
+                  <div className="p-2 bg-blue-50 ">
                     <Building className="h-5 w-5 text-blue-500" />
                   </div>
                   <h3 className="text-xs font-medium text-gray-900">
@@ -455,7 +476,7 @@ export function InvoiceForm() {
                 </FormItem>
 
                 {selectedCompany && (
-                  <div className="rounded border border-gray-200 bg-white p-6 space-y-5 hover:border-blue-200 transition-all duration-200 shadow-sm">
+                  <div className=" border border-gray-200 bg-white p-6 space-y-5 hover:border-blue-200 transition-all duration-200 shadow-sm">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-xs font-medium text-gray-500">
@@ -467,7 +488,7 @@ export function InvoiceForm() {
                             "Unnamed Company"}
                         </p>
                       </div>
-                      <div className="bg-blue-50  rounded-full">
+                      <div className="bg-blue-50  -full">
                         {pb.getFileUrl(
                           selectedCompany,
                           `${selectedCompany?.logo}`
@@ -478,7 +499,7 @@ export function InvoiceForm() {
                               `${selectedCompany?.logo}`
                             )}
                             alt="Company Logo"
-                            className="w-8 h-8 rounded-full"
+                            className="w-8 h-8 -full"
                           />
                         ) : (
                           <Building className="w-5 h-5 text-blue-500" />
@@ -492,7 +513,7 @@ export function InvoiceForm() {
                           TRN
                         </p>
                         <div className="flex items-center space-x-2">
-                          <p className="text-xs font-semibold font-mono text-gray-900 bg-gray-50 px-3 py-1.5 rounded border border-gray-200">
+                          <p className="text-xs font-semibold font-mono text-gray-900 bg-gray-50 px-3 py-1.5  border border-gray-200">
                             {selectedCompany.tradeLicenseNumber}
                           </p>
                         </div>
@@ -512,7 +533,7 @@ export function InvoiceForm() {
                       <p className="text-[11px] font-medium uppercase tracking-wider text-gray-500">
                         Business Address
                       </p>
-                      <div className="bg-gray-50 p-3 rounded border border-gray-200">
+                      <div className="bg-gray-50 p-3  border border-gray-200">
                         <p className="text-xs text-gray-900">
                           {selectedCompany.billingAddress?.street}
                           {selectedCompany.billingAddress?.city &&
@@ -529,7 +550,7 @@ export function InvoiceForm() {
                       <p className="text-[11px] font-medium uppercase tracking-wider text-gray-500 mb-2">
                         Contact Information
                       </p>
-                      <div className="bg-gray-50 rounded border border-gray-200 divide-y divide-gray-200">
+                      <div className="bg-gray-50  border border-gray-200 divide-y divide-gray-200">
                         <div className="p-3">
                           <div className="flex items-center justify-between">
                             <p className="text-xs font-medium text-gray-900">
@@ -558,7 +579,7 @@ export function InvoiceForm() {
               {/* Customer Information */}
               <div className="space-y-6">
                 <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-blue-50 rounded">
+                  <div className="p-2 bg-blue-50 ">
                     <Users className="h-5 w-5 text-blue-500" />
                   </div>
                   <h3 className="text-xs font-medium text-gray-900">
@@ -592,7 +613,7 @@ export function InvoiceForm() {
                 </FormItem>
 
                 {selectedCustomer && (
-                  <div className="rounded border border-gray-200 bg-white p-6 space-y-5 hover:border-blue-200 transition-all duration-200 shadow-sm">
+                  <div className=" border border-gray-200 bg-white p-6 space-y-5 hover:border-blue-200 transition-all duration-200 shadow-sm">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-xs font-medium text-gray-500">
@@ -606,7 +627,7 @@ export function InvoiceForm() {
                               : "Unnamed Customer")}
                         </p>
                       </div>
-                      <div className="bg-blue-50 p-2 rounded-full">
+                      <div className="bg-blue-50 p-2 -full">
                         <Users className="w-5 h-5 text-blue-500" />
                       </div>
                     </div>
@@ -617,7 +638,7 @@ export function InvoiceForm() {
                           TRN
                         </p>
                         <div className="flex items-center space-x-2">
-                          <p className="text-xs font-semibold font-mono text-gray-900 bg-gray-50 px-3 py-1.5 rounded border border-gray-200">
+                          <p className="text-xs font-semibold font-mono text-gray-900 bg-gray-50 px-3 py-1.5  border border-gray-200">
                             {selectedCustomer?.taxRegistrationNumber ||
                               "Not registered"}
                           </p>
@@ -638,7 +659,7 @@ export function InvoiceForm() {
                       <p className="text-[11px] font-medium uppercase tracking-wider text-gray-500">
                         Billing Address
                       </p>
-                      <div className="bg-gray-50 p-3 rounded border border-gray-200">
+                      <div className="bg-gray-50 p-3  border border-gray-200">
                         <p className="text-xs text-gray-900">
                           {selectedCustomer.billingAddress ||
                             "Address not provided"}
@@ -650,7 +671,7 @@ export function InvoiceForm() {
                       <p className="text-[11px] font-medium uppercase tracking-wider text-gray-500 mb-2">
                         Contact Details
                       </p>
-                      <div className="bg-gray-50 rounded border border-gray-200 divide-y divide-gray-200">
+                      <div className="bg-gray-50  border border-gray-200 divide-y divide-gray-200">
                         <div className="p-3 space-y-2">
                           {selectedCustomer.phoneNumber && (
                             <div className="flex items-center space-x-2">
@@ -684,7 +705,7 @@ export function InvoiceForm() {
           <div className="p-4 md:p-8 space-y-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-blue-50 rounded">
+                <div className="p-2 bg-blue-50 ">
                   <ListPlus className="h-5 w-5 text-blue-500" />
                 </div>
                 <h3 className="text-xs font-medium text-gray-900">
@@ -704,9 +725,9 @@ export function InvoiceForm() {
             </div>
 
             {fields.length === 0 ? (
-              <div className="text-center py-16 border-2 border-dashed border-gray-200 rounded bg-gray-50">
+              <div className="text-center py-16 border-2 border-dashed border-gray-200  bg-gray-50">
                 <div className="space-y-4">
-                  <div className="bg-white p-4 rounded-full w-fit mx-auto shadow-sm">
+                  <div className="bg-white p-4 -full w-fit mx-auto shadow-sm">
                     <ShoppingCart className="w-8 h-8 text-gray-400" />
                   </div>
                   <div>
@@ -723,7 +744,7 @@ export function InvoiceForm() {
                 </div>
               </div>
             ) : (
-              <div className="border border-gray-200 rounded overflow-hidden shadow-sm">
+              <div className="border border-gray-200  overflow-hidden shadow-sm">
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-gray-50">
@@ -930,7 +951,7 @@ export function InvoiceForm() {
             {/* Totals */}
             {fields.length > 0 && (
               <div className="flex justify-end mt-8">
-                <div className="w-96 space-y-4 bg-gray-50 p-6 rounded border border-gray-200">
+                <div className="w-96 space-y-4 bg-gray-50 p-6  border border-gray-200">
                   <div className="flex justify-between text-xs">
                     <span className="text-gray-600">Subtotal:</span>
                     <span className="font-medium text-gray-900">
@@ -960,7 +981,7 @@ export function InvoiceForm() {
         <div className="border-t border-gray-200">
           <div className="p-4 md:p-8 space-y-6">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-blue-50 rounded">
+              <div className="p-2 bg-blue-50 ">
                 <Info className="h-5 w-5 text-blue-500" />
               </div>
               <h3 className="text-xs font-medium text-gray-900">

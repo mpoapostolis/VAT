@@ -23,7 +23,7 @@ import { useCustomers } from "@/lib/hooks/useCustomers";
 import { useNavigate, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { pb } from "@/lib/pocketbase";
-import { useInvoice } from "@/lib/hooks/useInvoice";
+import { useCategories } from "@/lib/hooks/useCategories";
 
 const invoiceFormSchema = z.object({
   type: z.literal("payable"),
@@ -34,6 +34,7 @@ const invoiceFormSchema = z.object({
   currency: z.string().min(1, "Currency is required"),
   exchangeRate: z.number().optional(),
   paymentTerms: z.string().min(1, "Payment terms are required"),
+  categoryId: z.string().min(1, "Category is required"),
   subtotal: z.number().min(0),
   vatAmount: z.number().min(0),
   total: z.number().min(0),
@@ -51,6 +52,9 @@ export function InvoiceForm() {
   const { customers, isLoading: isLoadingCustomers } = useCustomers({
     perPage: 500,
     filter: 'relationship = "Vendor"',
+  });
+  const { categories } = useCategories({
+    perPage: 500,
   });
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
   const mode = id ? "edit" : "create";
@@ -105,7 +109,9 @@ export function InvoiceForm() {
       if (mode === "edit" && id) {
         await pb.collection("invoices").update(id, data);
       } else {
-        await pb.collection("invoices").create({ ...data, status: "draft" });
+        await pb
+          .collection("invoices")
+          .create({ ...data, userId: pb.authStore.model?.id, status: "draft" });
       }
       navigate("/payables");
     } catch (error) {
@@ -130,12 +136,12 @@ export function InvoiceForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-6">
-      <div className="bg-white rounded border border-black/10 shadow-sm overflow-hidden">
+      <div className="bg-white  border border-black/10 shadow-sm overflow-hidden">
         {/* Header */}
         <div className="p-4 md:p-8 space-y-6 md:space-y-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-blue-50 rounded">
+              <div className="p-2 bg-blue-50 ">
                 <FileText className="h-5 w-5 text-blue-500" />
               </div>
               <div>
@@ -223,6 +229,27 @@ export function InvoiceForm() {
                 <FormMessage>{errors.paymentTerms.message}</FormMessage>
               )}
             </FormItem>
+            <FormItem>
+              <FormLabel className="text-gray-700 font-medium">
+                Category
+                <span className="text-red-500 ml-1">*</span>
+              </FormLabel>
+              <Select
+                options={
+                  categories?.map((category) => ({
+                    value: category.id,
+                    label: category.name,
+                  })) || []
+                }
+                value={watch("categoryId")}
+                onChange={(value) => setValue("categoryId", value)}
+                error={!!errors.categoryId}
+                className="w-full"
+              />
+              {errors.categoryId && (
+                <FormMessage>{errors.categoryId.message}</FormMessage>
+              )}
+            </FormItem>
           </div>
         </div>
 
@@ -235,7 +262,7 @@ export function InvoiceForm() {
               {/* Vendor Information */}
               <div className="space-y-6">
                 <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-blue-50 rounded">
+                  <div className="p-2 bg-blue-50 ">
                     <Users className="h-5 w-5 text-blue-500" />
                   </div>
                   <h3 className="text-xs font-medium text-xs text-gray-900">
@@ -272,7 +299,7 @@ export function InvoiceForm() {
                       // Layout
                       "flex flex-col gap-4",
                       // Visual
-                      "rounded border border-gray-200/50 bg-gray-50",
+                      " border border-gray-200/50 bg-gray-50",
                       // Spacing
                       "p-4"
                     )}
@@ -288,7 +315,7 @@ export function InvoiceForm() {
                       </div>
                       {selectedSupplier.businessType && (
                         <div className="flex items-center gap-2 ml-6">
-                          <span className="h-1.5 w-1.5 rounded-full bg-gray-400" />
+                          <span className="h-1.5 w-1.5 -full bg-gray-400" />
                           <p className="text-xs text-gray-600">
                             {selectedSupplier.businessType}
                           </p>
@@ -306,7 +333,7 @@ export function InvoiceForm() {
                           </p>
                         </div>
                         <div className="flex items-center gap-2 mt-2 ml-6">
-                          <span className="h-1.5 w-1.5 rounded-full bg-gray-400" />
+                          <span className="h-1.5 w-1.5 -full bg-gray-400" />
                           <p className="text-xs">
                             TRN: {selectedSupplier.taxRegistrationNumber}
                           </p>
@@ -324,7 +351,7 @@ export function InvoiceForm() {
                       </div>
                       <div className="mt-2 space-y-2 ml-6">
                         <div className="flex items-center gap-2">
-                          <span className="h-1.5 w-1.5 rounded-full bg-gray-400" />
+                          <span className="h-1.5 w-1.5 -full bg-gray-400" />
                           <p className="text-xs">
                             {selectedSupplier.contactFirstName}{" "}
                             {selectedSupplier.contactLastName}
@@ -351,7 +378,7 @@ export function InvoiceForm() {
         <div className="border-t border-gray-200">
           <div className="p-4 md:p-8 space-y-6">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-blue-50 rounded">
+              <div className="p-2 bg-blue-50 ">
                 <Info className="h-5 w-5 text-blue-500" />
               </div>
               <h3 className="text-xs font-medium text-gray-900">

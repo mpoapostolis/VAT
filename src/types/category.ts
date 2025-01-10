@@ -6,5 +6,6 @@ export interface Category {
   isActive: boolean;
   created: string;
   updated: string;
+  userId?: string;
   type: "income" | "expense";
 }
